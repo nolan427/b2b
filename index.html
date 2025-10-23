@@ -16,7 +16,9 @@ const state = urlParams.get('state');
 const from = urlParams.get('from');
 
   // If from is missing or not "b2b", redirect to DocuSign
-  
+  if (from !== 'b2b') {
+    window.location.href = 'https://www.docusign.com/';
+  }
 
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
