@@ -1,17 +1,25 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "*.{css,js,png,jpg,jpeg,gif,svg,ico,pdf,txt,json,woff,woff2}", "use": "@vercel/static" }
-  ],
-  "routes": [
+  "trailingSlash": false,
+  "cleanUrls": true,
+
+  "headers": [
     {
-      "src": "^/(.*\\.(?:css|js|png|jpg|jpeg|gif|svg|ico|pdf|txt|json|woff2?))$",
-      "dest": "/$1"
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
     },
     {
-      "src": "^/(?!.*\\..*)(.*)$",
-      "dest": "/index.html"
+      "source": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico|webp|pdf|css|js)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     }
+  ],
+
+  "routes": [
+    { "src": "^/$", "dest": "/index.html" },
+    { "src": "^/bidpause$", "dest": "/bidpause.html" }
   ]
 }
