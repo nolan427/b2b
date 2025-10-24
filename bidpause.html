@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Quote Submissions — Temporarily Closed</title>
+  
+  <style>
+    :root{
+      --sp-primary:#0078d4;     /* SharePoint/Fluent blue */
+      --sp-primary-600:#106ebe;
+      --sp-accent:#50e6ff;      /* Accent teal */
+      --sp-bg:#f3f2f1;          /* Fluent background */
+      --sp-card:#ffffff;
+      --sp-text:#323130;
+      --sp-muted:#605e5c;
+      --radius:16px;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, system-ui, -apple-system, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--sp-text);
+      background:
+        radial-gradient(1100px 500px at 85% -10%, rgba(80,230,255,.15), transparent 60%),
+        radial-gradient(900px 400px at 10% -10%, rgba(0,120,212,.12), transparent 60%),
+        var(--sp-bg);
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;align-items:center;gap:.75rem;
+      padding:12px 20px;
+      background:linear-gradient(90deg,var(--sp-primary),var(--sp-primary-600));
+      color:#fff;
+      position:sticky;top:0;z-index:10;
+      box-shadow:0 2px 10px rgba(0,0,0,.15);
+    }
+    .logo{
+      width:36px;height:36px;border-radius:8px;
+      background: radial-gradient(70% 70% at 30% 30%, var(--sp-accent), var(--sp-primary));
+      display:grid;place-items:center;box-shadow:inset 0 0 0 2px rgba(255,255,255,.2);
+    }
+    .logo svg{width:22px;height:22px;fill:#fff;opacity:.95}
+    .product{font-weight:600;letter-spacing:.2px}
+
+    .wrap{max-width:980px;margin:40px auto;padding:0 20px}
+
+    .card{
+      background:var(--sp-card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.05);
+    }
+
+    .banner{
+      padding:22px 22px;
+      display:flex;align-items:center;gap:14px;
+      background:linear-gradient(90deg, rgba(0,120,212,.08), rgba(80,230,255,.12));
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    .banner .icon{width:28px;height:28px;color:var(--sp-primary)}
+    .banner h1{margin:0;font-size:1.25rem}
+    .banner p{margin:2px 0 0;color:var(--sp-muted)}
+
+    .content{padding:26px;display:grid;gap:18px}
+
+    .countdown{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+    }
+    .tile{
+      background:linear-gradient(180deg,#fff, #f9f9f9);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:14px;padding:16px;text-align:center;
+    }
+    .num{font-size:2.25rem;font-weight:800;line-height:1.1;color:var(--sp-primary)}
+    .lbl{font-size:.8rem;color:var(--sp-muted);text-transform:uppercase;letter-spacing:.08em}
+
+    .resume-line{
+      background:#f7fbff;border:1px dashed rgba(0,120,212,.35);
+      padding:14px;border-radius:12px;color:var(--sp-muted)
+    }
+
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+    .btn{appearance:none;border:0;cursor:pointer;
+      background:var(--sp-primary);color:#fff;padding:10px 14px;border-radius:10px;
+      font-weight:600;box-shadow:0 4px 14px rgba(0,120,212,.25);
+    }
+    .btn.secondary{background:#fff;color:var(--sp-primary);border:1px solid rgba(0,120,212,.35)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    .footnote{color:var(--sp-muted);font-size:.9rem}
+
+    .footer{
+      margin:30px auto 50px;max-width:980px;padding:0 20px;color:var(--sp-muted);
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap
+    }
+
+    /* Responsive */
+    @media (max-width:720px){
+      .countdown{grid-template-columns:repeat(2,1fr)}
+      .num{font-size:1.9rem}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="logo" aria-hidden="true">
+      <!-- Simple SharePoint‑style glyph -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2a5 5 0 0 0-5 5v1H5.5A3.5 3.5 0 0 0 2 11.5v1A3.5 3.5 0 0 0 5.5 16H7v1a5 5 0 0 0 5 5h7a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3h-7Z"/>
+      </svg>
+    </div>
+    <div class="product">Project Workspace</div>
+  </header>
+
+  <main class="wrap" role="main">
+    <section class="card" aria-labelledby="closed-title">
+      <div class="banner">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+        <div>
+          <h1 id="closed-title">Project Quote Submissions are temporarily closed</h1>
+          <p>We’re performing updates. Bidding will resume automatically when the countdown reaches zero.</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="countdown" aria-live="polite">
+          <div class="tile" aria-label="Days remaining"><div class="num" id="dd">3</div><div class="lbl">Days</div></div>
+          <div class="tile" aria-label="Hours remaining"><div class="num" id="hh">00</div><div class="lbl">Hours</div></div>
+          <div class="tile" aria-label="Minutes remaining"><div class="num" id="mm">00</div><div class="lbl">Minutes</div></div>
+          <div class="tile" aria-label="Seconds remaining"><div class="num" id="ss">00</div><div class="lbl">Seconds</div></div>
+        </div>
+
+        <div class="resume-line">
+          <strong>Estimated resume:</strong> <span id="resumeAt">—</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="refreshBtn" title="Refresh page" onclick="location.reload()">Refresh</button>
+          <a class="btn secondary" id="mailtoBtn" href="mailto:?subject=Quote%20Portal%20Status&body=The%20quote%20portal%20is%20temporarily%20closed.%20It%20will%20reopen%20when%20the%20countdown%20reaches%20zero." role="button">Notify a teammate</a>
+        </div>
+
+        <p class="footnote">If you reached this page in error, please contact your SharePoint administrator.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div>© <span id="year"></span> Project Workspace</div>
+    <div>Status: <span id="status">Temporarily Closed</span></div>
+  </footer>
+
+  <script>
+    (()=>{
+      const $ = id => document.getElementById(id);
+      const addDays = (d, days) => new Date(d.getTime() + days*24*60*60*1000);
+
+      // Helper: parse ?until= ISO or millis. If absent, use localStorage or now+3days
+      const params = new URLSearchParams(location.search);
+      const untilParam = params.get('until');
+
+      const storageKey = 'quotePortalReopenAt';
+      let reopenAt = null;
+
+      if (untilParam) {
+        const parsed = isNaN(untilParam) ? new Date(untilParam) : new Date(Number(untilParam));
+        if (!isNaN(parsed.valueOf())) reopenAt = parsed;
+      }
+
+      if (!reopenAt){
+        const saved = localStorage.getItem(storageKey);
+        if (saved){
+          const d = new Date(saved);
+          if (!isNaN(d.valueOf())) reopenAt = d;
+        }
+      }
+
+      if (!reopenAt){
+        reopenAt = addDays(new Date(), 3); // default: 3 days from first visit
+        localStorage.setItem(storageKey, reopenAt.toISOString());
+      }
+
+      // Populate footer year and resume date
+      $('year').textContent = new Date().getFullYear();
+      const fmt = new Intl.DateTimeFormat(undefined, { dateStyle:'full', timeStyle:'short' });
+      $('resumeAt').textContent = fmt.format(reopenAt);
+
+      function update(){
+        const now = new Date();
+        let diff = reopenAt.getTime() - now.getTime();
+        if (diff < 0) diff = 0;
+
+        const sec = Math.floor(diff/1000);
+        const d = Math.floor(sec/86400);
+        const h = Math.floor((sec%86400)/3600);
+        const m = Math.floor((sec%3600)/60);
+        const s = Math.floor(sec%60);
+
+        $('dd').textContent = d;
+        $('hh').textContent = String(h).padStart(2,'0');
+        $('mm').textContent = String(m).padStart(2,'0');
+        $('ss').textContent = String(s).padStart(2,'0');
+
+        if (sec === 0){
+          $('status').textContent = 'Open';
+          document.title = 'Project Quote Submissions — Open';
+          // Optional: enable a call-to-action or redirect
+          // location.assign('/sites/quotes/submit');
+        }
+      }
+
+      update();
+      setInterval(update, 1000);
+    })();
+  </script>
+</body>
+</html>
