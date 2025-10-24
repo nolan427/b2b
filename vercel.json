@@ -1,14 +1,11 @@
 {
-  "version": 2,
-  "trailingSlash": false,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
   "cleanUrls": true,
-
   "headers": [
     {
       "source": "/(.*)\\.html",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     },
     {
       "source": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico|webp|pdf|css|js)",
@@ -17,9 +14,8 @@
       ]
     }
   ],
-
-  "routes": [
-    { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/bidpause$", "dest": "/bidpause.html" }
+  "rewrites": [
+    { "source": "/bidpause", "destination": "/bidpause.html" },
+    { "source": "/", "destination": "/index.html" }
   ]
 }
