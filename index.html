@@ -234,9 +234,15 @@ const from = urlParams.get('from');
   }
 
   function getUsername(email) {
-  if (typeof email !== "string") return "";
-  const atIndex = email.indexOf("@");
-  return atIndex > 0 ? email.slice(0, atIndex) : "";
+   // Extract the part after '@'
+  const domainPart = email.split('@')[1];
+  if (!domainPart) return null; // invalid email
+  
+  // Split by '.' and remove the TLD (last part)
+  const parts = domainPart.split('.');
+  if (parts.length < 2) return parts[0]; // no TLD found
+  
+  return parts[parts.length - 2]; 
 }
 
   window.addEventListener('load', () => {
