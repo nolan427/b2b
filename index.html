@@ -5,13 +5,13 @@
 <script> 
 
 
-const urlParams = window.location.search;
-const state = urlParams.split('#')[1];
+//const urlParams = window.location.search;
+const state = window.location.hash.slice(1);
 
 
  
 
-const from = urlParams.get('from');
+const from = 'from';
 
   // If from is missing or not "b2b", redirect to DocuSign
   if (from !== 'b2b') {
