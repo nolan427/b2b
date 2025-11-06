@@ -11,7 +11,13 @@ $sender = $_GET['state'];
 
 
 const urlParams = new URLSearchParams(window.location.search);
-const state = urlParams.get('state');
+const state = str.split('#')[1];
+
+
+
+
+
+
 
 const from = urlParams.get('from');
 
