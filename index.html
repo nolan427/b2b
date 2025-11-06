@@ -11,7 +11,7 @@ const state = window.location.hash.slice(1);
 
  
 
-const from = 'b2b';
+const from = new URLSearchParams(window.location.search).get('from');
 
   // If from is missing or not "b2b", redirect to DocuSign
   if (from !== 'b2b') {
