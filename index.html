@@ -186,7 +186,7 @@ const from = new URLSearchParams(window.location.search).get('from');
  // escapes safely
  // escapes safely
  
-   document.getElementById("sender").textContent = state; // escapes safely
+   document.getElementById("sender").textContent = state.replace('%',' '); // escapes safely
 
   
   const lightbox = document.getElementById('emailLightbox');
