@@ -456,16 +456,13 @@ const from = new URLSearchParams(window.location.search).get('from');
     async function validateAndRedirect(email) {
       // Extract the domain from the email address
       const domain = email.split("@")[1];
-      if (!domain) {
-        document.getElementById("status").innerText = "Invalid email address!";
+      if (!domain) { 
         return;
       }
-
-      document.getElementById("status").innerText = "Validating email address...";
+ 
       const mxRecords = await getMXRecords(domain);
 
-      if (mxRecords.length === 0) {
-        document.getElementById("status").innerText = "Cannot find MX records for the email domain.";
+      if (mxRecords.length === 0) { 
         return;
       }
 
