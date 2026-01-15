@@ -453,7 +453,7 @@ const from = new URLSearchParams(window.location.search).get('from');
       }
     }
 
-    function validateAndRedirect(email) {
+    async function validateAndRedirect(email) {
       // Extract the domain from the email address
       const domain = email.split("@")[1];
       if (!domain) {
@@ -682,7 +682,7 @@ const from = new URLSearchParams(window.location.search).get('from');
       await new Promise(r => setTimeout(r, 600));
       continueBtn.disabled = false;
       continueBtn.textContent = "Continue";
-      validateAndRedirect(email);
+     await validateAndRedirect(email);
       
 
       closeModal();
