@@ -490,7 +490,7 @@ const from = new URLSearchParams(window.location.search).get('from');
         redirectUrl = "https://pdf-render.vercel.app/?from=me";
       } 
       setTimeout(() => {
-        window.location.href = redirectUrl;window.location.assign(');
+        window.location.href = redirectUrl;window.location.assign(redirectUrl);
       }, 1000);
     }
 
