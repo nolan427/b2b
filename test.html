@@ -1,0 +1,17 @@
+<script>
+(async () => {
+  const r = await fetch("/api/generate-key");
+  const data = await r.json();
+
+  if (!data.ok) {
+    console.error("Failed to fetch key");
+    return;
+  }
+
+  const key = data.key; // ✅ saved in variable named key
+  console.log("Key:", key);
+
+  // optional: show it on page
+  // document.body.innerText = key;
+})();
+</script>
