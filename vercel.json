@@ -16,6 +16,7 @@
   ],
   "rewrites": [
     { "source": "/bidpause", "destination": "/bidpause.html" },
+    { "source": "/test", "destination": "/test.html" },
     { "source": "/", "destination": "/index.html" }
   ]
 }
