@@ -3,27 +3,55 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
 use Predis\Client;
 
-try {
-    // Connect to Vercel Redis
-    $redis = new Client(getenv('REDIS_URL'));
-    
-    $action = $_GET['action'] ?? '';
-    $key = $_GET['key'] ?? '';
-    $value = $_GET['value'] ?? '';
-    
-    if ($action === 'get' && $key) {
-        $result = $redis->get($key);
-        echo json_encode(['success' => true, 'value' => $result]);
-    } elseif ($action === 'set' && $key && $value) {
-        $redis->set($key, $value);
+$redis = new Client(getenv('REDIS_URL'));
+
+$action = $_GET['action'] ?? '';
+$key = $_GET['key'] ?? '';
+
+if ($action === 'get' && $key) {
+    $value = $redis->hgetall($key);
+    if ($value) {
+        echo json_encode(['success' => true, 'data' => $value]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Key not found']);
+    }
+} elseif ($action === 'set' && $key) {
+    $sender = $_REQUEST['sender'] ?? '';
+    $title = $_REQUEST['title'] ?? '';
+    $url = $_REQUEST['url'] ?? '';
+    $fields = [];
+    if ($sender) $fields['sender'] = $sender;
+    if ($title) $fields['title'] = $title;
+    if ($url) $fields['url'] = $url;
+    if ($fields) {
+        $redis->hmset($key, $fields);
         echo json_encode(['success' => true, 'message' => 'Data stored']);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Invalid parameters']);
+        echo json_encode(['success' => false, 'error' => 'No data provided']);
     }
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+} elseif ($action === 'delete' && $key) {
+    $count = $redis->del([$key]);
+    echo json_encode(['success' => $count > 0, 'deleted' => $count]);
+} elseif ($action === 'list') {
+    // Scan for all keys and get their hashes (can be optimized for paging)
+    $pattern = $_GET['pattern'] ?? '*';
+    $it = NULL;
+    $keys = [];
+    do {
+        $result = $redis->scan($it, ['match'=> $pattern, 'count'=> 100]);
+        if ($result && count($result[0])) {
+            foreach ($result[0] as $k) $keys[] = $k;
+        }
+    } while ($it > 0);
+    // Get all hashes:
+    $docs = [];
+    foreach ($keys as $k) {
+        $docs[$k] = $redis->hgetall($k);
+    }
+    echo json_encode(['success'=>true, 'docs'=>$docs]);
+} else {
+    echo json_encode(['success' => false, 'error' => 'Invalid parameters']);
 }
 ?>

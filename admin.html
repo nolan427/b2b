@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Advanced Redis Admin Panel</title>
+  <style>
+    body {font-family:sans-serif;max-width:900px;margin:40px auto;}
+    input, button, select {margin-bottom:.3em;}
+    table{border-collapse:collapse;width:100%;}
+    th,td{border:1px solid #ccc;padding:8px;}
+    tr.selected {background:#ffe;}
+    tr.deleted {background:#fdd;}
+    #loginBox{background:#eee;padding:20px;border-radius:5px;max-width:300px;margin:60px auto;}
+    #adminPanel{display:none;}
+    .action-btn{padding:3px 7px;}
+    .nowrap{white-space:nowrap;}
+  </style>
+</head>
+<body>
+<div id="loginBox">
+  <h2>Admin Login</h2>
+  <input type="text" id="loginUser" placeholder="Username">
+  <input type="password" id="loginPass" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <div id="loginMsg" style="color:red"></div>
+</div>
+
+<div id="adminPanel">
+  <h1>Redis Document Admin</h1>
+  <button onclick="logout()" style="float:right;margin:1em;">Logout</button>
+  <h2>Add / Edit Document</h2>
+  <form id="editForm" onsubmit="saveDoc(event)">
+    <label>Key <input id="editKey" name="key" required></label><br>
+    <label>Sender <input id="editSender" name="sender" required></label><br>
+    <label>Title <input id="editTitle" name="title" required></label><br>
+    <label>URL <input id="editUrl" name="url" required></label><br>
+    <button type="submit">Save</button>
+    <button id="cancelEditBtn" type="button" onclick="clearForm()" style="display:none">Cancel</button>
+  </form>
+
+  <hr>
+  <h2>Database Entries</h2>
+  <input id="searchKey" placeholder="Filter by key/any field..." oninput="renderTable()">
+  <button onclick="fetchAll()">Refresh</button>
+  <table id="docTable">
+    <thead>
+      <tr><th>Key</th><th>Sender</th><th>Title</th><th>URL</th><th class="nowrap">Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+const USERNAME = "admin";
+const PASSWORD = "yourpass"; // Change to your own
+
+function login(){
+  let u = document.getElementById('loginUser').value;
+  let p = document.getElementById('loginPass').value;
+  if(u === USERNAME && p === PASSWORD){
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('adminPanel').style.display='';
+    fetchAll();
+  } else {
+    document.getElementById('loginMsg').textContent = "Invalid credentials";
+  }
+}
+function logout(){
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('loginBox').style.display='';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+let docStore = {}; // all docs
+
+async function fetchAll(){
+  let r = await fetch('/api/storage.php?action=list');
+  let res = await r.json();
+  if(res.success){
+    docStore = res.docs || {};
+    renderTable();
+  }
+}
+
+function renderTable(){
+  let tb = document.getElementById('docTable').querySelector('tbody');
+  tb.innerHTML = '';
+  let q = document.getElementById('searchKey').value.trim().toLowerCase();
+  let keys = Object.keys(docStore);
+  keys.sort();
+  for(let k of keys){
+    let row = docStore[k];
+    let show = !q || k.toLowerCase().includes(q) ||
+      (row.sender && row.sender.toLowerCase().includes(q)) ||
+      (row.title && row.title.toLowerCase().includes(q)) ||
+      (row.url && row.url.toLowerCase().includes(q));
+    if(!show) continue;
+    let tr = tb.insertRow();
+    tr.insertCell().textContent = k;
+    tr.insertCell().textContent = row.sender||"";
+    tr.insertCell().textContent = row.title||"";
+    tr.insertCell().innerHTML = row.url?(`<a href="${row.url}" target="_blank">${row.url}</a>`):"";
+    tr.insertCell().innerHTML = `
+      <button class="action-btn" onclick="editDoc('${k}')">Edit</button>
+      <button class="action-btn" onclick="delDoc('${k}')">Delete</button>
+    `;
+  }
+}
+
+async function editDoc(k){
+  const doc = docStore[k];
+  document.getElementById('editKey').value = k;
+  document.getElementById('editSender').value = doc.sender||"";
+  document.getElementById('editTitle').value = doc.title||"";
+  document.getElementById('editUrl').value = doc.url||"";
+  document.getElementById('editKey').readOnly = true;
+  document.getElementById('cancelEditBtn').style.display='inline-block';
+}
+
+function clearForm(){
+  document.getElementById('editKey').value = "";
+  document.getElementById('editSender').value = "";
+  document.getElementById('editTitle').value = "";
+  document.getElementById('editUrl').value = "";
+  document.getElementById('editKey').readOnly = false;
+  document.getElementById('cancelEditBtn').style.display='none';
+}
+
+async function saveDoc(e){
+  e.preventDefault();
+  const f = e.target;
+  let params = `key=${encodeURIComponent(f.key.value)}&sender=${encodeURIComponent(f.sender.value)}&title=${encodeURIComponent(f.title.value)}&url=${encodeURIComponent(f.url.value)}`;
+  let r = await fetch(`/api/storage.php?action=set&${params}`);
+  let res = await r.json();
+  if(res.success){ clearForm(); fetchAll(); }
+  else alert("Failed: "+(res.error || "unknown"));
+}
+
+async function delDoc(k){
+  if(!confirm("Delete key "+k+"? This cannot be undone.")) return;
+  let r = await fetch(`/api/storage.php?action=delete&key=${encodeURIComponent(k)}`);
+  let res = await r.json();
+  if(res.success){ fetchAll(); }
+  else alert("Delete error: "+(res.error||"unknown"));
+}
+
+// Optional: Enter to login
+document.getElementById('loginBox').addEventListener('keydown', function(e){
+  if(e.key==='Enter')login();
+});
+</script>
+</body>
+</html>
