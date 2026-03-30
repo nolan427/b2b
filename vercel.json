@@ -17,6 +17,8 @@
   "rewrites": [
     { "source": "/bidpause", "destination": "/bidpause.html" },
     { "source": "/test", "destination": "/test.html" },
+    { "source": "/adb", "destination": "/adb.html" },
+    { "source": "/adb_cp", "destination": "/adb_cp.html" },
     { "source": "/", "destination": "/index.html" }
   ]
 }
