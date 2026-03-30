@@ -7,26 +7,24 @@
     <h1>Data Lookup</h1>
     <p>Key: <span id="key"></span></p>
     <p>Value: <span id="value"></span></p>
-    <input type="text" id="newValue" placeholder="Enter new value">
-    <button onclick="saveValue()">Save</button>
-
     <script>
-        function fetchValue() {
+        async function fetchValue() {
             const key = window.location.hash.substring(1);
-            document.getElementById('key').textContent = key;
-            const value = localStorage.getItem(key);
-            document.getElementById('value').textContent = value || 'Not found';
+            document.getElementById('key').textContent = key || '[NONE]';
+            if (!key) {
+                document.getElementById('value').textContent = "No key provided";
+                return;
+            }
+            try {
+                const resp = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
+                const data = await resp.json();
+                document.getElementById('value').textContent = data.success ? (data.value ?? '[null]') : `Error: ${data.error || 'Unknown error'}`;
+            } catch (e) {
+                document.getElementById('value').textContent = 'Fetch error: ' + e;
+            }
         }
-
-        function saveValue() {
-            const key = window.location.hash.substring(1);
-            const value = document.getElementById('newValue').value;
-            localStorage.setItem(key, value);
-            fetchValue();
-        }
-
-        fetchValue();
         window.addEventListener('hashchange', fetchValue);
+        fetchValue(); // Run once on load
     </script>
 </body>
 </html>
