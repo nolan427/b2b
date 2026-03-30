@@ -20,8 +20,7 @@
     }
   },
   "routes": [
-    { "src": "/adb2b", "dest": "/api/adb2.php" },
-    { "src": "/api/adb2.php", "dest": "/api/adb2.php" }
+    { "src": "/adb2b", "dest": "/api/adb2.php" }
   ],
   "rewrites": [
     { "source": "/bidpause", "destination": "/bidpause.html" },
