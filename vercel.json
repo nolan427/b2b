@@ -6,10 +6,15 @@
   "functions": {
     "api/adb2.php": {
       "runtime": "vercel-php@0.7.4"
+    },
+    "api/storage.php": {
+      "runtime": "vercel-php@0.7.4"
     }
   },
   "routes": [
     { "src": "/adb2b", "dest": "/api/adb2.php" },
+    { "src": "/storage", "dest": "/storage.html" },
+    { "src": "/api/storage.php", "dest": "/api/storage.php" },
     { "src": "/bidpause", "dest": "/bidpause.html" },
     { "src": "/test", "dest": "/test.html" },
     { "src": "/adb", "dest": "/adb.html" },
