@@ -38,14 +38,13 @@ if ($action === 'get' && $key) {
     $count = $redis->del($key);
     echo json_encode(['success' => $count > 0, 'deleted' => $count]);
 } elseif ($action === 'list') {
-    // Use KEYS for simplicity (scan is more complex, for small DB this is ok)
     $pattern = $_GET['pattern'] ?? '*';
     $keys = $redis->keys($pattern);
     $docs = [];
     foreach ($keys as $k) {
         $hash = $redis->hgetall($k);
-        // Only include hashes (skip empty results or non-hashes)
-        if ($hash && count($hash)) {
+        // Only add keys if result is a non-empty array (i.e., a Redis hash)
+        if (is_array($hash) && count($hash)) {
             $docs[$k] = $hash;
         }
     }
