@@ -1,19 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/(.*)\\.html",
-      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
-    },
-    {
-      "source": "/(.*)\\.(png|jpg|jpeg|gif|svg|ico|webp|pdf|css|js)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    }
-  ],
+  "cleanUrls": false,
+
   "functions": {
     "api/adb2.php": {
       "runtime": "vercel-php@0.7.4"
