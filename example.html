@@ -12,12 +12,11 @@
     async function fetchDoc(key) {
       const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
       const data = await res.json();
-      return data;
-    }
-    // Example: use the hash as the key: /page#mydockey
-    const key = window.location.hash.substring(1) || 'defaultkey';
-	
-    alert(fetchDoc(key));
-  </script> 
+       
+    fetchDoc(key);
+  </script>
 </body>
 </html>
+data.data.title
+data.data.sender
+data.data.url
