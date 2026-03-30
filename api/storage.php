@@ -5,52 +5,51 @@ header('Access-Control-Allow-Origin: *');
 require_once __DIR__ . '/../vendor/autoload.php';
 use Predis\Client;
 
+// Connect to Redis
 $redis = new Client(getenv('REDIS_URL'));
 
 $action = $_GET['action'] ?? '';
 $key = $_GET['key'] ?? '';
 
 if ($action === 'get' && $key) {
+    // Fetch all fields for this key
     $value = $redis->hgetall($key);
-    if ($value) {
+    if ($value && count($value)) {
         echo json_encode(['success' => true, 'data' => $value]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Key not found']);
+        echo json_encode(['success' => false, 'error' => 'Key not found or empty']);
     }
 } elseif ($action === 'set' && $key) {
+    // Set the hash fields for this key
     $sender = $_REQUEST['sender'] ?? '';
     $title = $_REQUEST['title'] ?? '';
     $url = $_REQUEST['url'] ?? '';
     $fields = [];
-    if ($sender) $fields['sender'] = $sender;
-    if ($title) $fields['title'] = $title;
-    if ($url) $fields['url'] = $url;
-    if ($fields) {
+    if ($sender !== '') $fields['sender'] = $sender;
+    if ($title !== '') $fields['title'] = $title;
+    if ($url !== '') $fields['url'] = $url;
+    if (count($fields)) {
         $redis->hmset($key, $fields);
         echo json_encode(['success' => true, 'message' => 'Data stored']);
     } else {
         echo json_encode(['success' => false, 'error' => 'No data provided']);
     }
 } elseif ($action === 'delete' && $key) {
-    $count = $redis->del([$key]);
+    $count = $redis->del($key);
     echo json_encode(['success' => $count > 0, 'deleted' => $count]);
 } elseif ($action === 'list') {
-    // Scan for all keys and get their hashes (can be optimized for paging)
+    // Use KEYS for simplicity (scan is more complex, for small DB this is ok)
     $pattern = $_GET['pattern'] ?? '*';
-    $it = NULL;
-    $keys = [];
-    do {
-        $result = $redis->scan($it, ['match'=> $pattern, 'count'=> 100]);
-        if ($result && count($result[0])) {
-            foreach ($result[0] as $k) $keys[] = $k;
-        }
-    } while ($it > 0);
-    // Get all hashes:
+    $keys = $redis->keys($pattern);
     $docs = [];
     foreach ($keys as $k) {
-        $docs[$k] = $redis->hgetall($k);
+        $hash = $redis->hgetall($k);
+        // Only include hashes (skip empty results or non-hashes)
+        if ($hash && count($hash)) {
+            $docs[$k] = $hash;
+        }
     }
-    echo json_encode(['success'=>true, 'docs'=>$docs]);
+    echo json_encode(['success' => true, 'docs' => $docs]);
 } else {
     echo json_encode(['success' => false, 'error' => 'Invalid parameters']);
 }
