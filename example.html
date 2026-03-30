@@ -12,18 +12,12 @@
     async function fetchDoc(key) {
       const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
       const data = await res.json();
-      if (data.success) {
-        document.getElementById('docTitle').textContent = data.data.title || '[No title]';
-        document.getElementById('docSender').textContent = data.data.sender || '[Unknown]';
-        document.getElementById('docUrl').href = data.data.url || "#";
-        document.getElementById('docUrl').textContent = data.data.url || "No URL";
-      } else {
-        document.body.innerHTML = '<b>Document not found.</b>';
-      }
+      return data;
     }
     // Example: use the hash as the key: /page#mydockey
     const key = window.location.hash.substring(1) || 'defaultkey';
-    fetchDoc(key);
+	
+    alert((key));
   </script>
 </body>
 </html>
