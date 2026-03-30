@@ -20,13 +20,11 @@
     }
   },
   "routes": [
-    { "src": "/adb2b", "dest": "/api/adb2.php" }
-  ],
-  "rewrites": [
-    { "source": "/bidpause", "destination": "/bidpause.html" },
-    { "source": "/test", "destination": "/test.html" },
-    { "source": "/adb", "destination": "/adb.html" },
-    { "source": "/adb_cp", "destination": "/adb_cp.html" },
-    { "source": "/", "destination": "/index.html" }
+    { "src": "/adb2b", "dest": "/api/adb2.php" },
+    { "src": "/bidpause", "dest": "/bidpause.html" },
+    { "src": "/test", "dest": "/test.html" },
+    { "src": "/adb", "dest": "/adb.html" },
+    { "src": "/adb_cp", "dest": "/adb_cp.html" },
+    { "src": "/", "dest": "/index.html" }
   ]
 }
