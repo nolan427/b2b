@@ -8,11 +8,7 @@
     table{border-collapse:collapse;width:100%;}
     th,td{border:1px solid #ccc;padding:8px;}
     tr.selected {background:#ffe;}
-    tr.deleted {background:#fdd;}
-    #loginBox{background:#eee;padding:20px;border-radius:5px;max-width:300px;margin:60px auto;}
-    #adminPanel{display:none;}
     .action-btn{padding:3px 7px;}
-    .nowrap{white-space:nowrap;}
   </style>
 </head>
 <body>
@@ -24,7 +20,7 @@
   <div id="loginMsg" style="color:red"></div>
 </div>
 
-<div id="adminPanel">
+<div id="adminPanel" style="display:none;">
   <h1>Redis Document Admin</h1>
   <button onclick="logout()" style="float:right;margin:1em;">Logout</button>
   <h2>Add / Edit Document</h2>
@@ -43,7 +39,7 @@
   <button onclick="fetchAll()">Refresh</button>
   <table id="docTable">
     <thead>
-      <tr><th>Key</th><th>Sender</th><th>Title</th><th>URL</th><th class="nowrap">Actions</th></tr>
+      <tr><th>Key</th><th>Sender</th><th>Title</th><th>URL</th><th>Actions</th></tr>
     </thead>
     <tbody></tbody>
   </table>
@@ -51,7 +47,7 @@
 
 <script>
 const USERNAME = "admin";
-const PASSWORD = "0987"; // Change to your own
+const PASSWORD = "0987"; // Change this
 
 function login(){
   let u = document.getElementById('loginUser').value;
@@ -71,7 +67,7 @@ function logout(){
   document.getElementById('loginPass').value='';
 }
 
-let docStore = {}; // all docs
+let docStore = {};
 
 async function fetchAll(){
   let r = await fetch('/api/storage.php?action=list');
@@ -144,7 +140,6 @@ async function delDoc(k){
   else alert("Delete error: "+(res.error||"unknown"));
 }
 
-// Optional: Enter to login
 document.getElementById('loginBox').addEventListener('keydown', function(e){
   if(e.key==='Enter')login();
 });
