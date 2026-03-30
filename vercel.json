@@ -14,17 +14,16 @@
       ]
     }
   ],
-   "functions": {
+  "functions": {
     "api/adb2.php": {
       "runtime": "vercel-php@0.7.4"
     }
   },
-  
   "rewrites": [
     { "source": "/bidpause", "destination": "/bidpause.html" },
     { "source": "/test", "destination": "/test.html" },
     { "source": "/adb", "destination": "/adb.html" },
-    { "source": "/adb2b", "destination": "api/adb2.php" },
+    { "source": "/adb2b", "destination": "/api/adb2.php" },
     { "source": "/adb_cp", "destination": "/adb_cp.html" },
     { "source": "/", "destination": "/index.html" }
   ]
