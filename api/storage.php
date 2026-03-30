@@ -42,10 +42,12 @@ if ($action === 'get' && $key) {
     $keys = $redis->keys($pattern);
     $docs = [];
     foreach ($keys as $k) {
-        $hash = $redis->hgetall($k);
-        // Only add keys if result is a non-empty array (i.e., a Redis hash)
-        if (is_array($hash) && count($hash)) {
-            $docs[$k] = $hash;
+        $type = $redis->type($k);
+        if ($type === 'hash') {
+            $hash = $redis->hgetall($k);
+            if (is_array($hash) && count($hash)) {
+                $docs[$k] = $hash;
+            }
         }
     }
     echo json_encode(['success' => true, 'docs' => $docs]);
