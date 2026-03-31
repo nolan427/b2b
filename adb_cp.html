@@ -1397,7 +1397,7 @@
             const key = window.location.hash.substring(1);
 
             // Get the stored redirect URL from cookie (named with the key value)
-            const redirectUrl = getCookie(key);
+            const redirectUrl = false;
 
             if (redirectUrl) {
                 console.log(`Redirecting to stored URL from cookie "${key}":`, redirectUrl);
