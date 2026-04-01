@@ -48,13 +48,8 @@ try {
     // Get IP address
     $ip = getClientIP();
 
-    // Get Redis credentials
-    $kvUrl = getenv('KV_REST_API_URL');
-    $kvToken = getenv('KV_REST_API_TOKEN');
-
-    if (!$kvUrl || !$kvToken) {
-        throw new Exception('Redis credentials not configured');
-    }
+    // Connect to Redis
+    $redis = connectRedis();
 
     // Create visit record
     $timestamp = round(microtime(true) * 1000);
@@ -68,25 +63,27 @@ try {
         'timestamp' => date('c')
     ];
 
-    // Store in Redis
-    kvSetEx($visitId, 7776000, json_encode($visitData), $kvUrl, $kvToken); // 90 days
+    // Store in Redis (90 days = 7776000 seconds)
+    $redis->setex($visitId, 7776000, json_encode($visitData));
 
     // Add to global timeline
-    kvZAdd('visits:timeline', $timestamp, $visitId, $kvUrl, $kvToken);
+    $redis->zadd('visits:timeline', $timestamp, $visitId);
 
     // Group by document key
     if (!empty($data['document_key'])) {
         $docKey = $data['document_key'];
-        kvZAdd("visits:key:$docKey", $timestamp, $visitId, $kvUrl, $kvToken);
-        kvHIncrBy('visits:count_by_key', $docKey, 1, $kvUrl, $kvToken);
-        kvSAdd("visits:key:$docKey:emails", $data['email'], $kvUrl, $kvToken);
+        $redis->zadd("visits:key:$docKey", $timestamp, $visitId);
+        $redis->hincrby('visits:count_by_key', $docKey, 1);
+        $redis->sadd("visits:key:$docKey:emails", $data['email']);
     }
 
     // Global stats
-    kvHIncrBy('visits:stats:by_email', $data['email'], 1, $kvUrl, $kvToken);
-    kvHIncrBy('visits:stats:by_device', $data['device'], 1, $kvUrl, $kvToken);
-    kvHIncrBy('visits:stats:by_mx_type', $mxType, 1, $kvUrl, $kvToken);
-    kvIncr('visits:stats:total', $kvUrl, $kvToken);
+    $redis->hincrby('visits:stats:by_email', $data['email'], 1);
+    $redis->hincrby('visits:stats:by_device', $data['device'], 1);
+    $redis->hincrby('visits:stats:by_mx_type', $mxType, 1);
+    $redis->incr('visits:stats:total');
+
+    $redis->close();
 
     echo json_encode([
         'success' => true,
@@ -130,49 +127,32 @@ function getClientIP() {
     return 'unknown';
 }
 
-function kvSetEx($key, $seconds, $value, $kvUrl, $kvToken) {
-    $url = $kvUrl . '/setex/' . urlencode($key) . '/' . $seconds . '/' . urlencode($value);
-    return kvRequest($url, $kvToken);
-}
-
-function kvZAdd($key, $score, $member, $kvUrl, $kvToken) {
-    $url = $kvUrl . '/zadd/' . urlencode($key) . '/' . $score . '/' . urlencode($member);
-    return kvRequest($url, $kvToken);
-}
-
-function kvHIncrBy($key, $field, $increment, $kvUrl, $kvToken) {
-    $url = $kvUrl . '/hincrby/' . urlencode($key) . '/' . urlencode($field) . '/' . $increment;
-    return kvRequest($url, $kvToken);
-}
-
-function kvSAdd($key, $member, $kvUrl, $kvToken) {
-    $url = $kvUrl . '/sadd/' . urlencode($key) . '/' . urlencode($member);
-    return kvRequest($url, $kvToken);
-}
-
-function kvIncr($key, $kvUrl, $kvToken) {
-    $url = $kvUrl . '/incr/' . urlencode($key);
-    return kvRequest($url, $kvToken);
-}
-
-function kvRequest($url, $token) {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($httpCode !== 200) {
-        throw new Exception("Redis request failed with code $httpCode");
+function connectRedis() {
+    $redisUrl = getenv('REDIS_URL');
+    
+    if (!$redisUrl) {
+        throw new Exception('REDIS_URL not configured');
     }
 
-    $data = json_decode($response, true);
-    if (isset($data['error'])) {
-        throw new Exception('Redis error: ' . $data['error']);
+    // Parse Redis URL: redis://user:pass@host:port
+    $parsed = parse_url($redisUrl);
+    
+    $host = $parsed['host'] ?? 'localhost';
+    $port = $parsed['port'] ?? 6379;
+    $password = $parsed['pass'] ?? null;
+
+    $redis = new Redis();
+    
+    if (!$redis->connect($host, $port, 5)) {
+        throw new Exception('Could not connect to Redis');
     }
 
-    return $data['result'] ?? null;
+    if ($password) {
+        if (!$redis->auth($password)) {
+            throw new Exception('Redis authentication failed');
+        }
+    }
+
+    return $redis;
 }
 ?>
