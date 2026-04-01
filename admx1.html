@@ -510,29 +510,53 @@ async function fetchVisits() {
   document.getElementById('visitsEmpty').style.display = 'none';
 
   try {
-    // Change from /api/get-visits to /api/get-visits.php
+    console.log('🔍 Fetching visits from /api/get-visits.php...');
+    
     const response = await fetch('/api/get-visits.php');
-    const data = await response.json();
+    
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response headers:', response.headers);
+    
+    const contentType = response.headers.get('content-type');
+    console.log('📡 Content-Type:', contentType);
+    
+    const text = await response.text();
+    console.log('📡 Raw response:', text);
+    
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      console.error('❌ JSON parse error:', e);
+      console.error('Raw text was:', text);
+      throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+    }
+    
+    console.log('✅ Parsed data:', data);
 
     if(data.success) {
       visitsData = data;
       filteredVisitsData = data;
       
       if(data.total_visits === 0) {
+        console.log('ℹ️ No visits yet');
         document.getElementById('visitsLoading').style.display = 'none';
         document.getElementById('visitsEmpty').style.display = 'block';
       } else {
+        console.log('✅ Rendering', data.total_visits, 'visits');
         renderVisits(data);
         document.getElementById('visitsLoading').style.display = 'none';
         document.getElementById('visitsContent').style.display = 'block';
       }
     } else {
-      console.error('API Error:', data);
-      alert('Error loading visits: ' + (data.error || 'Unknown error'));
+      console.error('❌ API Error:', data);
+      alert('Error loading visits: ' + (data.error || 'Unknown error') + 
+            (data.details ? '\nDetails: ' + data.details : ''));
       document.getElementById('visitsLoading').style.display = 'none';
     }
   } catch(error) {
-    console.error('Fetch error:', error);
+    console.error('❌ Fetch error:', error);
+    console.error('Error stack:', error.stack);
     alert('Failed to load visits data: ' + error.message);
     document.getElementById('visitsLoading').style.display = 'none';
   }
