@@ -510,7 +510,8 @@ async function fetchVisits() {
   document.getElementById('visitsEmpty').style.display = 'none';
 
   try {
-    const response = await fetch('/api/get-visits');
+    // Change from /api/get-visits to /api/get-visits.php
+    const response = await fetch('/api/get-visits.php');
     const data = await response.json();
 
     if(data.success) {
@@ -526,12 +527,13 @@ async function fetchVisits() {
         document.getElementById('visitsContent').style.display = 'block';
       }
     } else {
+      console.error('API Error:', data);
       alert('Error loading visits: ' + (data.error || 'Unknown error'));
       document.getElementById('visitsLoading').style.display = 'none';
     }
   } catch(error) {
-    console.error('Error fetching visits:', error);
-    alert('Failed to load visits data');
+    console.error('Fetch error:', error);
+    alert('Failed to load visits data: ' + error.message);
     document.getElementById('visitsLoading').style.display = 'none';
   }
 }
