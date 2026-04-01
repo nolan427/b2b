@@ -4,20 +4,9 @@
   "cleanUrls": false,
 
   "functions": {
-    "api/adb2.php": {
-      "runtime": "vercel-php@0.7.4"
-    },
-    "api/storage.php": {
-      "runtime": "vercel-php@0.7.4"
-    },
-    "api/log-visit.php": {
-      "runtime": "vercel-php@0.7.4"
-    },
-    "api/get-visits.php": {
-      "runtime": "vercel-php@0.7.4"
-    },
-    "api/test.php": {
-      "runtime": "vercel-php@0.7.4"
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.4",
+      "includeFiles": "**"
     }
   },
   "routes": [
@@ -27,7 +16,7 @@
     { "src": "/api/storage.php", "dest": "/api/storage.php" },
     { "src": "/api/log-visit.php", "dest": "/api/log-visit.php" },
     { "src": "/api/get-visits.php", "dest": "/api/get-visits.php" },
-    { "src": "/api/test.php", "dest": "/api/test.php" },
+    { "src": "/api/test-redis.php", "dest": "/api/test-redis.php" },
     { "src": "/bidpause", "dest": "/bidpause.html" },
     { "src": "/test", "dest": "/test.html" },
     { "src": "/adb", "dest": "/adb.html" },
