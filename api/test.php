@@ -2,34 +2,54 @@
 header('Content-Type: application/json');
 
 try {
-    $kvUrl = getenv('KV_REST_API_URL');
-    $kvToken = getenv('KV_REST_API_TOKEN');
+    $redisUrl = getenv('REDIS_URL');
     
-    if (!$kvUrl || !$kvToken) {
-        throw new Exception('Environment variables not set');
+    if (!$redisUrl) {
+        throw new Exception('REDIS_URL environment variable not set');
     }
     
-    // Try a simple Redis command
-    $url = $kvUrl . '/ping';
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $kvToken]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
+    // Parse Redis URL
+    $parsed = parse_url($redisUrl);
+    $host = $parsed['host'] ?? 'localhost';
+    $port = $parsed['port'] ?? 6379;
+    $password = $parsed['pass'] ?? null;
+    
+    // Try to connect
+    $redis = new Redis();
+    
+    if (!$redis->connect($host, $port, 5)) {
+        throw new Exception('Could not connect to Redis at ' . $host . ':' . $port);
+    }
+    
+    if ($password) {
+        if (!$redis->auth($password)) {
+            throw new Exception('Redis authentication failed');
+        }
+    }
+    
+    // Test ping
+    $pong = $redis->ping();
+    
+    // Test set/get
+    $redis->set('test_key', 'test_value', 10);
+    $value = $redis->get('test_key');
+    
+    $redis->close();
     
     echo json_encode([
         'success' => true,
         'message' => 'Redis connection works!',
-        'kvUrl' => substr($kvUrl, 0, 30) . '...',
-        'ping_response' => $response
+        'host' => $host,
+        'port' => $port,
+        'ping' => $pong,
+        'test_set_get' => $value === 'test_value' ? 'OK' : 'FAILED'
     ]);
     
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
         'error' => $e->getMessage(),
-        'kvUrl_set' => !empty(getenv('KV_REST_API_URL')),
-        'kvToken_set' => !empty(getenv('KV_REST_API_TOKEN'))
+        'redis_url_set' => !empty(getenv('REDIS_URL'))
     ]);
 }
 ?>
