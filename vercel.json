@@ -27,7 +27,7 @@
     { "src": "/api/storage.php", "dest": "/api/storage.php" },
     { "src": "/api/log-visit.php", "dest": "/api/log-visit.php" },
     { "src": "/api/get-visits.php", "dest": "/api/get-visits.php" },
-    { "src": "/api/test.php", "dest": "/api/test-redis.php" },
+    { "src": "/api/test.php", "dest": "/api/test.php" },
     { "src": "/bidpause", "dest": "/bidpause.html" },
     { "src": "/test", "dest": "/test.html" },
     { "src": "/adb", "dest": "/adb.html" },
