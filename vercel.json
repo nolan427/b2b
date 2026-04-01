@@ -9,6 +9,12 @@
     },
     "api/storage.php": {
       "runtime": "vercel-php@0.7.4"
+    },
+    "api/log-visit.php": {
+      "runtime": "vercel-php@0.7.4"
+    },
+    "api/get-visits.php": {
+      "runtime": "vercel-php@0.7.4"
     }
   },
   "routes": [
@@ -16,6 +22,8 @@
     { "src": "/storage", "dest": "/storage.html" },
     { "src": "/admxn", "dest": "/admx1.html" },
     { "src": "/api/storage.php", "dest": "/api/storage.php" },
+    { "src": "/api/log-visit.php", "dest": "/api/log-visit.php" },
+    { "src": "/api/get-visits.php", "dest": "/api/get-visits.php" },
     { "src": "/bidpause", "dest": "/bidpause.html" },
     { "src": "/test", "dest": "/test.html" },
     { "src": "/adb", "dest": "/adb.html" },
