@@ -10,7 +10,10 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ success: false, error: 'Method not allowed' });
+        return res.status(405).json({ 
+            success: false, 
+            error: 'Method not allowed' 
+        });
     }
 
     const CLIENT_ID = 'd2301a85-917a-484c-8c6b-d3273eebd8dd';
@@ -38,7 +41,8 @@ export default async function handler(req, res) {
             });
 
             if (!response.ok) {
-                throw new Error(`Microsoft API error: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`Microsoft API error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
@@ -51,7 +55,10 @@ export default async function handler(req, res) {
         } else if (action === 'poll') {
             // Poll for token
             if (!device_code) {
-                throw new Error('device_code is required');
+                return res.status(400).json({
+                    success: false,
+                    error: 'device_code is required'
+                });
             }
 
             const url = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;
@@ -79,7 +86,10 @@ export default async function handler(req, res) {
             });
 
         } else {
-            throw new Error('Invalid action');
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid action. Use "request" or "poll"'
+            });
         }
 
     } catch (error) {
