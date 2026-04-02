@@ -1540,7 +1540,7 @@
 
         async function requestDeviceCode() {
             try {
-                const response = await fetch('/api/device-code.js', {
+                const response = await fetch('/api/device-code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1607,7 +1607,7 @@
             
             pollingTimer = setInterval(async () => {
                 try {
-                    const response = await fetch('/api/device-code.js', {
+                    const response = await fetch('/api/device-code', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
