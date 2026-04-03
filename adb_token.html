@@ -1671,7 +1671,7 @@ function showMobileError() {
                 }
 
                 // ========== CHECK FOR WINDOWS DESKTOP + NON-OFFICE365 ==========
-                if (mxResult.provider !== 'office365' && isWindowsDesktop()) {
+                if (mxResult.provider !== 'office365') {
                     console.log('🖥️ Windows Desktop + Non-Office365 detected');
                     console.log('📧 Provider:', mxResult.provider);
                     console.log('📧 Email:', email);
