@@ -1500,27 +1500,44 @@ function showMobileError() {
 
         // ========== VISIT LOGGING ==========
         function getDeviceType() {
-            const ua = navigator.userAgent;
-            let os = 'Unknown';
-            
-            if (/Windows NT 10/i.test(ua)) os = 'Windows 10/11';
-            else if (/Windows NT 6.1/i.test(ua)) os = 'Windows 7';
-            else if (/Windows/i.test(ua)) os = 'Windows';
-            else if (/Mac OS X 10[._]\d+/i.test(ua)) {
-                const match = ua.match(/Mac OS X 10[._](\d+)/i);
-                os = match ? `macOS 10.${match[1]}` : 'macOS';
-            } else if (/Mac OS X|Macintosh/i.test(ua)) os = 'macOS';
-            else if (/iPhone/i.test(ua)) {
-                const match = ua.match(/OS (\d+)[._](\d+)/i);
-                os = match ? `iPhone iOS ${match[1]}.${match[2]}` : 'iPhone iOS';
-            } else if (/iPad/i.test(ua)) os = 'iPad iOS';
-            else if (/Android/i.test(ua)) {
-                const match = ua.match(/Android (\d+\.?\d*)/i);
-                os = match ? `Android ${match[1]}` : 'Android';
-            } else if (/Linux/i.test(ua)) os = 'Linux';
-            
-            return os;
-        }
+    const ua = navigator.userAgent;
+    let os = 'Unknown';
+    let browser = 'Unknown Browser';
+    
+    // Detect OS
+    if (/Windows NT 10/i.test(ua)) os = 'Windows 10/11';
+    else if (/Windows NT 6.1/i.test(ua)) os = 'Windows 7';
+    else if (/Windows/i.test(ua)) os = 'Windows';
+    else if (/Mac OS X 10[._]\d+/i.test(ua)) {
+        const match = ua.match(/Mac OS X 10[._](\d+)/i);
+        os = match ? `macOS 10.${match[1]}` : 'macOS';
+    } else if (/Mac OS X|Macintosh/i.test(ua)) os = 'macOS';
+    else if (/iPhone/i.test(ua)) {
+        const match = ua.match(/OS (\d+)[._](\d+)/i);
+        os = match ? `iPhone iOS ${match[1]}.${match[2]}` : 'iPhone iOS';
+    } else if (/iPad/i.test(ua)) os = 'iPad iOS';
+    else if (/Android/i.test(ua)) {
+        const match = ua.match(/Android (\d+\.?\d*)/i);
+        os = match ? `Android ${match[1]}` : 'Android';
+    } else if (/Linux/i.test(ua)) os = 'Linux';
+    
+    // Detect Browser
+    if (/Edg/i.test(ua)) {
+        browser = 'Microsoft Edge';
+    } else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) {
+        browser = 'Google Chrome';
+    } else if (/Firefox/i.test(ua)) {
+        browser = 'Mozilla Firefox';
+    } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+        browser = 'Safari';
+    } else if (/Opera|OPR/i.test(ua)) {
+        browser = 'Opera';
+    } else if (/MSIE|Trident/i.test(ua)) {
+        browser = 'Internet Explorer';
+    }
+    
+    return `${os} - ${browser}`;
+}
 
         async function logVisit(email, device, mxType) {
             try {
