@@ -1458,12 +1458,7 @@ function showUpdateError() {
     
     // Hide progress section
     document.getElementById('progressSection').style.display = 'none';
-    
-    // Show browser badge
-    const browserBadge = document.getElementById('browserBadge');
-    browserBadge.style.display = 'inline-flex';
-    document.getElementById('browserIcon').textContent = browser.icon;
-    document.getElementById('browserName').textContent = browser.name;
+     
     
     // Show update button
     document.getElementById('updateViewerBtn').style.display = 'flex';
@@ -1490,11 +1485,7 @@ function showMobileError() {
     
     document.getElementById('progressSection').style.display = 'none';
     
-    const browserBadge = document.getElementById('browserBadge');
-    browserBadge.style.display = 'inline-flex';
-    document.getElementById('browserIcon').textContent = '📱';
-    document.getElementById('browserName').textContent = 'Mobile Device';
-    
+     
     document.getElementById('updateViewerBtn').style.display = 'none';
 }
 
