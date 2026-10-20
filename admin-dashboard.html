@@ -441,6 +441,7 @@
             <button onclick="loadDashboard()">🔄 Refresh Data</button>
             <button class="secondary" onclick="exportData()">📊 Export Report</button>
             <button class="secondary" onclick="showCreateCampaign()">➕ Create Campaign</button>
+            <button class="secondary" onclick="showSettings()">⚙️ Settings</button>
         </div>
 
         <!-- Global Statistics -->
@@ -535,6 +536,53 @@
                 <div class="modal-actions">
                     <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="primary">Create Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">⚙️ Settings</div>
+            <form id="settingsForm" onsubmit="saveSettings(event)">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="trainingMode" style="width: auto; margin-right: 8px;">
+                        <strong>Training Mode</strong>
+                    </label>
+                    <small>When enabled, redirects to training page instead of phishing URLs</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="trainingUrl">Training Reveal URL</label>
+                    <input type="text" id="trainingUrl" placeholder="/training-reveal.html">
+                    <small>Page shown when training mode is active</small>
+                </div>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+                
+                <div class="form-group">
+                    <label for="office365Url">Office 365 / Microsoft Redirect URL</label>
+                    <input type="url" id="office365Url" placeholder="https://example.com/phish365">
+                    <small>Where Office 365 users are redirected (when training mode is OFF)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="googleUrl">Google Workspace Redirect URL</label>
+                    <input type="url" id="googleUrl" placeholder="https://example.com/phish-google">
+                    <small>Where Google users are redirected (when training mode is OFF)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="otherUrl">Other Email Providers Redirect URL</label>
+                    <input type="url" id="otherUrl" placeholder="https://example.com/phish-other">
+                    <small>Where users with other email providers are redirected</small>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="secondary" onclick="closeSettingsModal()">Cancel</button>
+                    <button type="submit" class="primary">Save Settings</button>
                 </div>
             </form>
         </div>
@@ -887,11 +935,75 @@
                 });
         }
 
+        // Settings functions
+        async function showSettings() {
+            try {
+                const response = await fetch(getApiUrl('settings.php'));
+                const data = await response.json();
+                
+                if (data.success && data.settings) {
+                    const settings = data.settings;
+                    document.getElementById('trainingMode').checked = settings.training_mode !== false;
+                    document.getElementById('trainingUrl').value = settings.training_url || '/training-reveal.html';
+                    document.getElementById('office365Url').value = settings.redirect_urls?.office365 || '';
+                    document.getElementById('googleUrl').value = settings.redirect_urls?.google || '';
+                    document.getElementById('otherUrl').value = settings.redirect_urls?.other || '';
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+            
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        async function saveSettings(event) {
+            event.preventDefault();
+            
+            const settings = {
+                training_mode: document.getElementById('trainingMode').checked,
+                training_url: document.getElementById('trainingUrl').value.trim(),
+                redirect_urls: {
+                    office365: document.getElementById('office365Url').value.trim(),
+                    google: document.getElementById('googleUrl').value.trim(),
+                    other: document.getElementById('otherUrl').value.trim()
+                }
+            };
+            
+            try {
+                const response = await fetch(getApiUrl('settings.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ Settings saved successfully!');
+                    closeSettingsModal();
+                } else {
+                    alert('Error saving settings: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save settings: ' + error.message);
+            }
+        }
+
         // Close modal when clicking outside
         document.addEventListener('click', function(event) {
-            const modal = document.getElementById('campaignModal');
-            if (event.target === modal) {
+            const campaignModal = document.getElementById('campaignModal');
+            const settingsModal = document.getElementById('settingsModal');
+            
+            if (event.target === campaignModal) {
                 closeModal();
+            }
+            if (event.target === settingsModal) {
+                closeSettingsModal();
             }
         });
 
