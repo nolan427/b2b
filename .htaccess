@@ -1,0 +1,22 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Redirect to HTTPS (optional but recommended)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Route /admin to admin-dashboard.html
+RewriteRule ^admin$ admin-dashboard.html [L]
+
+# Route /training to training-reveal.html
+RewriteRule ^training$ training-reveal.html [L]
+
+# Route API requests
+RewriteRule ^api/(.+)$ api/$1 [L]
+
+# Don't rewrite existing files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Default index
+DirectoryIndex index.html

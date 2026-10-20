@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
@@ -15,102 +17,121 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    // Get MongoDB connection
-    $mongo = getMongoClient();
-    $db = $mongo->phishing;
-    $visits = $db->visits;
-
+    $db = getDB();
+    
     // Get query parameters
     $key = $_GET['key'] ?? null;
     $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
 
     // If specific key requested
     if ($key) {
-        $filter = ['document_key' => $key];
-        $cursor = $visits->find(
-            $filter,
-            [
-                'sort' => ['timestamp' => -1],
-                'limit' => $limit
-            ]
-        );
-
-        $keyVisits = [];
-        $uniqueEmails = [];
+        $stmt = $db->prepare("
+            SELECT ip, email, device, mx_type, document_key, timestamp
+            FROM visits
+            WHERE document_key = ?
+            ORDER BY timestamp DESC
+            LIMIT ?
+        ");
+        $stmt->execute([$key, $limit]);
         
-        foreach ($cursor as $doc) {
-            $visit = [
-                'ip' => $doc['ip'],
-                'email' => $doc['email'],
-                'device' => $doc['device'],
-                'mx_type' => $doc['mx_type'],
-                'document_key' => $doc['document_key'],
-                'timestamp' => $doc['timestamp']->toDateTime()->format('c')
+        $visits = [];
+        while ($row = $stmt->fetch()) {
+            $visits[] = [
+                'ip' => $row['ip'],
+                'email' => $row['email'],
+                'device' => $row['device'],
+                'mx_type' => $row['mx_type'],
+                'document_key' => $row['document_key'],
+                'timestamp' => $row['timestamp']
             ];
-            $keyVisits[] = $visit;
-            $uniqueEmails[$doc['email']] = true;
         }
-
-        $totalCount = $visits->countDocuments($filter);
+        
+        // Get total count and unique visitors
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM visits WHERE document_key = ?");
+        $stmt->execute([$key]);
+        $totalVisits = $stmt->fetch()['total'];
+        
+        $stmt = $db->prepare("SELECT COUNT(DISTINCT email) as unique_count FROM visits WHERE document_key = ?");
+        $stmt->execute([$key]);
+        $uniqueVisitors = $stmt->fetch()['unique_count'];
 
         echo json_encode([
             'success' => true,
             'document_key' => $key,
-            'total_visits' => $totalCount,
-            'unique_visitors' => count($uniqueEmails),
-            'visits' => $keyVisits
+            'total_visits' => (int)$totalVisits,
+            'unique_visitors' => (int)$uniqueVisitors,
+            'visits' => $visits
         ]);
         exit;
     }
 
     // Get all visits grouped by key
-    $pipeline = [
-        [
-            '$group' => [
-                '_id' => '$document_key',
-                'total_visits' => ['$sum' => 1],
-                'unique_emails' => ['$addToSet' => '$email'],
-                'visits' => ['$push' => '$$ROOT']
-            ]
-        ]
-    ];
-
-    $cursor = $visits->aggregate($pipeline);
+    $stmt = $db->query("
+        SELECT 
+            document_key,
+            COUNT(*) as total_visits,
+            COUNT(DISTINCT email) as unique_visitors
+        FROM visits
+        GROUP BY document_key
+    ");
     
     $visitsByKey = [];
     $totalVisits = 0;
     $deviceBreakdown = [];
     $mxTypeBreakdown = [];
-    $allUniqueEmails = [];
 
-    foreach ($cursor as $doc) {
-        $docKey = $doc['_id'];
-        $docVisits = array_slice($doc['visits'], -100); // Last 100 per key
+    while ($row = $stmt->fetch()) {
+        $docKey = $row['document_key'];
         
-        $formattedVisits = [];
-        foreach ($docVisits as $visit) {
-            $formattedVisits[] = [
+        // Get recent visits for this key
+        $vstmt = $db->prepare("
+            SELECT ip, email, device, mx_type, document_key, timestamp
+            FROM visits
+            WHERE document_key = ?
+            ORDER BY timestamp DESC
+            LIMIT 100
+        ");
+        $vstmt->execute([$docKey]);
+        
+        $keyVisits = [];
+        while ($visit = $vstmt->fetch()) {
+            $keyVisits[] = [
                 'ip' => $visit['ip'],
                 'email' => $visit['email'],
                 'device' => $visit['device'],
                 'mx_type' => $visit['mx_type'],
                 'document_key' => $visit['document_key'],
-                'timestamp' => $visit['timestamp']->toDateTime()->format('c')
+                'timestamp' => $visit['timestamp']
             ];
-            
-            // Build stats
-            $deviceBreakdown[$visit['device']] = ($deviceBreakdown[$visit['device']] ?? 0) + 1;
-            $mxTypeBreakdown[$visit['mx_type']] = ($mxTypeBreakdown[$visit['mx_type']] ?? 0) + 1;
-            $allUniqueEmails[$visit['email']] = true;
         }
-
+        
         $visitsByKey[$docKey] = [
-            'total_visits' => $doc['total_visits'],
-            'unique_visitors' => count($doc['unique_emails']),
-            'visits' => array_reverse($formattedVisits) // Most recent first
+            'total_visits' => (int)$row['total_visits'],
+            'unique_visitors' => (int)$row['unique_visitors'],
+            'visits' => $keyVisits
         ];
         
-        $totalVisits += $doc['total_visits'];
+        $totalVisits += $row['total_visits'];
+    }
+    
+    // Get device breakdown
+    $stmt = $db->query("
+        SELECT device, COUNT(*) as count
+        FROM visits
+        GROUP BY device
+    ");
+    while ($row = $stmt->fetch()) {
+        $deviceBreakdown[$row['device']] = (int)$row['count'];
+    }
+    
+    // Get MX type breakdown
+    $stmt = $db->query("
+        SELECT mx_type, COUNT(*) as count
+        FROM visits
+        GROUP BY mx_type
+    ");
+    while ($row = $stmt->fetch()) {
+        $mxTypeBreakdown[$row['mx_type']] = (int)$row['count'];
     }
 
     echo json_encode([
@@ -130,17 +151,5 @@ try {
         'error' => 'Failed to fetch visits',
         'details' => $e->getMessage()
     ]);
-}
-
-// ========== HELPER FUNCTION ==========
-
-function getMongoClient() {
-    $mongoUri = getenv('MONGODB_URI');
-    
-    if (!$mongoUri) {
-        throw new Exception('MONGODB_URI not configured');
-    }
-
-    return new MongoDB\Client($mongoUri);
 }
 ?>

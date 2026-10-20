@@ -1,25 +1,25 @@
 <?php
+require_once __DIR__ . '/../config.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
+$db = getDB();
+
+$action = $_GET['action'] ?? '';
+$key = $_GET['key'] ?? '';
+
 try {
-    // Get MongoDB connection
-    $mongo = getMongoClient();
-    $db = $mongo->phishing;
-    $campaigns = $db->campaigns;
-
-    $action = $_GET['action'] ?? '';
-    $key = $_GET['key'] ?? '';
-
     if ($action === 'get' && $key) {
         // Fetch campaign by key
-        $campaign = $campaigns->findOne(['_id' => $key]);
+        $stmt = $db->prepare("SELECT sender, title, url FROM campaigns WHERE id = ?");
+        $stmt->execute([$key]);
+        $campaign = $stmt->fetch();
         
         if ($campaign) {
-            unset($campaign['_id']); // Remove MongoDB ID
-            echo json_encode(['success' => true, 'data' => (array)$campaign]);
+            echo json_encode(['success' => true, 'data' => $campaign]);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Key not found or empty']);
+            echo json_encode(['success' => false, 'error' => 'Key not found']);
         }
         
     } elseif ($action === 'set' && $key) {
@@ -28,50 +28,49 @@ try {
         $title = $_REQUEST['title'] ?? '';
         $url = $_REQUEST['url'] ?? '';
         
-        $fields = [];
-        if ($sender !== '') $fields['sender'] = $sender;
-        if ($title !== '') $fields['title'] = $title;
-        if ($url !== '') $fields['url'] = $url;
-        
-        if (count($fields)) {
-            $fields['_id'] = $key;
-            $fields['updated_at'] = new MongoDB\BSON\UTCDateTime();
-            
-            $result = $campaigns->replaceOne(
-                ['_id' => $key],
-                $fields,
-                ['upsert' => true]
-            );
-            
-            echo json_encode(['success' => true, 'message' => 'Data stored']);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'No data provided']);
+        if (empty($sender) || empty($title) || empty($url)) {
+            echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+            exit;
         }
+        
+        // Insert or update
+        $stmt = $db->prepare("
+            INSERT INTO campaigns (id, sender, title, url) 
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+                sender = VALUES(sender),
+                title = VALUES(title),
+                url = VALUES(url)
+        ");
+        
+        $stmt->execute([$key, $sender, $title, $url]);
+        echo json_encode(['success' => true, 'message' => 'Data stored']);
         
     } elseif ($action === 'delete' && $key) {
         // Delete campaign
-        $result = $campaigns->deleteOne(['_id' => $key]);
-        echo json_encode(['success' => true, 'deleted' => $result->getDeletedCount()]);
+        $stmt = $db->prepare("DELETE FROM campaigns WHERE id = ?");
+        $stmt->execute([$key]);
+        echo json_encode(['success' => true, 'deleted' => $stmt->rowCount()]);
         
     } elseif ($action === 'list') {
         // List all campaigns
         $pattern = $_GET['pattern'] ?? '*';
         
-        $filter = [];
-        if ($pattern !== '*') {
-            // Convert shell-style pattern to regex
-            $regex = str_replace('*', '.*', preg_quote($pattern, '/'));
-            $filter['_id'] = new MongoDB\BSON\Regex("^$regex$", 'i');
+        if ($pattern === '*') {
+            $stmt = $db->query("SELECT id, sender, title, url FROM campaigns ORDER BY created_at DESC");
+        } else {
+            $likePattern = str_replace('*', '%', $pattern);
+            $stmt = $db->prepare("SELECT id, sender, title, url FROM campaigns WHERE id LIKE ? ORDER BY created_at DESC");
+            $stmt->execute([$likePattern]);
         }
         
-        $cursor = $campaigns->find($filter);
-        
         $docs = [];
-        foreach ($cursor as $doc) {
-            $key = $doc['_id'];
-            unset($doc['_id']);
-            unset($doc['updated_at']);
-            $docs[$key] = (array)$doc;
+        while ($row = $stmt->fetch()) {
+            $docs[$row['id']] = [
+                'sender' => $row['sender'],
+                'title' => $row['title'],
+                'url' => $row['url']
+            ];
         }
         
         echo json_encode(['success' => true, 'docs' => $docs]);
@@ -79,7 +78,7 @@ try {
     } else {
         echo json_encode(['success' => false, 'error' => 'Invalid parameters']);
     }
-
+    
 } catch (Exception $e) {
     error_log('Storage error: ' . $e->getMessage());
     http_response_code(500);
@@ -88,17 +87,5 @@ try {
         'error' => 'Database operation failed',
         'details' => $e->getMessage()
     ]);
-}
-
-// ========== HELPER FUNCTION ==========
-
-function getMongoClient() {
-    $mongoUri = getenv('MONGODB_URI');
-    
-    if (!$mongoUri) {
-        throw new Exception('MONGODB_URI not configured');
-    }
-
-    return new MongoDB\Client($mongoUri);
 }
 ?>

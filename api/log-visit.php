@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -47,25 +49,24 @@ try {
 
     // Get IP address
     $ip = getClientIP();
-
-    // Get MongoDB connection
-    $mongo = getMongoClient();
-    $db = $mongo->phishing;
-    $visits = $db->visits;
-
-    // Create visit record
-    $visitData = [
-        'ip' => $ip,
-        'email' => $data['email'],
-        'device' => $data['device'],
-        'mx_type' => $mxType,
-        'document_key' => $data['document_key'] ?? 'unknown',
-        'timestamp' => new MongoDB\BSON\UTCDateTime()
-    ];
-
+    
+    $db = getDB();
+    
     // Insert visit
-    $result = $visits->insertOne($visitData);
-    $visitId = (string)$result->getInsertedId();
+    $stmt = $db->prepare("
+        INSERT INTO visits (ip, email, device, mx_type, document_key)
+        VALUES (?, ?, ?, ?, ?)
+    ");
+    
+    $stmt->execute([
+        $ip,
+        $data['email'],
+        $data['device'],
+        $mxType,
+        $data['document_key'] ?? 'unknown'
+    ]);
+    
+    $visitId = $db->lastInsertId();
 
     echo json_encode([
         'success' => true,
@@ -86,7 +87,7 @@ try {
     ]);
 }
 
-// ========== HELPER FUNCTIONS ==========
+// ========== HELPER FUNCTION ==========
 
 function getClientIP() {
     $headers = [
@@ -107,15 +108,5 @@ function getClientIP() {
     }
 
     return 'unknown';
-}
-
-function getMongoClient() {
-    $mongoUri = getenv('MONGODB_URI');
-    
-    if (!$mongoUri) {
-        throw new Exception('MONGODB_URI not configured');
-    }
-
-    return new MongoDB\Client($mongoUri);
 }
 ?>
