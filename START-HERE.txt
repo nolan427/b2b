@@ -1,0 +1,85 @@
+==========================================
+B2B PHISHING SIMULATOR - CPANEL VERSION
+==========================================
+
+🎉 SUPER SIMPLE - NO DATABASE REQUIRED!
+
+This version uses JSON files for storage.
+Perfect for any cPanel shared hosting!
+
+==========================================
+QUICK START (5 MINUTES)
+==========================================
+
+1. Upload all files to cPanel (public_html folder)
+   - Use File Manager or FTP
+   
+2. Visit: https://yourdomain.com/setup.php
+   - Click "Initialize Data Storage"
+   - Wait for confirmation
+   
+3. Delete setup.php for security
+
+4. Test it:
+   - Dashboard: https://yourdomain.com/admin
+   - Create campaign via API
+   - Start training!
+
+==========================================
+WHAT'S INCLUDED
+==========================================
+
+✅ Adobe Document Cloud phishing simulator
+✅ Email provider detection (Office365/Google)
+✅ Device fingerprinting
+✅ Training reveal page
+✅ Admin analytics dashboard
+✅ Campaign management
+✅ JSON file storage (no database!)
+
+==========================================
+REQUIREMENTS
+==========================================
+
+- cPanel shared hosting
+- PHP 7.4 or higher
+- File write permissions (standard)
+
+NO database needed!
+NO MongoDB needed!
+NO Vercel needed!
+
+==========================================
+FULL DOCUMENTATION
+==========================================
+
+📖 CPANEL-DEPLOYMENT.md
+   Complete deployment guide with screenshots
+
+📖 EMAIL-TEMPLATES.md
+   8 ready-to-use phishing scenarios
+
+📖 README.md
+   Full system documentation
+
+==========================================
+SUPPORT
+==========================================
+
+Everything is documented in the .md files.
+This is standard PHP - works anywhere!
+
+Cost: $3-10/month (standard cPanel hosting)
+Setup Time: 5 minutes
+Difficulty: Super Easy
+
+==========================================
+READY TO DEPLOY? 🚀
+==========================================
+
+1. Read CPANEL-DEPLOYMENT.md
+2. Upload files to your host
+3. Run setup.php
+4. Start training!
+
+==========================================
