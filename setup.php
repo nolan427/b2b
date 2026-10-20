@@ -1,59 +1,47 @@
 <?php
 /**
  * Setup Script for B2B Phishing Simulator
- * Run this once after uploading to cPanel
+ * Run this once after uploading to check everything works
  */
 
-// Check if already configured
-$configFile = __DIR__ . '/config.php';
-$isConfigured = false;
+require_once __DIR__ . '/config.php';
 
-if (file_exists($configFile)) {
-    $configContent = file_get_contents($configFile);
-    if (strpos($configContent, 'your_database_name') === false) {
-        $isConfigured = true;
+// Check if data directory exists and is writable
+$dataDir = DATA_DIR;
+$isWritable = false;
+$setupComplete = false;
+$error = null;
+$success = null;
+
+// Handle setup
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        // Initialize data files
+        initializeData();
+        
+        // Test write permissions
+        $testFile = $dataDir . '/test.txt';
+        if (file_put_contents($testFile, 'test') === false) {
+            throw new Exception('Cannot write to data directory');
+        }
+        unlink($testFile);
+        
+        $setupComplete = true;
+        $success = 'Setup complete! Data directory created and initialized.';
+        
+    } catch (Exception $e) {
+        $error = $e->getMessage();
     }
 }
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isConfigured) {
-    $dbHost = $_POST['db_host'] ?? 'localhost';
-    $dbName = $_POST['db_name'] ?? '';
-    $dbUser = $_POST['db_user'] ?? '';
-    $dbPass = $_POST['db_pass'] ?? '';
-    
-    if (empty($dbName) || empty($dbUser)) {
-        $error = "Database name and username are required!";
-    } else {
-        // Test connection
-        try {
-            $pdo = new PDO(
-                "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4",
-                $dbUser,
-                $dbPass
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            
-            // Update config file
-            $configContent = file_get_contents($configFile);
-            $configContent = str_replace("define('DB_HOST', 'localhost');", "define('DB_HOST', '$dbHost');", $configContent);
-            $configContent = str_replace("define('DB_NAME', 'your_database_name');", "define('DB_NAME', '$dbName');", $configContent);
-            $configContent = str_replace("define('DB_USER', 'your_database_user');", "define('DB_USER', '$dbUser');", $configContent);
-            $configContent = str_replace("define('DB_PASS', 'your_database_password');", "define('DB_PASS', '$dbPass');", $configContent);
-            
-            file_put_contents($configFile, $configContent);
-            
-            // Initialize database
-            require_once $configFile;
-            initializeDatabase();
-            
-            $success = "Setup complete! Database configured and tables created.";
-            $isConfigured = true;
-            
-        } catch (PDOException $e) {
-            $error = "Database connection failed: " . $e->getMessage();
-        }
-    }
+// Check current status
+$dataExists = file_exists($dataDir);
+$isWritable = $dataExists && is_writable($dataDir);
+$campaignsExist = file_exists($dataDir . '/campaigns.json');
+$visitsExist = file_exists($dataDir . '/visits.json');
+
+if ($campaignsExist && $visitsExist && $isWritable) {
+    $setupComplete = true;
 }
 ?>
 <!DOCTYPE html>
@@ -109,38 +97,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isConfigured) {
             color: #742a2a;
             border: 1px solid #fc8181;
         }
+        .alert-warning {
+            background: #fef5e7;
+            color: #744210;
+            border: 1px solid #f6d29c;
+        }
         .alert-info {
             background: #bee3f8;
             color: #2c5282;
             border: 1px solid #90cdf4;
         }
-        .form-group {
-            margin-bottom: 20px;
+        .status-grid {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #2d3748;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             padding: 12px;
-            border: 1px solid #cbd5e0;
+            background: #f7fafc;
             border-radius: 8px;
-            font-size: 15px;
+            border-left: 3px solid #cbd5e0;
         }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .status-item.success {
+            border-left-color: #48bb78;
         }
-        .help-text {
-            font-size: 13px;
+        .status-item.error {
+            border-left-color: #f56565;
+        }
+        .status-icon {
+            font-size: 20px;
+        }
+        .status-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .status-value {
+            margin-left: auto;
             color: #718096;
-            margin-top: 5px;
+            font-size: 14px;
         }
         button {
             width: 100%;
@@ -157,26 +154,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isConfigured) {
         button:hover {
             transform: translateY(-2px);
         }
-        .steps {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
-        .steps h3 {
-            color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        .steps ol {
-            margin-left: 20px;
-            color: #4a5568;
-            line-height: 1.8;
-        }
-        .success-actions {
+        .actions {
             margin-top: 20px;
         }
-        .success-actions a {
+        .actions a {
             display: inline-block;
             padding: 12px 24px;
             background: #667eea;
@@ -186,82 +171,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isConfigured) {
             margin-right: 10px;
             margin-top: 10px;
         }
-        .success-actions a:hover {
+        .actions a:hover {
             background: #5568d3;
+        }
+        .instructions {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .instructions h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        .instructions code {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🛡️ Setup Phishing Simulator</h1>
-        <p class="subtitle">Configure your database connection</p>
+        <p class="subtitle">Initialize data storage (JSON files)</p>
 
-        <?php if (isset($error)): ?>
+        <?php if ($error): ?>
             <div class="alert alert-error">
                 <strong>Error:</strong> <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
 
-        <?php if (isset($success)): ?>
+        <?php if ($success): ?>
             <div class="alert alert-success">
                 <strong>Success!</strong> <?php echo htmlspecialchars($success); ?>
             </div>
-            <div class="success-actions">
+        <?php endif; ?>
+
+        <div class="status-grid">
+            <div class="status-item <?php echo $dataExists ? 'success' : 'error'; ?>">
+                <span class="status-icon"><?php echo $dataExists ? '✅' : '❌'; ?></span>
+                <span class="status-label">Data Directory</span>
+                <span class="status-value"><?php echo $dataExists ? 'Exists' : 'Missing'; ?></span>
+            </div>
+
+            <div class="status-item <?php echo $isWritable ? 'success' : 'error'; ?>">
+                <span class="status-icon"><?php echo $isWritable ? '✅' : '❌'; ?></span>
+                <span class="status-label">Write Permission</span>
+                <span class="status-value"><?php echo $isWritable ? 'OK' : 'Not Writable'; ?></span>
+            </div>
+
+            <div class="status-item <?php echo $campaignsExist ? 'success' : 'error'; ?>">
+                <span class="status-icon"><?php echo $campaignsExist ? '✅' : '❌'; ?></span>
+                <span class="status-label">Campaigns File</span>
+                <span class="status-value"><?php echo $campaignsExist ? 'Ready' : 'Not Created'; ?></span>
+            </div>
+
+            <div class="status-item <?php echo $visitsExist ? 'success' : 'error'; ?>">
+                <span class="status-icon"><?php echo $visitsExist ? '✅' : '❌'; ?></span>
+                <span class="status-label">Visits File</span>
+                <span class="status-value"><?php echo $visitsExist ? 'Ready' : 'Not Created'; ?></span>
+            </div>
+        </div>
+
+        <?php if ($setupComplete): ?>
+            <div class="alert alert-success">
+                <strong>✅ Setup Complete!</strong> Your phishing simulator is ready to use.
+            </div>
+            
+            <div class="actions">
                 <a href="admin">View Dashboard</a>
                 <a href="index.html">View Main Page</a>
             </div>
+
             <div class="alert alert-info" style="margin-top: 20px;">
                 <strong>Next Steps:</strong><br>
-                1. Delete or rename setup.php for security<br>
-                2. Create your first campaign via API or dashboard<br>
+                1. Delete or rename <code>setup.php</code> for security<br>
+                2. Create your first campaign<br>
                 3. Test with the admin dashboard
             </div>
-        <?php elseif ($isConfigured): ?>
-            <div class="alert alert-success">
-                <strong>Already Configured!</strong> Your database is already set up.
+
+            <div class="instructions">
+                <h3>Create Your First Campaign:</h3>
+                <p>Visit this URL (replace yourdomain.com):</p>
+                <code style="display: block; margin: 10px 0; word-break: break-all;">
+https://yourdomain.com/api/storage.php?action=set&key=test&sender=Test%20User&title=Test%20Campaign&url=https://yourdomain.com/training
+                </code>
+                <p>Then test it at: <code>https://yourdomain.com/adb_token.html#test</code></p>
             </div>
-            <div class="success-actions">
-                <a href="admin">View Dashboard</a>
-                <a href="index.html">View Main Page</a>
-            </div>
+
         <?php else: ?>
-            <div class="steps">
-                <h3>Before you start:</h3>
-                <ol>
-                    <li>Create a MySQL database in cPanel</li>
-                    <li>Create a database user and assign it to the database</li>
-                    <li>Note the database name, username, and password</li>
-                    <li>Enter them below</li>
-                </ol>
+            <div class="alert alert-warning">
+                <strong>Setup Required:</strong> Click the button below to initialize the data files.
             </div>
+
+            <?php if (!$isWritable && $dataExists): ?>
+                <div class="alert alert-error">
+                    <strong>Permission Issue:</strong> The <code>data</code> directory exists but is not writable.
+                    <br><br>
+                    <strong>Fix this in cPanel File Manager:</strong><br>
+                    1. Right-click the <code>data</code> folder<br>
+                    2. Select "Change Permissions"<br>
+                    3. Set to <code>755</code><br>
+                    4. Click "Change Permissions"
+                </div>
+            <?php endif; ?>
 
             <form method="POST">
-                <div class="form-group">
-                    <label for="db_host">Database Host</label>
-                    <input type="text" id="db_host" name="db_host" value="localhost" required>
-                    <div class="help-text">Usually "localhost" for cPanel hosting</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="db_name">Database Name</label>
-                    <input type="text" id="db_name" name="db_name" required placeholder="username_dbname">
-                    <div class="help-text">The database you created in cPanel</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="db_user">Database Username</label>
-                    <input type="text" id="db_user" name="db_user" required placeholder="username_dbuser">
-                    <div class="help-text">The database user you created</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="db_pass">Database Password</label>
-                    <input type="password" id="db_pass" name="db_pass" required>
-                    <div class="help-text">The password for your database user</div>
-                </div>
-
-                <button type="submit">Install & Configure</button>
+                <button type="submit" <?php echo (!$isWritable && $dataExists) ? 'disabled' : ''; ?>>
+                    Initialize Data Storage
+                </button>
             </form>
+
+            <div class="instructions" style="margin-top: 20px;">
+                <h3>What This Does:</h3>
+                <p>
+                    • Creates the <code>data</code> directory<br>
+                    • Initializes <code>campaigns.json</code> and <code>visits.json</code><br>
+                    • Sets proper permissions<br>
+                    • No database required!
+                </p>
+            </div>
         <?php endif; ?>
     </div>
 </body>

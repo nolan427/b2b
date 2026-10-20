@@ -50,31 +50,76 @@ try {
     // Get IP address
     $ip = getClientIP();
     
-    $db = getDB();
+    // Load visit data
+    $visits = loadData('visits');
     
-    // Insert visit
-    $stmt = $db->prepare("
-        INSERT INTO visits (ip, email, device, mx_type, document_key)
-        VALUES (?, ?, ?, ?, ?)
-    ");
+    // Create visit record
+    $visitId = 'visit_' . time() . '_' . bin2hex(random_bytes(4));
+    $visitData = [
+        'ip' => $ip,
+        'email' => $data['email'],
+        'device' => $data['device'],
+        'mx_type' => $mxType,
+        'document_key' => $data['document_key'] ?? 'unknown',
+        'timestamp' => date('c')
+    ];
     
-    $stmt->execute([
-        $ip,
-        $data['email'],
-        $data['device'],
-        $mxType,
-        $data['document_key'] ?? 'unknown'
-    ]);
+    // Add to visits array
+    $visits['visits'][$visitId] = $visitData;
     
-    $visitId = $db->lastInsertId();
+    // Update stats
+    if (!isset($visits['stats'])) {
+        $visits['stats'] = [
+            'total' => 0,
+            'by_email' => [],
+            'by_device' => [],
+            'by_mx_type' => []
+        ];
+    }
+    
+    $visits['stats']['total']++;
+    
+    // Count by email
+    if (!isset($visits['stats']['by_email'][$data['email']])) {
+        $visits['stats']['by_email'][$data['email']] = 0;
+    }
+    $visits['stats']['by_email'][$data['email']]++;
+    
+    // Count by device
+    if (!isset($visits['stats']['by_device'][$data['device']])) {
+        $visits['stats']['by_device'][$data['device']] = 0;
+    }
+    $visits['stats']['by_device'][$data['device']]++;
+    
+    // Count by MX type
+    if (!isset($visits['stats']['by_mx_type'][$mxType])) {
+        $visits['stats']['by_mx_type'][$mxType] = 0;
+    }
+    $visits['stats']['by_mx_type'][$mxType]++;
+    
+    // Group by document key
+    $docKey = $data['document_key'] ?? 'unknown';
+    if (!isset($visits['by_key'][$docKey])) {
+        $visits['by_key'][$docKey] = [
+            'total_visits' => 0,
+            'unique_emails' => [],
+            'visit_ids' => []
+        ];
+    }
+    $visits['by_key'][$docKey]['total_visits']++;
+    $visits['by_key'][$docKey]['unique_emails'][$data['email']] = true;
+    $visits['by_key'][$docKey]['visit_ids'][] = $visitId;
+    
+    // Save data
+    saveData('visits', $visits);
 
     echo json_encode([
         'success' => true,
         'visit_id' => $visitId,
         'ip' => $ip,
         'mx_type' => $mxType,
-        'document_key' => $data['document_key'] ?? 'unknown',
-        'timestamp' => date('c')
+        'document_key' => $docKey,
+        'timestamp' => $visitData['timestamp']
     ]);
 
 } catch (Exception $e) {
