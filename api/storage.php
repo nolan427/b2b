@@ -20,12 +20,20 @@ try {
         
     } elseif ($action === 'set' && $key) {
         // Set campaign data
-        $sender = $_REQUEST['sender'] ?? '';
-        $title = $_REQUEST['title'] ?? '';
-        $url = $_REQUEST['url'] ?? '';
+        $sender = trim($_REQUEST['sender'] ?? '');
+        $title = trim($_REQUEST['title'] ?? '');
+        $url = trim($_REQUEST['url'] ?? '');
         
         if (empty($sender) || empty($title) || empty($url)) {
-            echo json_encode(['success' => false, 'error' => 'Missing required fields']);
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Missing required fields',
+                'debug' => [
+                    'sender' => !empty($sender),
+                    'title' => !empty($title),
+                    'url' => !empty($url)
+                ]
+            ]);
             exit;
         }
         
@@ -39,7 +47,7 @@ try {
         ];
         
         saveData('campaigns', $campaigns);
-        echo json_encode(['success' => true, 'message' => 'Data stored']);
+        echo json_encode(['success' => true, 'message' => 'Campaign created successfully', 'key' => $key]);
         
     } elseif ($action === 'delete' && $key) {
         // Delete campaign

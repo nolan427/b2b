@@ -609,21 +609,28 @@
             if (!key) return;
 
             // Create campaign
-            const createUrl = getApiUrl(`storage.php?action=set&key=${encodeURIComponent(key)}&sender=${encodeURIComponent(sender)}&title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`);
+            const createUrl = getApiUrl(`storage.php?action=set&key=${encodeURIComponent(key)}`);
+            const formData = new FormData();
+            formData.append('sender', sender);
+            formData.append('title', title);
+            formData.append('url', url);
             
-            fetch(createUrl)
+            fetch(createUrl, {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(`Campaign created!\n\nShare this link:\n${window.location.origin}/#${key}`);
+                        alert(`Campaign created!\n\nShare this link:\n${window.location.origin}${window.location.pathname}#${key}`);
                         loadDashboard();
                     } else {
-                        alert('Error creating campaign: ' + data.error);
+                        alert('Error creating campaign: ' + (data.error || 'Unknown error'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Failed to create campaign');
+                    alert('Failed to create campaign: ' + error.message);
                 });
         }
 
