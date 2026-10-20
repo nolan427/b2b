@@ -1,5 +1,15 @@
 {
   "require": {
     "mongodb/mongodb": "^1.17"
+  },
+  "config": {
+    "platform": {
+      "php": "8.0"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@php -r \"echo 'MongoDB installed successfully';\""
+    ]
   }
 }
