@@ -632,7 +632,7 @@
 
             Object.entries(allCampaigns).forEach(([key, campaignInfo]) => {
                 const campaign = visitsByKey?.[key];
-                const campaignUrl = getCampaignBaseUrl() + '/#' + key;
+                const campaignUrl = getCampaignBaseUrl() + '#' + key;
                 
                 if (campaign) {
                     // Campaign with visits
@@ -849,7 +849,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const campaignUrl = getCampaignBaseUrl() + '/#' + key;
+                        const campaignUrl = getCampaignBaseUrl() + '#' + key;
                         alert(`✅ Campaign created successfully!\n\nShare this link:\n${campaignUrl}`);
                         closeModal();
                         loadDashboard();
