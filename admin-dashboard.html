@@ -297,6 +297,136 @@
                 padding: 8px;
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .modal-actions button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-actions button.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal-actions button.primary:hover {
+            background: #5568d3;
+        }
+
+        .modal-actions button.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .modal-actions button.secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .campaign-link {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-delete {
+            background: #f56565 !important;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background: #e53e3e !important;
+        }
+
+        .campaign-no-visits {
+            color: #718096;
+            font-style: italic;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -377,8 +507,42 @@
         </div>
     </div>
 
+    <!-- Create Campaign Modal -->
+    <div class="modal" id="campaignModal">
+        <div class="modal-content">
+            <div class="modal-header">Create New Campaign</div>
+            <form id="campaignForm" onsubmit="createCampaign(event)">
+                <div class="form-group">
+                    <label for="campaignKey">Campaign Key *</label>
+                    <input type="text" id="campaignKey" required placeholder="e.g., contract2024">
+                    <small>Used in the phishing URL. Only letters, numbers, dash, underscore.</small>
+                </div>
+                <div class="form-group">
+                    <label for="senderName">Sender Name *</label>
+                    <input type="text" id="senderName" required placeholder="e.g., John Smith - ABC Corp">
+                    <small>Name shown as document sender</small>
+                </div>
+                <div class="form-group">
+                    <label for="documentTitle">Document Title *</label>
+                    <input type="text" id="documentTitle" required placeholder="e.g., Q4 Financial Report">
+                    <small>Title shown in the phishing page</small>
+                </div>
+                <div class="form-group">
+                    <label for="redirectUrl">Redirect URL *</label>
+                    <input type="url" id="redirectUrl" required placeholder="https://example.com/document.pdf">
+                    <small>Where victims are redirected after revealing page</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="primary">Create Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let allData = null;
+        let allCampaigns = {};
 
         // Get base path for API calls (works in subdirectories)
         function getApiUrl(endpoint) {
@@ -395,22 +559,29 @@
             document.getElementById('providerSection').style.display = 'none';
 
             try {
-                const response = await fetch(getApiUrl('get-visits.php'));
-                const data = await response.json();
+                // Fetch visits data
+                const visitsResponse = await fetch(getApiUrl('get-visits.php'));
+                const visitsData = await visitsResponse.json();
 
-                if (data.success) {
-                    allData = data;
-                    displayGlobalStats(data);
-                    displayCampaigns(data.visits_by_key);
-                    displayRecentVisits(data.visits_by_key);
-                    displayProviderBreakdown(data.mx_type_breakdown);
+                // Fetch all campaigns
+                const campaignsResponse = await fetch(getApiUrl('storage.php?action=list'));
+                const campaignsData = await campaignsResponse.json();
+
+                if (visitsData.success && campaignsData.success) {
+                    allData = visitsData;
+                    allCampaigns = campaignsData.docs || {};
+                    
+                    displayGlobalStats(visitsData, allCampaigns);
+                    displayCampaigns(visitsData.visits_by_key, allCampaigns);
+                    displayRecentVisits(visitsData.visits_by_key);
+                    displayProviderBreakdown(visitsData.mx_type_breakdown);
 
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('campaignsSection').style.display = 'block';
                     document.getElementById('visitsSection').style.display = 'block';
                     document.getElementById('providerSection').style.display = 'block';
                 } else {
-                    alert('Error loading data: ' + (data.error || 'Unknown error'));
+                    alert('Error loading data: ' + (visitsData.error || campaignsData.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -420,9 +591,9 @@
         }
 
         // Display global statistics
-        function displayGlobalStats(data) {
+        function displayGlobalStats(data, campaigns) {
             document.getElementById('totalVisits').textContent = data.total_visits || 0;
-            document.getElementById('totalCampaigns').textContent = data.total_keys || 0;
+            document.getElementById('totalCampaigns').textContent = Object.keys(campaigns || {}).length;
             
             // Calculate unique visitors across all campaigns
             let allEmails = new Set();
@@ -438,66 +609,93 @@
         }
 
         // Display campaigns
-        function displayCampaigns(visitsByKey) {
+        function displayCampaigns(visitsByKey, allCampaigns) {
             const container = document.getElementById('campaignsList');
             container.innerHTML = '';
 
-            if (!visitsByKey || Object.keys(visitsByKey).length === 0) {
-                container.innerHTML = '<p style="color: #718096;">No campaigns found.</p>';
+            if (!allCampaigns || Object.keys(allCampaigns).length === 0) {
+                container.innerHTML = '<p style="color: #718096;">No campaigns found. Create one to get started!</p>';
                 return;
             }
 
-            Object.entries(visitsByKey).forEach(([key, campaign]) => {
-                const uniqueEmails = new Set(campaign.visits.map(v => v.email)).size;
-                const clickRate = campaign.total_visits > 0 
-                    ? Math.round((uniqueEmails / campaign.total_visits) * 100) 
-                    : 0;
+            Object.entries(allCampaigns).forEach(([key, campaignInfo]) => {
+                const campaign = visitsByKey?.[key];
+                const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                const campaignUrl = baseUrl + '/#' + key;
+                
+                if (campaign) {
+                    // Campaign with visits
+                    const uniqueEmails = new Set(campaign.visits.map(v => v.email)).size;
+                    const clickRate = campaign.total_visits > 0 
+                        ? Math.round((uniqueEmails / campaign.total_visits) * 100) 
+                        : 0;
 
-                // Count by provider
-                const providers = {};
-                campaign.visits.forEach(visit => {
-                    providers[visit.mx_type] = (providers[visit.mx_type] || 0) + 1;
-                });
+                    // Count by provider
+                    const providers = {};
+                    campaign.visits.forEach(visit => {
+                        providers[visit.mx_type] = (providers[visit.mx_type] || 0) + 1;
+                    });
 
-                const html = `
-                    <div class="campaign-item">
-                        <div class="campaign-header">
-                            <div>
-                                <div class="campaign-name">Campaign: ${escapeHtml(key)}</div>
-                                <div class="campaign-meta">
-                                    First visit: ${campaign.visits[0]?.timestamp || 'N/A'}
+                    const html = `
+                        <div class="campaign-item">
+                            <div class="campaign-header">
+                                <div>
+                                    <div class="campaign-name">${escapeHtml(campaignInfo.title)}</div>
+                                    <div class="campaign-meta">
+                                        Sender: ${escapeHtml(campaignInfo.sender)} | First visit: ${campaign.visits[0]?.timestamp || 'N/A'}
+                                    </div>
+                                    <div class="campaign-link">🔗 ${campaignUrl}</div>
+                                </div>
+                                <button class="btn-delete" onclick="deleteCampaign('${escapeHtml(key)}')">Delete</button>
+                            </div>
+                            <div class="campaign-stats">
+                                <div class="mini-stat">
+                                    <div class="mini-stat-value">${campaign.total_visits}</div>
+                                    <div class="mini-stat-label">Total Visits</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="mini-stat-value">${uniqueEmails}</div>
+                                    <div class="mini-stat-label">Unique Visitors</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="mini-stat-value">${clickRate}%</div>
+                                    <div class="mini-stat-label">Click Rate</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="mini-stat-value">${providers.office365 || 0}</div>
+                                    <div class="mini-stat-label">Office365</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="mini-stat-value">${providers.google || 0}</div>
+                                    <div class="mini-stat-label">Google</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="mini-stat-value">${providers.other || 0}</div>
+                                    <div class="mini-stat-label">Other</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="campaign-stats">
-                            <div class="mini-stat">
-                                <div class="mini-stat-value">${campaign.total_visits}</div>
-                                <div class="mini-stat-label">Total Visits</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="mini-stat-value">${uniqueEmails}</div>
-                                <div class="mini-stat-label">Unique Visitors</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="mini-stat-value">${clickRate}%</div>
-                                <div class="mini-stat-label">Click Rate</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="mini-stat-value">${providers.office365 || 0}</div>
-                                <div class="mini-stat-label">Office365</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="mini-stat-value">${providers.google || 0}</div>
-                                <div class="mini-stat-label">Google</div>
-                            </div>
-                            <div class="mini-stat">
-                                <div class="mini-stat-value">${providers.other || 0}</div>
-                                <div class="mini-stat-label">Other</div>
+                    `;
+                    container.innerHTML += html;
+                } else {
+                    // Campaign without visits yet
+                    const html = `
+                        <div class="campaign-item">
+                            <div class="campaign-header">
+                                <div>
+                                    <div class="campaign-name">${escapeHtml(campaignInfo.title)}</div>
+                                    <div class="campaign-meta">
+                                        Sender: ${escapeHtml(campaignInfo.sender)}
+                                    </div>
+                                    <div class="campaign-link">🔗 ${campaignUrl}</div>
+                                    <div class="campaign-no-visits">No visits yet</div>
+                                </div>
+                                <button class="btn-delete" onclick="deleteCampaign('${escapeHtml(key)}')">Delete</button>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += html;
+                    `;
+                    container.innerHTML += html;
+                }
             });
         }
 
@@ -596,17 +794,35 @@
 
         // Show create campaign modal
         function showCreateCampaign() {
-            const sender = prompt('Enter sender name (e.g., "John Smith - ABC Corp"):');
-            if (!sender) return;
+            document.getElementById('campaignModal').classList.add('active');
+            document.getElementById('campaignForm').reset();
+        }
 
-            const title = prompt('Enter document title:');
-            if (!title) return;
+        // Close modal
+        function closeModal() {
+            document.getElementById('campaignModal').classList.remove('active');
+        }
 
-            const url = prompt('Enter redirect URL:');
-            if (!url) return;
+        // Create campaign from form
+        function createCampaign(event) {
+            event.preventDefault();
+            
+            const key = document.getElementById('campaignKey').value.trim();
+            const sender = document.getElementById('senderName').value.trim();
+            const title = document.getElementById('documentTitle').value.trim();
+            const url = document.getElementById('redirectUrl').value.trim();
 
-            const key = prompt('Enter campaign key (e.g., "campaign1"):');
-            if (!key) return;
+            // Validate campaign key format
+            if (!/^[a-zA-Z0-9_-]+$/.test(key)) {
+                alert('Campaign key can only contain letters, numbers, dash, and underscore');
+                return;
+            }
+
+            // Check if key already exists
+            if (allCampaigns[key]) {
+                alert('A campaign with this key already exists. Please choose a different key.');
+                return;
+            }
 
             // Create campaign
             const createUrl = getApiUrl(`storage.php?action=set&key=${encodeURIComponent(key)}`);
@@ -622,7 +838,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(`Campaign created!\n\nShare this link:\n${window.location.origin}${window.location.pathname}#${key}`);
+                        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                        const campaignUrl = baseUrl + '/#' + key;
+                        alert(`✅ Campaign created successfully!\n\nShare this link:\n${campaignUrl}`);
+                        closeModal();
                         loadDashboard();
                     } else {
                         alert('Error creating campaign: ' + (data.error || 'Unknown error'));
@@ -633,6 +852,38 @@
                     alert('Failed to create campaign: ' + error.message);
                 });
         }
+
+        // Delete campaign
+        function deleteCampaign(key) {
+            if (!confirm(`Are you sure you want to delete campaign "${key}"?\n\nThis will remove the campaign configuration but preserve visit data.`)) {
+                return;
+            }
+
+            const deleteUrl = getApiUrl(`storage.php?action=delete&key=${encodeURIComponent(key)}`);
+            
+            fetch(deleteUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Campaign deleted successfully');
+                        loadDashboard();
+                    } else {
+                        alert('Error deleting campaign: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete campaign: ' + error.message);
+                });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('campaignModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
 
         // Helper functions
         function formatTimestamp(timestamp) {
