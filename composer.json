@@ -1,15 +1,12 @@
 {
   "require": {
-    "mongodb/mongodb": "^1.17"
+    "mongodb/mongodb": "^1.17",
+    "ext-mongodb": "*"
   },
   "config": {
     "platform": {
       "php": "8.0"
-    }
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "@php -r \"echo 'MongoDB installed successfully';\""
-    ]
+    },
+    "optimize-autoloader": true
   }
 }

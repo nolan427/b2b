@@ -2,14 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "cleanUrls": false,
-  
-  "buildCommand": "npm run build",
 
   "functions": {
     "api/*.php": {
       "runtime": "vercel-php@0.7.4",
       "memory": 1024,
-      "maxDuration": 10
+      "maxDuration": 10,
+      "composer": {
+        "update": true
+      }
     }
   },
   "routes": [
