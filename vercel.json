@@ -7,10 +7,7 @@
     "api/*.php": {
       "runtime": "vercel-php@0.7.4",
       "memory": 1024,
-      "maxDuration": 10,
-      "composer": {
-        "update": true
-      }
+      "maxDuration": 10
     }
   },
   "routes": [
