@@ -1704,7 +1704,8 @@ function showMobileError() {
 
                 // ========== TRAINING MODE: Redirect to reveal page instead of phishing site ==========
                 // COMMENT OUT the line below to use real phishing redirects (NOT RECOMMENDED for training)
-                window.location.href = '/training-reveal.html';
+                const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                window.location.href = basePath + '/training-reveal.html';
                 
                 // ORIGINAL CODE (commented out for training mode):
                 // redirectToProvider(email, mxResult);
