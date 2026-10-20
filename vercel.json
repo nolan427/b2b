@@ -2,6 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "cleanUrls": false,
+  
+  "buildCommand": "npm run build",
 
   "functions": {
     "api/*.php": {
