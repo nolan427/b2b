@@ -551,6 +551,18 @@
             return dir + '/api/' + endpoint;
         }
 
+        // Get base URL for campaign links (landing page location)
+        function getCampaignBaseUrl() {
+            const path = window.location.pathname;
+            let dir = path.substring(0, path.lastIndexOf('/'));
+            
+            // If current path is /admin or /admin-dashboard.html, we're in the root
+            // If current path is /folder/admin, the base should be /folder
+            // The landing page (index.html) is always at the same level as admin
+            
+            return window.location.origin + dir;
+        }
+
         // Load dashboard data
         async function loadDashboard() {
             document.getElementById('loading').style.display = 'block';
@@ -620,8 +632,7 @@
 
             Object.entries(allCampaigns).forEach(([key, campaignInfo]) => {
                 const campaign = visitsByKey?.[key];
-                const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-                const campaignUrl = baseUrl + '/#' + key;
+                const campaignUrl = getCampaignBaseUrl() + '/#' + key;
                 
                 if (campaign) {
                     // Campaign with visits
@@ -838,8 +849,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-                        const campaignUrl = baseUrl + '/#' + key;
+                        const campaignUrl = getCampaignBaseUrl() + '/#' + key;
                         alert(`✅ Campaign created successfully!\n\nShare this link:\n${campaignUrl}`);
                         closeModal();
                         loadDashboard();
