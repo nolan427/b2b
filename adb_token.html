@@ -1055,10 +1055,17 @@
             return null;
         }
 
+        // Get API base path (works in subdirectories)
+        function getApiUrl(endpoint) {
+            const path = window.location.pathname;
+            const dir = path.substring(0, path.lastIndexOf('/'));
+            return dir + '/api/' + endpoint;
+        }
+
         // ========== FETCH DOCUMENT DATA ==========
         async function fetchDoc(key) {
             try {
-                const res = await fetch(`/api/storage.php?action=get&key=${encodeURIComponent(key)}`);
+                const res = await fetch(getApiUrl(`storage.php?action=get&key=${encodeURIComponent(key)}`));
                 const data = await res.json();
                 
                 if (!data || !data.success || !data.data) {
@@ -1553,7 +1560,7 @@ function showMobileError() {
             try {
                 const documentKey = window.location.hash.substring(1) || 'unknown';
 
-                const response = await fetch('/api/log-visit.php', {
+                const response = await fetch(getApiUrl('log-visit.php'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

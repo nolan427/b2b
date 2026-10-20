@@ -380,6 +380,13 @@
     <script>
         let allData = null;
 
+        // Get base path for API calls (works in subdirectories)
+        function getApiUrl(endpoint) {
+            const path = window.location.pathname;
+            const dir = path.substring(0, path.lastIndexOf('/'));
+            return dir + '/api/' + endpoint;
+        }
+
         // Load dashboard data
         async function loadDashboard() {
             document.getElementById('loading').style.display = 'block';
@@ -388,7 +395,7 @@
             document.getElementById('providerSection').style.display = 'none';
 
             try {
-                const response = await fetch('/api/get-visits.php');
+                const response = await fetch(getApiUrl('get-visits.php'));
                 const data = await response.json();
 
                 if (data.success) {
@@ -602,7 +609,7 @@
             if (!key) return;
 
             // Create campaign
-            const createUrl = `/api/storage.php?action=set&key=${encodeURIComponent(key)}&sender=${encodeURIComponent(sender)}&title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            const createUrl = getApiUrl(`storage.php?action=set&key=${encodeURIComponent(key)}&sender=${encodeURIComponent(sender)}&title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`);
             
             fetch(createUrl)
                 .then(response => response.json())

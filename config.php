@@ -8,8 +8,26 @@
 define('APP_NAME', 'Adobe Document Cloud');
 define('TIMEZONE', 'America/New_York');
 
-// Data directory (must be writable)
+// Data directory (must be writable) - works in any subdirectory
 define('DATA_DIR', __DIR__ . '/data');
+
+// Base URL detection - auto-detects subdirectory
+function getBaseUrl() {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $script = $_SERVER['SCRIPT_NAME'];
+    $base = dirname($script);
+    return $protocol . '://' . $host . $base;
+}
+
+function getBasePath() {
+    $script = $_SERVER['SCRIPT_NAME'];
+    $base = dirname($script);
+    return ($base === '/' || $base === '\\') ? '' : $base;
+}
+
+define('BASE_URL', getBaseUrl());
+define('BASE_PATH', getBasePath());
 
 // Set timezone
 date_default_timezone_set(TIMEZONE);

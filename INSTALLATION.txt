@@ -1,0 +1,135 @@
+==========================================
+INSTALLATION INSTRUCTIONS
+==========================================
+
+📦 You're viewing the deployment package!
+
+This ZIP contains everything you need to run
+the B2B Phishing Simulator on cPanel hosting.
+
+==========================================
+QUICK INSTALL (5 MINUTES)
+==========================================
+
+1. LOG INTO CPANEL
+   - Go to your hosting control panel
+   - Open File Manager
+
+2. UPLOAD THIS ZIP
+   - Navigate to public_html
+   - Click "Upload"
+   - Select this ZIP file
+   - Wait for upload to complete
+
+3. EXTRACT FILES
+   - Right-click the ZIP file
+   - Select "Extract"
+   - Extract to public_html
+   - Delete the ZIP file after extraction
+
+4. RUN SETUP
+   - Open browser
+   - Visit: https://yourdomain.com/setup.php
+   - Click "Initialize Data Storage"
+   - Wait for success message
+
+5. SECURE YOUR INSTALL
+   - Delete setup.php (for security)
+   - Done!
+
+==========================================
+TEST YOUR INSTALLATION
+==========================================
+
+Visit these URLs:
+
+Admin Dashboard:
+https://yourdomain.com/admin
+
+Create Test Campaign:
+https://yourdomain.com/api/storage.php?action=set&key=test&sender=Test&title=Test&url=https://yourdomain.com/training
+
+Test Campaign Page:
+https://yourdomain.com/adb_token.html#test
+
+==========================================
+WHAT'S INCLUDED
+==========================================
+
+✅ All HTML pages (phishing pages, admin dashboard)
+✅ All PHP API files (storage, logging, analytics)
+✅ Configuration file (config.php)
+✅ Setup script (setup.php)
+✅ URL routing (.htaccess)
+✅ Documentation files
+
+==========================================
+REQUIREMENTS
+==========================================
+
+- cPanel shared hosting
+- PHP 7.4 or higher
+- File write permissions (standard)
+
+NO database needed!
+NO special extensions needed!
+
+==========================================
+TROUBLESHOOTING
+==========================================
+
+If setup.php shows errors:
+
+1. Check PHP version (must be 7.4+)
+   - cPanel → Select PHP Version
+
+2. Check file permissions
+   - Folders: 755
+   - Files: 644
+
+3. Make sure data/ directory is writable
+   - Right-click → Change Permissions → 755
+
+==========================================
+FULL DOCUMENTATION
+==========================================
+
+See included files:
+
+📖 CPANEL-DEPLOYMENT.md
+   Complete deployment guide
+
+📖 EMAIL-TEMPLATES.md
+   8 ready-to-use phishing scenarios
+
+📖 START-HERE.txt
+   Quick reference
+
+==========================================
+SUPPORT
+==========================================
+
+Check the documentation files for:
+- Detailed setup instructions
+- Campaign creation
+- Email templates
+- Troubleshooting
+- Security hardening
+
+==========================================
+AFTER INSTALLATION
+==========================================
+
+1. Read CPANEL-DEPLOYMENT.md
+2. Create your first campaign
+3. Review EMAIL-TEMPLATES.md
+4. Test with small group
+5. Launch your training program!
+
+==========================================
+COST: $3-10/month (cPanel hosting)
+TIME: 5 minutes to deploy
+DIFFICULTY: Super Easy! 🚀
+==========================================
+
+Questions? Check the .md documentation files!
