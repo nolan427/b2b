@@ -39,8 +39,9 @@ $dataExists = file_exists($dataDir);
 $isWritable = $dataExists && is_writable($dataDir);
 $campaignsExist = file_exists($dataDir . '/campaigns.json');
 $visitsExist = file_exists($dataDir . '/visits.json');
+$settingsExist = file_exists($dataDir . '/settings.json');
 
-if ($campaignsExist && $visitsExist && $isWritable) {
+if ($campaignsExist && $visitsExist && $settingsExist && $isWritable) {
     $setupComplete = true;
 }
 ?>
@@ -233,6 +234,12 @@ if ($campaignsExist && $visitsExist && $isWritable) {
                 <span class="status-icon"><?php echo $visitsExist ? '✅' : '❌'; ?></span>
                 <span class="status-label">Visits File</span>
                 <span class="status-value"><?php echo $visitsExist ? 'Ready' : 'Not Created'; ?></span>
+            </div>
+
+            <div class="status-item <?php echo $settingsExist ? 'success' : 'error'; ?>">
+                <span class="status-icon"><?php echo $settingsExist ? '✅' : '❌'; ?></span>
+                <span class="status-label">Settings File</span>
+                <span class="status-value"><?php echo $settingsExist ? 'Ready' : 'Not Created'; ?></span>
             </div>
         </div>
 

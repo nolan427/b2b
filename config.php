@@ -42,7 +42,8 @@ ini_set('log_errors', 1);
 function getDataFile($type) {
     $files = [
         'campaigns' => DATA_DIR . '/campaigns.json',
-        'visits' => DATA_DIR . '/visits.json'
+        'visits' => DATA_DIR . '/visits.json',
+        'settings' => DATA_DIR . '/settings.json'
     ];
     
     if (!isset($files[$type])) {
@@ -133,6 +134,7 @@ function initializeData() {
     // Initialize files
     loadData('campaigns');
     loadData('visits');
+    loadData('settings'); // Initialize settings file
     
     return true;
 }
