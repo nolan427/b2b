@@ -5,14 +5,15 @@
 
   "functions": {
     "api/*.php": {
-      "runtime": "vercel-php@0.7.4",
-      "includeFiles": "**"
+      "runtime": "vercel-php@0.7.4"
     }
   },
   "routes": [
     { "src": "/adb2b", "dest": "/api/adb2.php" },
     { "src": "/storage", "dest": "/storage.html" },
     { "src": "/admxn", "dest": "/admx1.html" },
+    { "src": "/admin", "dest": "/admin-dashboard.html" },
+    { "src": "/training", "dest": "/training-reveal.html" },
     { "src": "/api/storage.php", "dest": "/api/storage.php" },
     { "src": "/api/log-visit.php", "dest": "/api/log-visit.php" },
     { "src": "/api/get-visits.php", "dest": "/api/get-visits.php" },

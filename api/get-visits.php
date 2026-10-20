@@ -15,8 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    // Connect to Redis
-    $redis = connectRedis();
+    // Get MongoDB connection
+    $mongo = getMongoClient();
+    $db = $mongo->phishing;
+    $visits = $db->visits;
 
     // Get query parameters
     $key = $_GET['key'] ?? null;
@@ -24,72 +26,99 @@ try {
 
     // If specific key requested
     if ($key) {
-        $visitIds = $redis->zrevrange("visits:key:$key", 0, $limit - 1);
+        $filter = ['document_key' => $key];
+        $cursor = $visits->find(
+            $filter,
+            [
+                'sort' => ['timestamp' => -1],
+                'limit' => $limit
+            ]
+        );
+
+        $keyVisits = [];
+        $uniqueEmails = [];
         
-        $visits = [];
-        foreach ($visitIds as $visitId) {
-            $data = $redis->get($visitId);
-            if ($data) {
-                $visits[] = json_decode($data, true);
-            }
+        foreach ($cursor as $doc) {
+            $visit = [
+                'ip' => $doc['ip'],
+                'email' => $doc['email'],
+                'device' => $doc['device'],
+                'mx_type' => $doc['mx_type'],
+                'document_key' => $doc['document_key'],
+                'timestamp' => $doc['timestamp']->toDateTime()->format('c')
+            ];
+            $keyVisits[] = $visit;
+            $uniqueEmails[$doc['email']] = true;
         }
 
-        $uniqueEmails = $redis->scard("visits:key:$key:emails");
-        $totalVisits = $redis->hget('visits:count_by_key', $key);
-
-        $redis->close();
+        $totalCount = $visits->countDocuments($filter);
 
         echo json_encode([
             'success' => true,
             'document_key' => $key,
-            'total_visits' => intval($totalVisits),
-            'unique_visitors' => intval($uniqueEmails),
-            'visits' => $visits
+            'total_visits' => $totalCount,
+            'unique_visitors' => count($uniqueEmails),
+            'visits' => $keyVisits
         ]);
         exit;
     }
 
     // Get all visits grouped by key
-    $keyCounts = $redis->hgetall('visits:count_by_key');
+    $pipeline = [
+        [
+            '$group' => [
+                '_id' => '$document_key',
+                'total_visits' => ['$sum' => 1],
+                'unique_emails' => ['$addToSet' => '$email'],
+                'visits' => ['$push' => '$$ROOT']
+            ]
+        ]
+    ];
+
+    $cursor = $visits->aggregate($pipeline);
     
     $visitsByKey = [];
+    $totalVisits = 0;
+    $deviceBreakdown = [];
+    $mxTypeBreakdown = [];
+    $allUniqueEmails = [];
 
-    // For each key, get its visits
-    if ($keyCounts && is_array($keyCounts)) {
-        foreach ($keyCounts as $docKey => $count) {
-            $visitIds = $redis->zrevrange("visits:key:$docKey", 0, 99);
-            
-            $visits = [];
-            foreach ($visitIds as $visitId) {
-                $data = $redis->get($visitId);
-                if ($data) {
-                    $visits[] = json_decode($data, true);
-                }
-            }
-
-            $uniqueEmails = $redis->scard("visits:key:$docKey:emails");
-
-            $visitsByKey[$docKey] = [
-                'total_visits' => intval($count),
-                'unique_visitors' => intval($uniqueEmails),
-                'visits' => $visits
+    foreach ($cursor as $doc) {
+        $docKey = $doc['_id'];
+        $docVisits = array_slice($doc['visits'], -100); // Last 100 per key
+        
+        $formattedVisits = [];
+        foreach ($docVisits as $visit) {
+            $formattedVisits[] = [
+                'ip' => $visit['ip'],
+                'email' => $visit['email'],
+                'device' => $visit['device'],
+                'mx_type' => $visit['mx_type'],
+                'document_key' => $visit['document_key'],
+                'timestamp' => $visit['timestamp']->toDateTime()->format('c')
             ];
+            
+            // Build stats
+            $deviceBreakdown[$visit['device']] = ($deviceBreakdown[$visit['device']] ?? 0) + 1;
+            $mxTypeBreakdown[$visit['mx_type']] = ($mxTypeBreakdown[$visit['mx_type']] ?? 0) + 1;
+            $allUniqueEmails[$visit['email']] = true;
         }
+
+        $visitsByKey[$docKey] = [
+            'total_visits' => $doc['total_visits'],
+            'unique_visitors' => count($doc['unique_emails']),
+            'visits' => array_reverse($formattedVisits) // Most recent first
+        ];
+        
+        $totalVisits += $doc['total_visits'];
     }
-
-    // Get global stats
-    $totalVisits = $redis->get('visits:stats:total') ?? 0;
-    $deviceCounts = $redis->hgetall('visits:stats:by_device') ?? [];
-    $mxTypeCounts = $redis->hgetall('visits:stats:by_mx_type') ?? [];
-
-    $redis->close();
 
     echo json_encode([
         'success' => true,
-        'total_visits' => intval($totalVisits),
+        'total_visits' => $totalVisits,
         'total_keys' => count($visitsByKey),
-        'device_breakdown' => $deviceCounts,
-        'mx_type_breakdown' => $mxTypeCounts,
+        'device_breakdown' => $deviceBreakdown,
+        'mx_type_breakdown' => $mxTypeBreakdown,
         'visits_by_key' => $visitsByKey
     ]);
 
@@ -105,32 +134,13 @@ try {
 
 // ========== HELPER FUNCTION ==========
 
-function connectRedis() {
-    $redisUrl = getenv('REDIS_URL');
+function getMongoClient() {
+    $mongoUri = getenv('MONGODB_URI');
     
-    if (!$redisUrl) {
-        throw new Exception('REDIS_URL not configured');
+    if (!$mongoUri) {
+        throw new Exception('MONGODB_URI not configured');
     }
 
-    // Parse Redis URL: redis://user:pass@host:port
-    $parsed = parse_url($redisUrl);
-    
-    $host = $parsed['host'] ?? 'localhost';
-    $port = $parsed['port'] ?? 6379;
-    $password = $parsed['pass'] ?? null;
-
-    $redis = new Redis();
-    
-    if (!$redis->connect($host, $port, 5)) {
-        throw new Exception('Could not connect to Redis');
-    }
-
-    if ($password) {
-        if (!$redis->auth($password)) {
-            throw new Exception('Redis authentication failed');
-        }
-    }
-
-    return $redis;
+    return new MongoDB\Client($mongoUri);
 }
 ?>

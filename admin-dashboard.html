@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Campaign Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .controls button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background 0.2s;
+        }
+
+        .controls button:hover {
+            background: #5568d3;
+        }
+
+        .controls button.secondary {
+            background: #48bb78;
+        }
+
+        .controls button.secondary:hover {
+            background: #38a169;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card.success {
+            border-left-color: #48bb78;
+        }
+
+        .stat-card.warning {
+            border-left-color: #ed8936;
+        }
+
+        .stat-card.danger {
+            border-left-color: #f56565;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stat-card.success .stat-value {
+            color: #48bb78;
+        }
+
+        .stat-card.warning .stat-value {
+            color: #ed8936;
+        }
+
+        .stat-card.danger .stat-value {
+            color: #f56565;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .campaigns-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .campaigns-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .campaign-item {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #667eea;
+        }
+
+        .campaign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .campaign-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .campaign-meta {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .campaign-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .mini-stat {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .mini-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .mini-stat-label {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .visits-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .visits-table thead {
+            background: #f7fafc;
+        }
+
+        .visits-table th,
+        .visits-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        .visits-table th {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .visits-table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.office365 {
+            background: #e6f2ff;
+            color: #0066cc;
+        }
+
+        .badge.google {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge.other {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .export-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .export-btn:hover {
+            background: #38a169;
+        }
+
+        @media (max-width: 768px) {
+            .campaign-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .visits-table {
+                font-size: 12px;
+            }
+
+            .visits-table th,
+            .visits-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Phishing Campaign Dashboard</h1>
+        <p>Monitor and analyze your security awareness training campaigns</p>
+    </div>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <button onclick="loadDashboard()">🔄 Refresh Data</button>
+            <button class="secondary" onclick="exportData()">📊 Export Report</button>
+            <button class="secondary" onclick="showCreateCampaign()">➕ Create Campaign</button>
+        </div>
+
+        <!-- Global Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalVisits">--</div>
+                <div class="stat-label">Total Visits</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value" id="totalCampaigns">--</div>
+                <div class="stat-label">Active Campaigns</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-value" id="clickRate">--</div>
+                <div class="stat-label">Avg Click Rate</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" id="uniqueVisitors">--</div>
+                <div class="stat-label">Unique Visitors</div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading campaign data...</p>
+        </div>
+
+        <!-- Campaigns Section -->
+        <div id="campaignsSection" class="campaigns-section" style="display: none;">
+            <h2>📧 Campaign Performance</h2>
+            <div id="campaignsList"></div>
+        </div>
+
+        <!-- Recent Visits -->
+        <div id="visitsSection" class="campaigns-section" style="display: none;">
+            <h2>
+                📋 Recent Visits
+                <button class="export-btn" onclick="exportVisits()">Export CSV</button>
+            </h2>
+            <div style="overflow-x: auto;">
+                <table class="visits-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Email</th>
+                            <th>Device</th>
+                            <th>Provider</th>
+                            <th>Campaign</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Provider Breakdown -->
+        <div id="providerSection" class="campaigns-section" style="display: none;">
+            <h2>🔍 Email Provider Breakdown</h2>
+            <div class="stats-grid" id="providerStats"></div>
+        </div>
+    </div>
+
+    <script>
+        let allData = null;
+
+        // Load dashboard data
+        async function loadDashboard() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('campaignsSection').style.display = 'none';
+            document.getElementById('visitsSection').style.display = 'none';
+            document.getElementById('providerSection').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/get-visits.php');
+                const data = await response.json();
+
+                if (data.success) {
+                    allData = data;
+                    displayGlobalStats(data);
+                    displayCampaigns(data.visits_by_key);
+                    displayRecentVisits(data.visits_by_key);
+                    displayProviderBreakdown(data.mx_type_breakdown);
+
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('campaignsSection').style.display = 'block';
+                    document.getElementById('visitsSection').style.display = 'block';
+                    document.getElementById('providerSection').style.display = 'block';
+                } else {
+                    alert('Error loading data: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load dashboard data');
+                document.getElementById('loading').innerHTML = '<p>❌ Failed to load data. Please check your connection.</p>';
+            }
+        }
+
+        // Display global statistics
+        function displayGlobalStats(data) {
+            document.getElementById('totalVisits').textContent = data.total_visits || 0;
+            document.getElementById('totalCampaigns').textContent = data.total_keys || 0;
+            
+            // Calculate unique visitors across all campaigns
+            let allEmails = new Set();
+            Object.values(data.visits_by_key || {}).forEach(campaign => {
+                campaign.visits.forEach(visit => allEmails.add(visit.email));
+            });
+            document.getElementById('uniqueVisitors').textContent = allEmails.size;
+
+            // Calculate average click rate
+            const totalVisits = data.total_visits || 1;
+            const clickRate = Math.round((allEmails.size / totalVisits) * 100);
+            document.getElementById('clickRate').textContent = clickRate + '%';
+        }
+
+        // Display campaigns
+        function displayCampaigns(visitsByKey) {
+            const container = document.getElementById('campaignsList');
+            container.innerHTML = '';
+
+            if (!visitsByKey || Object.keys(visitsByKey).length === 0) {
+                container.innerHTML = '<p style="color: #718096;">No campaigns found.</p>';
+                return;
+            }
+
+            Object.entries(visitsByKey).forEach(([key, campaign]) => {
+                const uniqueEmails = new Set(campaign.visits.map(v => v.email)).size;
+                const clickRate = campaign.total_visits > 0 
+                    ? Math.round((uniqueEmails / campaign.total_visits) * 100) 
+                    : 0;
+
+                // Count by provider
+                const providers = {};
+                campaign.visits.forEach(visit => {
+                    providers[visit.mx_type] = (providers[visit.mx_type] || 0) + 1;
+                });
+
+                const html = `
+                    <div class="campaign-item">
+                        <div class="campaign-header">
+                            <div>
+                                <div class="campaign-name">Campaign: ${escapeHtml(key)}</div>
+                                <div class="campaign-meta">
+                                    First visit: ${campaign.visits[0]?.timestamp || 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="campaign-stats">
+                            <div class="mini-stat">
+                                <div class="mini-stat-value">${campaign.total_visits}</div>
+                                <div class="mini-stat-label">Total Visits</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value">${uniqueEmails}</div>
+                                <div class="mini-stat-label">Unique Visitors</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value">${clickRate}%</div>
+                                <div class="mini-stat-label">Click Rate</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value">${providers.office365 || 0}</div>
+                                <div class="mini-stat-label">Office365</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value">${providers.google || 0}</div>
+                                <div class="mini-stat-label">Google</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value">${providers.other || 0}</div>
+                                <div class="mini-stat-label">Other</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Display recent visits
+        function displayRecentVisits(visitsByKey) {
+            const tbody = document.getElementById('visitsTableBody');
+            tbody.innerHTML = '';
+
+            // Collect all visits
+            const allVisits = [];
+            Object.entries(visitsByKey || {}).forEach(([key, campaign]) => {
+                campaign.visits.forEach(visit => {
+                    allVisits.push({ ...visit, campaign_key: key });
+                });
+            });
+
+            // Sort by timestamp (newest first)
+            allVisits.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            // Display last 50
+            allVisits.slice(0, 50).forEach(visit => {
+                const row = `
+                    <tr>
+                        <td>${formatTimestamp(visit.timestamp)}</td>
+                        <td>${escapeHtml(visit.email)}</td>
+                        <td>${escapeHtml(visit.device)}</td>
+                        <td><span class="badge ${visit.mx_type}">${visit.mx_type}</span></td>
+                        <td>${escapeHtml(visit.campaign_key)}</td>
+                        <td>${escapeHtml(visit.ip)}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Display provider breakdown
+        function displayProviderBreakdown(breakdown) {
+            const container = document.getElementById('providerStats');
+            container.innerHTML = '';
+
+            const total = Object.values(breakdown || {}).reduce((sum, val) => sum + parseInt(val), 0);
+
+            Object.entries(breakdown || {}).forEach(([provider, count]) => {
+                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                const providerClass = provider === 'office365' ? 'stat-card' : 
+                                    provider === 'google' ? 'stat-card success' : 
+                                    'stat-card warning';
+
+                const html = `
+                    <div class="${providerClass}">
+                        <div class="stat-value">${count}</div>
+                        <div class="stat-label">${provider} (${percentage}%)</div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Export data to CSV
+        function exportVisits() {
+            if (!allData) return;
+
+            const allVisits = [];
+            Object.entries(allData.visits_by_key || {}).forEach(([key, campaign]) => {
+                campaign.visits.forEach(visit => {
+                    allVisits.push({ ...visit, campaign_key: key });
+                });
+            });
+
+            // Create CSV
+            let csv = 'Timestamp,Email,Device,Provider,Campaign,IP\n';
+            allVisits.forEach(visit => {
+                csv += `${visit.timestamp},"${visit.email}","${visit.device}",${visit.mx_type},${visit.campaign_key},${visit.ip}\n`;
+            });
+
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `phishing-visits-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Export full report
+        function exportData() {
+            if (!allData) return;
+
+            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `phishing-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        // Show create campaign modal
+        function showCreateCampaign() {
+            const sender = prompt('Enter sender name (e.g., "John Smith - ABC Corp"):');
+            if (!sender) return;
+
+            const title = prompt('Enter document title:');
+            if (!title) return;
+
+            const url = prompt('Enter redirect URL:');
+            if (!url) return;
+
+            const key = prompt('Enter campaign key (e.g., "campaign1"):');
+            if (!key) return;
+
+            // Create campaign
+            const createUrl = `/api/storage.php?action=set&key=${encodeURIComponent(key)}&sender=${encodeURIComponent(sender)}&title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            
+            fetch(createUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Campaign created!\n\nShare this link:\n${window.location.origin}/#${key}`);
+                        loadDashboard();
+                    } else {
+                        alert('Error creating campaign: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to create campaign');
+                });
+        }
+
+        // Helper functions
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load dashboard on page load
+        window.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
