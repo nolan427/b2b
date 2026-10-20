@@ -1,7 +1,0 @@
-{
-  "name": "b2b-phishing-simulator",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "rm -f composer.lock && composer update --no-dev --optimize-autoloader && composer require mongodb/mongodb"
-  }
-}
