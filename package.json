@@ -1,0 +1,7 @@
+{
+  "name": "b2b-phishing-simulator",
+  "version": "1.0.0",
+  "scripts": {
+    "vercel-build": "echo 'Removing cached composer.lock' && rm -f composer.lock && echo 'Ready for PHP build'"
+  }
+}
