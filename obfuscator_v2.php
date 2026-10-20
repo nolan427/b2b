@@ -162,10 +162,28 @@ class AdvancedObfuscator {
     }
     
     /**
-     * Obfuscate inline text content
+     * Obfuscate inline text content (skip script/style tags)
      */
     public function obfuscateTextNodes($html) {
-        // Obfuscate text between tags (but not in script/style tags)
+        // First, protect script and style content
+        $protected = [];
+        $placeholder = '___PROTECTED_%d___';
+        
+        // Extract and protect <script> tags
+        $html = preg_replace_callback('/<script[^>]*>.*?<\/script>/is', function($match) use (&$protected, $placeholder) {
+            $id = count($protected);
+            $protected[$id] = $match[0];
+            return sprintf($placeholder, $id);
+        }, $html);
+        
+        // Extract and protect <style> tags
+        $html = preg_replace_callback('/<style[^>]*>.*?<\/style>/is', function($match) use (&$protected, $placeholder) {
+            $id = count($protected);
+            $protected[$id] = $match[0];
+            return sprintf($placeholder, $id);
+        }, $html);
+        
+        // Now obfuscate remaining text
         $html = preg_replace_callback(
             '/>(([^<>]+))</s',
             function($match) {
@@ -178,6 +196,11 @@ class AdvancedObfuscator {
             },
             $html
         );
+        
+        // Restore protected content
+        foreach ($protected as $id => $content) {
+            $html = str_replace(sprintf($placeholder, $id), $content, $html);
+        }
         
         return $html;
     }
